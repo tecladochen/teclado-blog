@@ -1,12 +1,13 @@
 {
-  "name": "astro-theme-typography",
+  "name": "teclado-blog",
   "type": "module",
   "version": "0.1.0",
+  "private": true,
   "packageManager": "pnpm@10.13.1",
-  "description": "A typography theme for Astro, inspired by the design of the original Typography theme.",
-  "author": "Moeyua <mail@moeyua.com> (https://github.com/moeyua/)",
+  "description": "孤独终洁 - Teclado 的个人博客",
+  "author": "Teclado <tecladochen@qq.com> (https://github.com/tecladochen)",
   "license": "MIT",
-  "repository": "https://github.com/moeyua/astro-theme-typography",
+  "repository": "https://github.com/tecladochen/teclado-blog",
   "scripts": {
     "dev": "astro check && astro dev",
     "build": "astro check && astro build",
@@ -14,7 +15,6 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "typecheck": "tsc --noEmit",
-    "theme:release": "tsx scripts/release-theme.ts",
     "theme:create": "tsx scripts/create-post.ts",
     "theme:update": "tsx scripts/update-theme.ts"
   },
