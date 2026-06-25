@@ -1,4 +1,3 @@
-import type { Link, Meta } from 'astro-seo'
 import type {
   AvailableLanguage,
   BooleanString,
@@ -36,6 +35,7 @@ export interface ConfigSite {
   socialLinks: { name: string, href: string }[]
   navLinks: { name: string, href: string }[]
   categoryMap: { name: string, path: string }[]
+  seriesMap: { name: string, path: string, description?: string }[]
   footer: string[]
 }
 
@@ -49,8 +49,8 @@ export interface ConfigAppearance {
 
 export interface ConfigSEO {
   twitter: string
-  meta: Partial<Meta>[]
-  link: Partial<Link>[]
+  meta: Partial<SeoMeta>[]
+  link: Partial<SeoLink>[]
 }
 
 export interface ConfigComment {
@@ -78,6 +78,22 @@ export interface ConfigLaTeX {
 interface Colors {
   primary: string
   background: string
+}
+
+interface SeoLink {
+  rel: string
+  href: string
+  type?: string
+  title?: string
+  prefetch?: boolean
+  crossorigin?: string
+  sizes?: string
+}
+
+interface SeoMeta {
+  name?: string
+  property?: string
+  content?: string
 }
 
 interface Fonts {

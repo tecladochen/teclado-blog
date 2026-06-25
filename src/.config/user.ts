@@ -14,6 +14,13 @@ export const userConfig: Partial<UserConfig> = {
       { name: 'bilibili', href: 'https://space.bilibili.com/297265384' },
       { name: 'github', href: 'https://github.com/tecladochen' },
     ],
+    navLinks: [
+      { name: 'Posts', href: '/' },
+      { name: 'Archive', href: '/archive' },
+      { name: 'Categories', href: '/categories' },
+      { name: 'Series', href: '/series' },
+      { name: 'About', href: '/about' },
+    ],
     footer: [
       '© %year <a target="_blank" href="%website">%author</a>',
       '<a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener">浙ICP备2023044092号-3 </a>',
@@ -26,6 +33,18 @@ export const userConfig: Partial<UserConfig> = {
       { name: '编程', path: 'programming' },
       { name: '工程实践', path: 'engineering' },
       { name: '创业', path: 'startup' },
+    ],
+    seriesMap: [
+      {
+        name: '向量检索与 RAG 基础',
+        path: 'vector-search-rag',
+        description: '从 embedding 到向量数据库，整理构建 RAG 系统前需要理解的基础设施。',
+      },
+      {
+        name: 'Python 工具链',
+        path: 'python-toolchain',
+        description: '记录 Python 环境、包管理和工程工具的使用与原理。',
+      },
     ],
   },
   latex: {

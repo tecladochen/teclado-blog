@@ -12,6 +12,10 @@ const posts = defineCollection({
       draft: z.boolean().default(false).optional(),
       description: z.string().optional(),
       customData: z.string().optional(),
+      series: z.optional(z.object({
+        name: z.string(),
+        order: z.number().optional(),
+      })),
       banner: image()
         .refine(img => Math.max(img.width, img.height) <= 4096, { message: 'Width and height of the banner must less than 4096 pixels' })
         .optional(),

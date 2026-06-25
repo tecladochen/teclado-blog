@@ -16,31 +16,118 @@ export async function getStaticPaths() {
 }
 
 const { posts, name } = Astro.props
+const { translate: t } = Astro.locals
 
 function getListItems(posts: Post[]) {
   const result = posts.map((post) => ({
     title: post.data.title,
     href: `/posts/${post.id}/`,
     date: formatDate(post.data.pubDate),
+    datetime: post.data.pubDate.toISOString(),
   }))
   return result
 }
 ---
 
 <LayoutDefault>
-  <section>
-    <h2 class="post-title"># {name}</h2>
-    <ul class="pl-6 py-3" flex="~ col gap-4">
+  <section class="category-detail-page">
+    <header class="category-detail-header">
+      <h2 class="post-title"># {name}</h2>
+      <p>{t('categories_count', posts.length)}</p>
+    </header>
+
+    <ol class="category-post-list">
       {
-        getListItems(posts).map(({ title, href, date }) => (
-          <li>
-            <h3 class="post-title">
+        getListItems(posts).map(({ title, href, date, datetime }) => (
+          <li class="category-post-item">
+            <time datetime={datetime}>{date}</time>
+            <span class="category-post-title">
               <a href={href}>{title}</a>
-            </h3>
-            <time>{date}</time>
+            </span>
           </li>
         ))
       }
-    </ul>
+    </ol>
   </section>
 </LayoutDefault>
+
+<style>
+  .category-detail-page {
+    display: flex;
+    flex-direction: column;
+    gap: 1.75rem;
+  }
+
+  .category-detail-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--uno-colors-shadow);
+  }
+
+  .category-detail-header p {
+    margin: 0;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    white-space: nowrap;
+    opacity: 0.72;
+  }
+
+  .category-post-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .category-post-item {
+    display: grid;
+    grid-template-columns: 5.5rem minmax(0, 1fr);
+    column-gap: 1rem;
+    align-items: start;
+    min-width: 0;
+  }
+
+  .category-post-item time {
+    padding-top: 0.1rem;
+    font-size: 0.82rem;
+    line-height: 1.6;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    opacity: 0.68;
+  }
+
+  .category-post-title {
+    min-width: 0;
+    font-size: 1.08rem;
+    line-height: 1.65;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+  }
+
+  @media (max-width: 520px) {
+    .category-detail-page {
+      gap: 1.4rem;
+    }
+
+    .category-detail-header {
+      align-items: flex-start;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .category-post-item {
+      grid-template-columns: 4.9rem minmax(0, 1fr);
+      column-gap: 0.75rem;
+    }
+
+    .category-post-title {
+      font-size: 1rem;
+      line-height: 1.6;
+    }
+  }
+</style>

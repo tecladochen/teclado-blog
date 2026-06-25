@@ -21,6 +21,34 @@ export async function getCategories() {
   return categories
 }
 
+export async function getSeries() {
+  const posts = await getPosts()
+  const series = new Map<string, Post[]>()
+
+  for (const post of posts) {
+    const seriesName = post.data.series?.name
+    if (seriesName) {
+      const posts = series.get(seriesName) || []
+      posts.push(post)
+      series.set(seriesName, sortSeriesPosts(posts))
+    }
+  }
+
+  return series
+}
+
+export function sortSeriesPosts(posts: Post[]) {
+  return [...posts].sort((a, b) => {
+    const aOrder = a.data.series?.order ?? Number.MAX_SAFE_INTEGER
+    const bOrder = b.data.series?.order ?? Number.MAX_SAFE_INTEGER
+    if (aOrder !== bOrder) {
+      return aOrder - bOrder
+    }
+
+    return dayjs(a.data.pubDate).isBefore(dayjs(b.data.pubDate)) ? -1 : 1
+  })
+}
+
 export async function getPosts(isArchivePage = false) {
   const posts = await getCollection('posts')
 
@@ -63,4 +91,19 @@ export function getPathFromCategory(
 ) {
   const mappingPath = category_map.find(l => l.name === category)
   return mappingPath ? mappingPath.path : category
+}
+
+export function getPathFromSeries(
+  series: string,
+  seriesMap: { name: string, path: string }[],
+) {
+  const mappingPath = seriesMap.find(l => l.name === series)
+  return mappingPath ? mappingPath.path : series
+}
+
+export function getSeriesDescription(
+  series: string,
+  seriesMap: { name: string, description?: string }[],
+) {
+  return seriesMap.find(l => l.name === series)?.description
 }

@@ -6,6 +6,10 @@ pubDate: 2025-07-23
 
 categories: ['编程']
 
+series:
+  name: 'Python 工具链'
+  order: 2
+
 draft: false
 
 ---

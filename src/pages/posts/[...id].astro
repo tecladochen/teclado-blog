@@ -5,7 +5,7 @@ import Pagination from '~/components/Pagination.astro'
 import SiteSeo from '~/components/SiteSeo.astro'
 import LayoutDefault from '~/layouts/LayoutDefault.astro'
 import LayoutPost from '~/layouts/LayoutPost.astro'
-import { getPosts } from '~/utils'
+import { getPosts, sortSeriesPosts } from '~/utils'
 import { render } from 'astro:content'
 
 export const getStaticPaths = (async () => {
@@ -27,7 +27,14 @@ const { entry, prev, next } = Astro.props
 const { Content } = await render(entry)
 const { translate: t } = Astro.locals
 
-function getUrl(id: string) {
+const seriesPosts = entry.data.series
+  ? sortSeriesPosts((await getPosts()).filter((post) => post.data.series?.name === entry.data.series?.name))
+  : []
+const seriesIndex = seriesPosts.findIndex((post) => post.id === entry.id)
+const prevSeriesPost = seriesIndex > 0 ? seriesPosts[seriesIndex - 1] : undefined
+const nextSeriesPost = seriesIndex >= 0 ? seriesPosts[seriesIndex + 1] : undefined
+
+function getUrl(id?: string) {
   return `/posts/${id}`
 }
 ---
@@ -39,15 +46,33 @@ function getUrl(id: string) {
     <Content />
   </LayoutPost>
 
-  <Pagination
-    showLeft={Boolean(prev)}
-    leftTitle={`${t('prev_post')}: ${prev?.data.title}`}
-    leftUrl={getUrl(prev?.id)}
-    showRight={Boolean(next)}
-    rightTitle={`${t('next_post')}: ${next?.data.title}`}
-    rightUrl={getUrl(next?.id)}
-    showPageCount={false}
-  />
+  {
+    entry.data.series && (prevSeriesPost || nextSeriesPost) && (
+      <Pagination
+        showLeft={Boolean(prevSeriesPost)}
+        leftTitle={`${t('prev_series_post')}: ${prevSeriesPost?.data.title}`}
+        leftUrl={getUrl(prevSeriesPost?.id)}
+        showRight={Boolean(nextSeriesPost)}
+        rightTitle={`${t('next_series_post')}: ${nextSeriesPost?.data.title}`}
+        rightUrl={getUrl(nextSeriesPost?.id)}
+        showPageCount={false}
+      />
+    )
+  }
+
+  {
+    !entry.data.series && (prev || next) && (
+      <Pagination
+        showLeft={Boolean(prev)}
+        leftTitle={`${t('prev_post')}: ${prev?.data.title}`}
+        leftUrl={getUrl(prev?.id)}
+        showRight={Boolean(next)}
+        rightTitle={`${t('next_post')}: ${next?.data.title}`}
+        rightUrl={getUrl(next?.id)}
+        showPageCount={false}
+      />
+    )
+  }
   <!-- BUG 这里使用 client:visible 会导致构建失败。ref: https://github.com/withastro/astro/issues/7329 -->
   <Comments post={entry} />
 </LayoutDefault>

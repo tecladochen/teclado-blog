@@ -1,0 +1,148 @@
+---
+import { themeConfig } from '~/.config'
+import LayoutDefault from '~/layouts/LayoutDefault.astro'
+import { formatDate, getPathFromSeries, getSeries, getSeriesDescription } from '~/utils'
+
+export async function getStaticPaths() {
+  const seriesMap = await getSeries()
+  return Array.from(seriesMap).map(([key, value]) => {
+    const path = getPathFromSeries(key, themeConfig.site.seriesMap)
+    return {
+      params: { series: path },
+      props: { posts: value, name: key },
+    }
+  })
+}
+
+const { posts, name } = Astro.props
+const { translate: t } = Astro.locals
+const description = getSeriesDescription(name, themeConfig.site.seriesMap)
+---
+
+<LayoutDefault>
+  <section class="series-detail-page">
+    <header class="series-detail-header">
+      <h2 class="post-title">{name}</h2>
+      <p>{t('series_count', posts.length)}</p>
+    </header>
+
+    {description && <p class="series-description">{description}</p>}
+
+    <ol class="series-post-list">
+      {
+        posts.map((post) => (
+          <li class="series-post-item">
+            <div class="series-post-order">
+              {post.data.series?.order != null && <span>{t('series_order', post.data.series.order)}</span>}
+            </div>
+
+            <time datetime={post.data.pubDate.toISOString()}>{formatDate(post.data.pubDate)}</time>
+
+            <span class="series-post-title">
+              <a href={`/posts/${post.id}/`}>{post.data.title}</a>
+            </span>
+          </li>
+        ))
+      }
+    </ol>
+  </section>
+</LayoutDefault>
+
+<style>
+  .series-detail-page {
+    display: flex;
+    flex-direction: column;
+    gap: 1.35rem;
+  }
+
+  .series-detail-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--uno-colors-shadow);
+  }
+
+  .series-detail-header p {
+    margin: 0;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    white-space: nowrap;
+    opacity: 0.72;
+  }
+
+  .series-description {
+    margin: -0.25rem 0 0;
+    line-height: 1.75;
+    opacity: 0.82;
+  }
+
+  .series-post-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .series-post-item {
+    display: grid;
+    grid-template-columns: max-content max-content minmax(0, 1fr);
+    column-gap: 0.72rem;
+    align-items: baseline;
+    min-width: 0;
+    padding: 0.72rem 0;
+    border-bottom: 1px solid var(--uno-colors-shadow);
+  }
+
+  .series-post-item:first-child {
+    padding-top: 0;
+  }
+
+  .series-post-order {
+    font-size: 0.82rem;
+    line-height: 1.6;
+    white-space: nowrap;
+    opacity: 0.68;
+  }
+
+  .series-post-title {
+    min-width: 0;
+    font-size: 1.04rem;
+    line-height: 1.6;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+  }
+
+  .series-post-item time {
+    font-size: 0.82rem;
+    line-height: 1.6;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    opacity: 0.68;
+  }
+
+  @media (max-width: 520px) {
+    .series-detail-page {
+      gap: 1.2rem;
+    }
+
+    .series-detail-header {
+      align-items: flex-start;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .series-post-item {
+      column-gap: 0.55rem;
+      padding: 0.65rem 0;
+    }
+
+    .series-post-title {
+      font-size: 1rem;
+      line-height: 1.6;
+    }
+  }
+</style>

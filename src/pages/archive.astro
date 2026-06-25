@@ -4,6 +4,7 @@ import type { Post } from '~/types'
 import { formatDate, getPosts } from '~/utils'
 
 const posts = await getPosts(true)
+const { translate: t } = Astro.locals
 
 const yearMap = getYearMap(posts)
 
@@ -11,6 +12,7 @@ interface ListItem {
   title: string
   href: string
   date: string
+  datetime: string
 }
 
 function getYearMap(posts: Post[]) {
@@ -29,28 +31,194 @@ function getListItem(post: Post): ListItem {
     title: post.data.title,
     href: `/posts/${post.id}/`,
     date: formatDate(post.data.pubDate, 'MM-DD'),
+    datetime: post.data.pubDate.toISOString(),
   }
 }
 ---
 
 <LayoutDefault>
-  <div flex="~ col gap-4">
-    {
-      yearMap.map(([year, posts]) => (
-        <section>
-          <h2 class="post-title">{year}</h2>
-          <ul class="pl-6" flex="~ col gap-4">
-            {posts.map(({ title, href, date }) => (
-              <li>
-                <h3 class="post-title">
-                  <a href={href}>{title}</a>
-                </h3>
-                <time>{date}</time>
-              </li>
-            ))}
-          </ul>
-        </section>
-      ))
-    }
-  </div>
+  <section class="archive-page">
+    <header class="archive-header">
+      <h2 class="post-title">{t('Archive')}</h2>
+      <p>{t('archive_count', posts.length)}</p>
+    </header>
+
+    <div class="archive-timeline">
+      {
+        yearMap.map(([year, posts]) => (
+          <section class="archive-year">
+            <header class="archive-year-header">
+              <h3>{year}</h3>
+              <span>{t('archive_count', posts.length)}</span>
+            </header>
+
+            <ol class="archive-list">
+              {posts.map(({ title, href, date, datetime }) => (
+                <li class="archive-item">
+                  <time datetime={datetime}>{date}</time>
+                  <span class="archive-item-title">
+                    <a href={href}>{title}</a>
+                  </span>
+                </li>
+              ))}
+            </ol>
+          </section>
+        ))
+      }
+    </div>
+  </section>
 </LayoutDefault>
+
+<style>
+  .archive-page {
+    display: flex;
+    flex-direction: column;
+    gap: 1.75rem;
+  }
+
+  .archive-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--uno-colors-shadow);
+  }
+
+  .archive-header p {
+    margin: 0;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    white-space: nowrap;
+    opacity: 0.72;
+  }
+
+  .archive-timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .archive-year {
+    display: grid;
+    grid-template-columns: 5rem minmax(0, 1fr);
+    column-gap: 1.5rem;
+  }
+
+  .archive-year-header {
+    position: sticky;
+    top: 0;
+    align-self: start;
+    padding-top: 0.15rem;
+  }
+
+  .archive-year-header h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    line-height: 1.4;
+    font-weight: 700;
+  }
+
+  .archive-year-header span {
+    display: block;
+    margin-top: 0.2rem;
+    font-size: 0.75rem;
+    line-height: 1.5;
+    opacity: 0.65;
+  }
+
+  .archive-list {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+    margin: 0;
+    padding: 0 0 0 1.25rem;
+    list-style: none;
+    border-left: 1px solid var(--uno-colors-shadow);
+  }
+
+  .archive-item {
+    position: relative;
+    display: grid;
+    grid-template-columns: 3.6rem minmax(0, 1fr);
+    column-gap: 0.85rem;
+    align-items: start;
+    min-height: 1.75rem;
+  }
+
+  .archive-item::before {
+    position: absolute;
+    top: 0.72rem;
+    left: -1.45rem;
+    width: 0.42rem;
+    height: 0.42rem;
+    border-radius: 999px;
+    background: currentColor;
+    box-shadow: 0 0 0 4px var(--uno-colors-background);
+    content: '';
+  }
+
+  .archive-item time {
+    font-size: 0.82rem;
+    line-height: 1.6;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    padding-top: 0.1rem;
+    opacity: 0.68;
+  }
+
+  .archive-item-title {
+    min-width: 0;
+    font-size: 1.08rem;
+    line-height: 1.65;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+  }
+
+  @media (max-width: 520px) {
+    .archive-page {
+      gap: 1.4rem;
+    }
+
+    .archive-header {
+      align-items: flex-start;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .archive-year {
+      grid-template-columns: 1fr;
+      row-gap: 0.75rem;
+    }
+
+    .archive-year-header {
+      position: static;
+      display: flex;
+      align-items: baseline;
+      gap: 0.6rem;
+    }
+
+    .archive-year-header span {
+      margin-top: 0;
+    }
+
+    .archive-list {
+      padding-left: 1rem;
+    }
+
+    .archive-item {
+      grid-template-columns: 3.25rem minmax(0, 1fr);
+      column-gap: 0.65rem;
+    }
+
+    .archive-item::before {
+      left: -1.2rem;
+    }
+
+    .archive-item-title {
+      font-size: 1rem;
+      line-height: 1.6;
+    }
+  }
+</style>

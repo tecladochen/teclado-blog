@@ -7,30 +7,124 @@ const { translate: t } = Astro.locals
 const categoryMap = await getCategories()
 
 const list = getListFromMap(categoryMap)
+const postCount = list.reduce((count, item) => count + item.count, 0)
 
 function getListFromMap(map: typeof categoryMap) {
   return Array.from(map).map(([key, value]) => ({
     title: key,
     href: `/categories/${getPathFromCategory(key, themeConfig.site.categoryMap)}`,
     size: t('categories_count', value.length),
+    count: value.length,
   }))
 }
 ---
 
 <LayoutDefault>
-  <section>
-    <h2 class="post-title">{t('Categories')}</h2>
-    <ul class="pl-6" flex="~ col gap-4">
+  <section class="categories-page">
+    <header class="categories-header">
+      <h2 class="post-title">{t('Categories')}</h2>
+      <p>{t('categories_count', postCount)}</p>
+    </header>
+
+    <ul class="category-list">
       {
         list.map(({ title, href, size }) => (
-          <li>
-            <h3 class="post-title">
+          <li class="category-item">
+            <span class="category-title">
               <a href={href}># {title}</a>
-            </h3>
-            <p>{size}</p>
+            </span>
+            <span class="category-separator">/</span>
+            <span class="category-count">{size}</span>
           </li>
         ))
       }
     </ul>
   </section>
 </LayoutDefault>
+
+<style>
+  .categories-page {
+    display: flex;
+    flex-direction: column;
+    gap: 1.75rem;
+  }
+
+  .categories-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--uno-colors-shadow);
+  }
+
+  .categories-header p {
+    margin: 0;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    white-space: nowrap;
+    opacity: 0.72;
+  }
+
+  .category-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.8rem 1.6rem;
+    align-items: baseline;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .category-item {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.38rem;
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .category-title {
+    min-width: 0;
+    font-size: 1.08rem;
+    line-height: 1.65;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+  }
+
+  .category-separator {
+    flex: 0 0 auto;
+    font-size: 0.82rem;
+    line-height: 1.6;
+    opacity: 0.42;
+  }
+
+  .category-count {
+    flex: 0 0 auto;
+    font-size: 0.82rem;
+    line-height: 1.6;
+    white-space: nowrap;
+    opacity: 0.68;
+  }
+
+  @media (max-width: 520px) {
+    .categories-page {
+      gap: 1.4rem;
+    }
+
+    .categories-header {
+      align-items: flex-start;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .category-list {
+      gap: 0.65rem 1.1rem;
+    }
+
+    .category-title {
+      font-size: 1rem;
+      line-height: 1.6;
+    }
+  }
+</style>

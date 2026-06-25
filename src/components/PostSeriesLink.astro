@@ -1,0 +1,18 @@
+---
+import { themeConfig } from '~/.config'
+import { getPathFromSeries } from '~/utils'
+
+interface Props {
+  name: string
+  order?: number
+}
+
+const { name, order } = Astro.props
+const { translate: t } = Astro.locals
+
+const href = `/series/${getPathFromSeries(name, themeConfig.site.seriesMap)}`
+---
+
+<a href={href}>
+  {t('in_series')}: {name}{order ? ` · ${t('series_order', order)}` : ''}
+</a>

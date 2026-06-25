@@ -2,6 +2,7 @@
 import type { Post } from '~/types'
 import { formatDate } from '~/utils'
 import PostCategory from './PostCategory.astro'
+import PostSeriesLink from './PostSeriesLink.astro'
 
 interface Props {
   post: Post
@@ -11,15 +12,47 @@ const { post } = Astro.props
 const { translate: t } = Astro.locals
 
 const categoryList = post.data.categories ?? []
+const series = post.data.series
+const dateLabel = t(post.data.modDate ? 'updated_at' : 'posted_at')
+const displayDate = post.data.modDate ?? post.data.pubDate
 ---
 
 <header flex="~ col gap-2">
   <h1 class="post-title">
     <a class="not-prose" href={`/posts/${post.id}/`}>{post.data.title}</a>
   </h1>
-  <div class="text-3.5">
-    <span>{t(post.data.modDate ? 'updated_at' : 'posted_at')}</span>
-    <time>{formatDate(post.data.modDate ?? post.data.pubDate)}</time>
+  <div class="post-meta text-3.5">
+    <span class="post-meta-date">
+      <span class="post-meta-date-label">{dateLabel}</span>
+      <time datetime={displayDate.toISOString()}>{formatDate(displayDate)}</time>
+    </span>
     {categoryList.map((category) => <PostCategory category={category} />)}
+    {series && <PostSeriesLink name={series.name} order={series.order} />}
   </div>
 </header>
+
+<style>
+  .post-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: 0.625rem;
+    row-gap: 0.25rem;
+    line-height: 1.65;
+  }
+
+  .post-meta-date {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    white-space: nowrap;
+  }
+
+  .post-meta-date-label {
+    opacity: 0.72;
+  }
+
+  .post-meta time {
+    opacity: 0.9;
+  }
+</style>
