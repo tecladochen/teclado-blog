@@ -8,9 +8,6 @@ description: ''
 
 categories: ['AI']
 
-series:
-  name: '向量检索与 RAG 基础'
-  order: 1
 
 draft: false
 

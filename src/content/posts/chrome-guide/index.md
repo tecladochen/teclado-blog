@@ -6,9 +6,7 @@ pubDate: 2025-07-10 13:50:00
 
 categories: ['AI']
 
-series:
-  name: '向量检索与 RAG 基础'
-  order: 3
+
 
 draft: false
 ---
