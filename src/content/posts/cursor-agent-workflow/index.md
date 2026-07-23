@@ -2,7 +2,7 @@
 
 title: 'Cursor 进阶：多 Agent 工作流'
 
-pubDate: 2026-07-22
+pubDate: 2026-07-23
 
 description: '当单个 Agent 能够完成编码任务，下一步是组织并行任务、上下文和自动化流程。本文说明 Agents Window、Worktree、Cloud Agent、Rules、Skills 与 MCP 的分工，并用文章发布检查展示能力如何组合。'
 
@@ -12,7 +12,7 @@ series:
   name: 'AI 编程实践'
   order: 2
 
-draft: true
+draft: false
 
 ---
 

@@ -2,7 +2,7 @@
 
 title: 'Cursor：从对话到任务交付'
 
-pubDate: 2026-07-22
+pubDate: 2026-07-23
 
 description: 'Cursor 已经从代码生成工具变成能够调查、规划、执行和验证任务的 Agent。本文结合 Ask、Plan、Agent、Debug 和博客搜索案例，说明如何划分任务、提供上下文、设置验收标准，并用实际结果检查 Cursor 的工作。'
 
@@ -12,7 +12,7 @@ series:
   name: 'AI 编程实践'
   order: 1
 
-draft: true
+draft: false
 
 ---
 
