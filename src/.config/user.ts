@@ -38,12 +38,22 @@ export const userConfig: Partial<UserConfig> = {
       {
         name: '向量检索与 RAG 基础',
         path: 'vector-search-rag',
-        description: '从 embedding 到向量数据库，整理构建 RAG 系统前需要理解的基础设施。',
+        description: '从 embedding、索引技术到向量数据库实践，梳理构建 RAG 系统前需要理解的基础。',
       },
       {
         name: 'Python 工具链',
         path: 'python-toolchain',
-        description: '记录 Python 环境、包管理和工程工具的使用与原理。',
+        description: '从虚拟环境到底层原理与现代包管理，整理 Python 开发环境的常用工具。',
+      },
+      {
+        name: 'AI 编程实践',
+        path: 'ai-coding-practice',
+        description: '围绕 AI 编程 Agent，记录从单任务协作到多 Agent 工作流的实践方法。',
+      },
+      {
+        name: 'Godot 与游戏开发笔记',
+        path: 'godot-game-development',
+        description: '从游戏开发的通用概念出发，逐步认识 Godot 编辑器、项目结构与核心机制。',
       },
     ],
   },

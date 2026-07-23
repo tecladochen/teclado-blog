@@ -4,7 +4,13 @@ title: venv 使用和原理
 
 pubDate: 2025-07-16
 
+description: '解释 Python 虚拟环境为什么存在，演示 venv 的创建、激活与依赖管理，并从目录结构和解释器行为理解它实现环境隔离的原理。'
+
 categories: ['编程']
+
+series:
+  name: 'Python 工具链'
+  order: 1
 
 
 draft: false

@@ -4,7 +4,13 @@ title: 向量数据库和索引技术
 
 pubDate: 2025-07-07
 
+description: '介绍向量数据库的工作流程与选型思路，梳理 FLAT、IVF、HNSW、PQ 等索引技术，以及欧几里得距离、余弦相似度和点积等度量方法。'
+
 categories: ['AI']
+
+series:
+  name: '向量检索与 RAG 基础'
+  order: 2
 
 
 draft: false

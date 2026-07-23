@@ -4,6 +4,8 @@ title: '第一次用 Godot：项目结构、核心概念，与如何继续深入
 
 pubDate: 2026-06-26
 
+description: '面向第一次使用 Godot 的开发者，介绍安装与项目创建、目录结构、编辑器界面，以及节点、场景、信号和资源等核心概念。'
+
 categories: ['游戏开发', 'Godot']
 
 series:

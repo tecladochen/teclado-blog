@@ -4,7 +4,13 @@ title: 'uv 入门使用指南'
 
 pubDate: 2025-07-23
 
+description: '一份覆盖安装、Python 版本管理、脚本运行、工具安装与项目管理的 uv 入门指南，帮助用统一工具简化 Python 开发工作流。'
+
 categories: ['编程']
+
+series:
+  name: 'Python 工具链'
+  order: 2
 
 draft: false
 

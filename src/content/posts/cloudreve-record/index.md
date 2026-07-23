@@ -4,6 +4,8 @@ title: 'Cloudreve 私有网盘搭建记录'
 
 pubDate: 2025-08-15
 
+description: '记录如何利用闲置的阿里云 ECS 与 OSS 搭建 Cloudreve 私有网盘，通过内网中转降低流量成本，并总结配置过程、实际速度与适用场景。'
+
 categories: ['工程实践']
 
 draft: false
