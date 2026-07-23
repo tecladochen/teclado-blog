@@ -20,3 +20,19 @@ html {
   --at-apply: 'ease-in-out duration-300ms';
   --at-apply: 'hover:(c-background bg-primary decoration-primary)';
 }
+
+.prose :where(h2, h3, h4) {
+  scroll-margin-top: 1.5rem;
+}
+
+html,
+main {
+  scroll-padding-top: 1.5rem;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html,
+  main {
+    scroll-behavior: smooth;
+  }
+}

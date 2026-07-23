@@ -1,0 +1,199 @@
+---
+interface Heading {
+  depth: number
+  slug: string
+  text: string
+}
+
+interface Props {
+  headings: Heading[]
+}
+
+const sections = Astro.props.headings.filter((heading) => heading.depth === 2)
+const showTableOfContents = sections.length >= 3
+---
+
+{
+  showTableOfContents && (
+    <>
+      <nav class="post-toc post-toc-desktop not-prose" aria-label="本文目录">
+        <header class="post-toc-header">
+          <span>本文目录</span>
+          <span class="post-toc-count">{sections.length} 节</span>
+        </header>
+
+        <ol class="post-toc-list">
+          {sections.map((heading, index) => (
+            <li>
+              <a class="not-underline-hover" href={`#${heading.slug}`} data-no-swup>
+                <span class="post-toc-index" aria-hidden="true">
+                  {String(index + 1).padStart(2, '0')}
+                </span>
+                <span>{heading.text}</span>
+              </a>
+            </li>
+          ))}
+        </ol>
+      </nav>
+
+      <details class="post-toc post-toc-mobile not-prose">
+        <summary class="post-toc-header">
+          <span>本文目录</span>
+          <span class="post-toc-summary-end">
+            <span class="post-toc-count">{sections.length} 节</span>
+            <span class="post-toc-chevron" aria-hidden="true" />
+          </span>
+        </summary>
+
+        <ol class="post-toc-list">
+          {sections.map((heading, index) => (
+            <li>
+              <a class="not-underline-hover" href={`#${heading.slug}`} data-no-swup>
+                <span class="post-toc-index" aria-hidden="true">
+                  {String(index + 1).padStart(2, '0')}
+                </span>
+                <span>{heading.text}</span>
+              </a>
+            </li>
+          ))}
+        </ol>
+      </details>
+    </>
+  )
+}
+
+<style>
+  .post-toc {
+    margin: 2rem 0 2.25rem;
+    padding: 0.9rem 0;
+    border-block: 1px solid var(--uno-colors-shadow);
+    font-size: 0.9rem;
+    line-height: 1.55;
+  }
+
+  .post-toc-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin: 0;
+    padding: 0 0.25rem 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+
+  summary.post-toc-header {
+    padding-bottom: 0;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  summary.post-toc-header::-webkit-details-marker {
+    display: none;
+  }
+
+  summary.post-toc-header:focus-visible {
+    border-radius: 0.2rem;
+    outline: 1px solid currentColor;
+    outline-offset: 3px;
+  }
+
+  .post-toc-count {
+    flex: 0 0 auto;
+    font-size: 0.75rem;
+    font-weight: 400;
+    letter-spacing: 0;
+    opacity: 0.62;
+  }
+
+  .post-toc-summary-end {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7rem;
+  }
+
+  .post-toc-chevron {
+    width: 0.45rem;
+    height: 0.45rem;
+    border-right: 1.5px solid currentColor;
+    border-bottom: 1.5px solid currentColor;
+    transform: rotate(45deg) translateY(-0.15rem);
+    transition: transform 180ms ease;
+    opacity: 0.7;
+  }
+
+  details[open] .post-toc-chevron {
+    transform: rotate(225deg) translate(-0.1rem, -0.05rem);
+  }
+
+  details[open] .post-toc-header {
+    padding-bottom: 0.75rem;
+  }
+
+  .post-toc-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.15rem 1.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .post-toc-list li {
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+  }
+
+  .post-toc-list a {
+    display: grid;
+    grid-template-columns: 1.6rem minmax(0, 1fr);
+    gap: 0.4rem;
+    align-items: baseline;
+    padding: 0.35rem 0.25rem;
+    border-radius: 0.2rem;
+    color: inherit;
+    text-decoration: none;
+    transition:
+      background-color 160ms ease,
+      opacity 160ms ease;
+  }
+
+  .post-toc-list a:hover,
+  .post-toc-list a:focus-visible {
+    background: var(--uno-colors-shadow);
+  }
+
+  .post-toc-list a:focus-visible {
+    outline: 1px solid currentColor;
+    outline-offset: 2px;
+  }
+
+  .post-toc-index {
+    font-size: 0.72rem;
+    font-variant-numeric: tabular-nums;
+    opacity: 0.52;
+  }
+
+  .post-toc-mobile {
+    display: none;
+  }
+
+  @media (max-width: 639px) {
+    .post-toc {
+      margin: 1.5rem 0 1.75rem;
+    }
+
+    .post-toc-desktop {
+      display: none;
+    }
+
+    .post-toc-mobile {
+      display: block;
+    }
+
+    .post-toc-list {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
