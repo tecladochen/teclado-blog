@@ -43,6 +43,12 @@ description: "描述"
 pnpm theme:create
 ```
 
+创建流程会询问标题、文章目录名、摘要、分类、系列和草稿状态，并统一生成：
+
+```text
+src/content/posts/<文章目录名>/index.md
+```
+
 ## 配置
 
 站点配置位于 [src/.config/user.ts](src/.config/user.ts)，可在此覆盖默认配置（标题、社交链接、分类、页脚等）。
