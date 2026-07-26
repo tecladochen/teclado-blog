@@ -1,10 +1,12 @@
 ---
 import type { GetStaticPaths, InferGetStaticPropsType } from 'astro'
+import { getEntry } from 'astro:content'
 import { themeConfig } from '~/.config'
 import Pagination from '~/components/Pagination.astro'
+import PostCategory from '~/components/PostCategory.astro'
 import LayoutDefault from '~/layouts/LayoutDefault.astro'
 import LayoutPost from '~/layouts/LayoutPost.astro'
-import { getPostDescription, getPosts } from '~/utils'
+import { formatDate, getPostDescription, getPosts, getSeriesOverviews } from '~/utils'
 
 const { translate: t } = Astro.locals
 
@@ -21,18 +23,157 @@ export const getStaticPaths = (async ({ paginate }) => {
 type Props = InferGetStaticPropsType<typeof getStaticPaths>
 
 const { page } = Astro.props
+const isFirstPage = page.currentPage === 1
+const featuredPost = isFirstPage ? page.data[0] : undefined
+const latestPosts = featuredPost ? page.data.slice(1) : page.data
+const nowPost = isFirstPage ? await getEntry('spec', 'now') : undefined
+const activeSeries = isFirstPage ? await getActiveSeries() : []
+
+async function getActiveSeries() {
+  const series = await getSeriesOverviews()
+  return series
+    .filter((item) => item.status === 'active')
+    .map((item) => ({
+      ...item,
+      href: `/series/${item.path}`,
+    }))
+    .slice(0, 3)
+}
 ---
 
 <LayoutDefault>
-  <section contain-layout flex="~ col gap-7.5">
-    {
-      page.data.map((post) => (
-        <LayoutPost post={post}>
-          <p class="line-clamp-4">{getPostDescription(post)}</p>
-        </LayoutPost>
-      ))
-    }
-  </section>
+  {
+    isFirstPage && featuredPost ? (
+      <div class="home-page">
+        <header class="home-intro">
+          <span>FIELD NOTES / 001</span>
+          <p>{themeConfig.site.description}</p>
+        </header>
+
+        <section class="featured-post" aria-labelledby="featured-title">
+          <div class="section-label">
+            <span>{t('Featured')}</span>
+            <span aria-hidden="true">01 / 04</span>
+          </div>
+          <div class="featured-body">
+            <div class="featured-main">
+              <h1 id="featured-title">
+                <a class="not-underline-hover" href={`/posts/${featuredPost.id}/`}>
+                  {featuredPost.data.title}
+                </a>
+              </h1>
+              <p>{getPostDescription(featuredPost)}</p>
+            </div>
+            <div class="featured-meta">
+              <time datetime={(featuredPost.data.modDate ?? featuredPost.data.pubDate).toISOString()}>
+                {formatDate(featuredPost.data.modDate ?? featuredPost.data.pubDate)}
+              </time>
+              {featuredPost.data.categories.map((category) => (
+                <PostCategory category={category} />
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <div class="home-observations">
+          {nowPost && (
+            <section class="now-card" aria-labelledby="now-title">
+              <div class="section-label">
+                <span>{t('Current')}</span>
+                <span aria-hidden="true">02 / 04</span>
+              </div>
+              <div class="now-card-heading">
+                <span class="status-signal" aria-hidden="true" />
+                <time datetime={(nowPost.data.updatedDate ?? nowPost.data.pubDate).toISOString()}>
+                  {formatDate(nowPost.data.updatedDate ?? nowPost.data.pubDate)}
+                </time>
+              </div>
+              <h2 id="now-title">{nowPost.data.summary}</h2>
+              <ul>
+                {nowPost.data.focus.map((item) => (
+                  <li>{item}</li>
+                ))}
+              </ul>
+              <a href="/now">
+                {t('view_now')} <span aria-hidden="true">→</span>
+              </a>
+            </section>
+          )}
+
+          <section class="series-card" aria-labelledby="series-title">
+            <div class="section-label">
+              <span id="series-title">{t('OngoingSeries')}</span>
+              <span aria-hidden="true">03 / 04</span>
+            </div>
+            <ol>
+              {activeSeries.map((series, index) => (
+                <li>
+                  <span class="series-index" aria-hidden="true">
+                    {String(index + 1).padStart(2, '0')}
+                  </span>
+                  <div>
+                    <a href={series.href}>{series.name}</a>
+                    {series.description && <p>{series.description}</p>}
+                  </div>
+                  <span class="series-count">
+                    {series.publishedCount} / {series.totalCount}
+                  </span>
+                  <span class="home-series-progress" aria-hidden="true">
+                    <span style={`--progress: ${series.progress * 100}%`} />
+                  </span>
+                </li>
+              ))}
+            </ol>
+            <a href="/series">
+              {t('view_all_series')} <span aria-hidden="true">→</span>
+            </a>
+          </section>
+        </div>
+
+        <section class="latest-section" aria-labelledby="latest-title">
+          <div class="section-label">
+            <span id="latest-title">{t('Latest')}</span>
+            <span aria-hidden="true">04 / 04</span>
+          </div>
+          <ol class="latest-list">
+            {latestPosts.map((post, index) => (
+              <li>
+                <span class="latest-index" aria-hidden="true">
+                  {String(index + 2).padStart(2, '0')}
+                </span>
+                <div class="latest-main">
+                  <h2>
+                    <a href={`/posts/${post.id}/`}>{post.data.title}</a>
+                  </h2>
+                  <p>{getPostDescription(post)}</p>
+                </div>
+                <time datetime={(post.data.modDate ?? post.data.pubDate).toISOString()}>
+                  {formatDate(post.data.modDate ?? post.data.pubDate, 'MM-DD')}
+                </time>
+              </li>
+            ))}
+          </ol>
+        </section>
+
+        <div class="home-actions" aria-label={t('quick_actions')}>
+          <a href="/archive">
+            {t('Archive')} <span aria-hidden="true">↗</span>
+          </a>
+          <a href="/archive" data-random-post>
+            {t('Random')} <span aria-hidden="true">↝</span>
+          </a>
+        </div>
+      </div>
+    ) : (
+      <section contain-layout flex="~ col gap-7.5">
+        {latestPosts.map((post) => (
+          <LayoutPost post={post}>
+            <p class="line-clamp-4">{getPostDescription(post)}</p>
+          </LayoutPost>
+        ))}
+      </section>
+    )
+  }
   <Pagination
     showLeft={Boolean(page.url.prev)}
     leftTitle={t('prev')}
@@ -44,3 +185,317 @@ const { page } = Astro.props
     totalPage={page.lastPage}
   />
 </LayoutDefault>
+
+<style>
+  .home-page {
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+  }
+
+  .home-intro {
+    display: grid;
+    grid-template-columns: 8rem minmax(0, 1fr);
+    gap: 1.5rem;
+    align-items: start;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--uno-colors-shadow);
+  }
+
+  .home-intro span,
+  .section-label {
+    font-size: 0.68rem;
+    line-height: 1.5;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    opacity: 0.58;
+  }
+
+  .home-intro p {
+    max-width: 40rem;
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.8;
+  }
+
+  .section-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    font-weight: 700;
+  }
+
+  .featured-post {
+    padding: 1.25rem 0 1.5rem;
+    border-top: 2px solid currentColor;
+    border-bottom: 1px solid var(--uno-colors-shadow);
+  }
+
+  .featured-body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 7rem;
+    gap: 2rem;
+  }
+
+  .featured-main h1 {
+    max-width: 14ch;
+    margin: 0;
+    font-family: var(--uno-fonts-ui);
+    font-size: clamp(2rem, 5vw, 3.7rem);
+    font-weight: 800;
+    line-height: 1.18;
+    letter-spacing: -0.035em;
+    text-wrap: balance;
+  }
+
+  .featured-main h1 a {
+    display: inline;
+  }
+
+  .featured-main p {
+    max-width: 40rem;
+    margin: 1.15rem 0 0;
+    line-height: 1.8;
+    opacity: 0.78;
+  }
+
+  .featured-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.55rem;
+    padding-top: 0.35rem;
+    font-size: 0.78rem;
+    white-space: nowrap;
+  }
+
+  .featured-meta time {
+    font-variant-numeric: tabular-nums;
+    opacity: 0.65;
+  }
+
+  .home-observations {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2rem;
+  }
+
+  .now-card,
+  .series-card {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    padding-top: 1rem;
+    border-top: 1px solid currentColor;
+  }
+
+  .now-card-heading {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.9rem;
+    font-size: 0.72rem;
+    font-variant-numeric: tabular-nums;
+    opacity: 0.62;
+  }
+
+  .status-signal {
+    width: 0.4rem;
+    height: 0.4rem;
+    border-radius: 999px;
+    background: currentColor;
+  }
+
+  .now-card h2 {
+    margin: 0;
+    font-size: 1.12rem;
+    line-height: 1.65;
+  }
+
+  .now-card ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin: 1rem 0 1.25rem;
+    padding: 0;
+    list-style: none;
+  }
+
+  .now-card li {
+    padding: 0.22rem 0.45rem;
+    border: 1px solid var(--uno-colors-shadow);
+    font-size: 0.75rem;
+    line-height: 1.5;
+  }
+
+  .now-card > a,
+  .series-card > a {
+    align-self: flex-start;
+    margin-top: auto;
+    font-size: 0.82rem;
+    font-weight: 700;
+  }
+
+  .series-card ol,
+  .latest-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .series-card ol {
+    margin-bottom: 1.25rem;
+  }
+
+  .series-card li {
+    display: grid;
+    grid-template-columns: 1.6rem minmax(0, 1fr) auto;
+    gap: 0.65rem;
+    padding: 0.7rem 0;
+    border-bottom: 1px solid var(--uno-colors-shadow);
+  }
+
+  .series-card li:first-child {
+    padding-top: 0;
+  }
+
+  .series-index,
+  .series-count,
+  .latest-index,
+  .latest-list time {
+    font-size: 0.72rem;
+    font-variant-numeric: tabular-nums;
+    opacity: 0.55;
+  }
+
+  .series-card li a {
+    font-weight: 700;
+  }
+
+  .series-card li p {
+    display: -webkit-box;
+    margin: 0.25rem 0 0;
+    overflow: hidden;
+    font-size: 0.78rem;
+    line-height: 1.55;
+    opacity: 0.65;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .series-count {
+    white-space: nowrap;
+  }
+
+  .home-series-progress {
+    grid-column: 2 / -1;
+    height: 1px;
+    overflow: hidden;
+    background: var(--uno-colors-shadow);
+  }
+
+  .home-series-progress span {
+    display: block;
+    width: var(--progress);
+    height: 100%;
+    background: currentColor;
+  }
+
+  .latest-section {
+    padding-top: 1rem;
+    border-top: 2px solid currentColor;
+  }
+
+  .latest-list li {
+    display: grid;
+    grid-template-columns: 2rem minmax(0, 1fr) 3rem;
+    gap: 1rem;
+    align-items: start;
+    padding: 1.15rem 0;
+    border-bottom: 1px solid var(--uno-colors-shadow);
+  }
+
+  .latest-main h2 {
+    margin: 0;
+    font-size: 1.08rem;
+    line-height: 1.55;
+  }
+
+  .latest-main p {
+    display: -webkit-box;
+    margin: 0.35rem 0 0;
+    overflow: hidden;
+    font-size: 0.88rem;
+    line-height: 1.7;
+    opacity: 0.7;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .latest-list time {
+    text-align: right;
+  }
+
+  .home-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem 1.25rem;
+    justify-content: flex-end;
+    font-size: 0.85rem;
+    font-weight: 700;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .status-signal {
+      animation: status-pulse 2.6s ease-in-out infinite;
+    }
+  }
+
+  @keyframes status-pulse {
+    50% {
+      box-shadow: 0 0 0 0.35rem var(--uno-colors-shadow);
+      opacity: 0.5;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .home-page {
+      gap: 2rem;
+    }
+
+    .home-intro {
+      grid-template-columns: 1fr;
+      gap: 0.55rem;
+    }
+
+    .featured-body {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+
+    .featured-main h1 {
+      font-size: clamp(2rem, 11vw, 3rem);
+    }
+
+    .featured-meta {
+      flex-flow: row wrap;
+      align-items: center;
+      justify-content: flex-start;
+    }
+
+    .home-observations {
+      grid-template-columns: 1fr;
+    }
+
+    .latest-list li {
+      grid-template-columns: 1.5rem minmax(0, 1fr);
+      gap: 0.75rem;
+    }
+
+    .latest-list time {
+      display: none;
+    }
+  }
+</style>

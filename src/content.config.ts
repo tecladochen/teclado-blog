@@ -29,9 +29,34 @@ const posts = defineCollection({
 
 const spec = defineCollection({
   loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/spec' }),
+  schema: z.object({
+    title: z.string(),
+    description: z.string().optional(),
+    pubDate: z.coerce.date(),
+    updatedDate: z.coerce.date().optional(),
+    summary: z.string().optional(),
+    focus: z.array(z.string()).default([]),
+  }),
+})
+
+const journey = defineCollection({
+  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/journey' }),
+  schema: z.object({
+    title: z.string(),
+    date: z.coerce.date(),
+    kind: z.enum(['life', 'project', 'learning', 'blog']),
+    summary: z.string(),
+    links: z.array(z.object({
+      label: z.string(),
+      url: z.string(),
+    })).default([]),
+    featured: z.boolean().default(false),
+    draft: z.boolean().default(false),
+  }),
 })
 
 export const collections = {
+  journey,
   posts,
   spec,
 }

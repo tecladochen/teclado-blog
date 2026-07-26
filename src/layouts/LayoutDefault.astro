@@ -4,6 +4,7 @@ import SiteFooter from '~/components/SiteFooter.astro'
 import SiteNavigation from '~/components/SiteNavigation.astro'
 import SiteTitle from '~/components/SiteTitle.astro'
 import SiteSeo from '~/components/SiteSeo.astro'
+import SearchPalette from '~/components/SearchPalette.astro'
 import LaTeX from '~/components/LaTeX.astro'
 import Analytics from '~/components/Analytics.astro'
 import ThemeScript from '~/components/ThemeScript.astro'
@@ -42,6 +43,8 @@ const dark = themeConfig.appearance.theme === 'dark'
     <footer class="transition-swup-footer py-7.5" lg="row-2-3 col-2-3">
       <SiteFooter />
     </footer>
+
+    <SearchPalette />
 
     <script>
       document.addEventListener('animationend', removeAnimation, false)

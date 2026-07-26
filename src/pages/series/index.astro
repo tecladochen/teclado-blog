@@ -1,55 +1,69 @@
 ---
-import { themeConfig } from '~/.config'
 import LayoutDefault from '~/layouts/LayoutDefault.astro'
-import { formatDate, getPathFromSeries, getSeries, getSeriesDescription } from '~/utils'
+import { formatDate, getSeriesOverviews } from '~/utils'
 
 const { translate: t } = Astro.locals
-const seriesMap = await getSeries()
-
-const list = getListFromMap(seriesMap)
-const postCount = list.reduce((count, item) => count + item.count, 0)
-
-function getListFromMap(map: typeof seriesMap) {
-  return Array.from(map).map(([key, value]) => {
-    const latestPost = [...value].sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime())[0]
-    return {
-      title: key,
-      href: `/series/${getPathFromSeries(key, themeConfig.site.seriesMap)}`,
-      description: getSeriesDescription(key, themeConfig.site.seriesMap),
-      size: t('series_count', value.length),
-      count: value.length,
-      updatedAt: latestPost ? formatDate(latestPost.data.modDate ?? latestPost.data.pubDate) : '',
-    }
-  })
-}
+const list = await getSeriesOverviews()
+const postCount = list.reduce((count, item) => count + item.publishedCount, 0)
 ---
 
 <LayoutDefault>
   <section class="series-page">
     <header class="series-header">
-      <h2 class="post-title">{t('Series')}</h2>
+      <div>
+        <span class="series-coordinate">LEARNING PATHS / 004</span>
+        <h1 class="post-title">{t('Series')}</h1>
+      </div>
       <p>{t('series_count', postCount)}</p>
     </header>
 
-    <ul class="series-list">
+    <ol class="series-list">
       {
-        list.map(({ title, href, description, size, updatedAt }) => (
+        list.map((series, index) => (
           <li class="series-item">
+            <span class="series-index" aria-hidden="true">
+              {String(index + 1).padStart(2, '0')}
+            </span>
             <div class="series-item-main">
-              <span class="series-title">
-                <a href={href}>{title}</a>
-              </span>
-              {description && <p>{description}</p>}
+              <div class="series-title-row">
+                <a class="series-title" href={`/series/${series.path}`}>
+                  {series.name}
+                </a>
+                <span class:list={['series-status', `is-${series.status}`]}>{t(`series_status_${series.status}`)}</span>
+              </div>
+              {series.description && <p>{series.description}</p>}
+
+              <div
+                class="series-progress"
+                role="progressbar"
+                aria-label={`${series.name} ${t('series_progress')}`}
+                aria-valuemin="0"
+                aria-valuemax={series.totalCount}
+                aria-valuenow={series.publishedCount}
+              >
+                <span style={`--progress: ${series.progress * 100}%`} />
+              </div>
             </div>
 
             <div class="series-meta">
-              <span>{size}</span>
-              {updatedAt && <time>{t('updated_at')} {updatedAt}</time>}
+              <strong>
+                {series.publishedCount} / {series.totalCount}
+              </strong>
+              <span>{t('chapters_published')}</span>
+              {series.updatedAt && (
+                <time>
+                  {t('updated_at')} {formatDate(series.updatedAt)}
+                </time>
+              )}
             </div>
           </li>
         ))
       }
-    </ul>
+    </ol>
+
+    <footer class="series-footer">
+      <a href="/map">{t('view_knowledge_map')} <span aria-hidden="true">→</span></a>
+    </footer>
   </section>
 </LayoutDefault>
 
@@ -69,18 +83,22 @@ function getListFromMap(map: typeof seriesMap) {
     border-bottom: 1px solid var(--uno-colors-shadow);
   }
 
+  .series-coordinate {
+    display: block;
+    margin-bottom: 0.35rem;
+    font-size: 0.68rem;
+    letter-spacing: 0.16em;
+    opacity: 0.58;
+  }
+
   .series-header p {
     margin: 0;
     font-size: 0.875rem;
-    line-height: 1.5;
     white-space: nowrap;
     opacity: 0.72;
   }
 
   .series-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0;
     margin: 0;
     padding: 0;
     list-style: none;
@@ -88,10 +106,10 @@ function getListFromMap(map: typeof seriesMap) {
 
   .series-item {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: 0.75rem 1.5rem;
+    grid-template-columns: 2rem minmax(0, 1fr) 7.5rem;
+    gap: 1rem;
     align-items: start;
-    padding: 0.4rem 0;
+    padding: 1.25rem 0;
     border-bottom: 1px solid var(--uno-colors-shadow);
   }
 
@@ -99,8 +117,22 @@ function getListFromMap(map: typeof seriesMap) {
     padding-top: 0;
   }
 
+  .series-index {
+    padding-top: 0.3rem;
+    font-size: 0.7rem;
+    font-variant-numeric: tabular-nums;
+    opacity: 0.45;
+  }
+
   .series-item-main {
     min-width: 0;
+  }
+
+  .series-title-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem 0.7rem;
+    align-items: center;
   }
 
   .series-title {
@@ -110,55 +142,87 @@ function getListFromMap(map: typeof seriesMap) {
     overflow-wrap: anywhere;
   }
 
+  .series-status {
+    padding: 0.12rem 0.35rem;
+    border: 1px solid var(--uno-colors-shadow);
+    font-size: 0.62rem;
+    letter-spacing: 0.08em;
+    line-height: 1.5;
+  }
+
+  .series-status.is-planned {
+    border-style: dashed;
+    opacity: 0.58;
+  }
+
   .series-item-main p {
-    margin: 0.25rem 0 0;
+    margin: 0.3rem 0 0;
+    font-size: 0.88rem;
     line-height: 1.7;
-    opacity: 0.82;
+    opacity: 0.76;
+  }
+
+  .series-progress {
+    height: 2px;
+    margin-top: 0.9rem;
+    overflow: hidden;
+    background: var(--uno-colors-shadow);
+  }
+
+  .series-progress span {
+    display: block;
+    width: var(--progress);
+    height: 100%;
+    background: currentColor;
   }
 
   .series-meta {
     display: flex;
     flex-direction: column;
     align-items: flex-end;
-    gap: 0.25rem;
-    padding-top: 0.18rem;
-    font-size: 0.82rem;
+    gap: 0.15rem;
+    padding-top: 0.15rem;
+    font-size: 0.7rem;
     line-height: 1.6;
     white-space: nowrap;
-    opacity: 0.68;
+    opacity: 0.66;
+  }
+
+  .series-meta strong {
+    font-size: 1rem;
+    font-variant-numeric: tabular-nums;
+    opacity: 1;
+  }
+
+  .series-footer {
+    display: flex;
+    justify-content: flex-end;
+    font-size: 0.82rem;
+    font-weight: 700;
   }
 
   @media (max-width: 640px) {
     .series-item {
-      grid-template-columns: 1fr;
-      gap: 0.35rem;
+      grid-template-columns: 1.5rem minmax(0, 1fr);
+      gap: 0.75rem;
     }
 
     .series-meta {
+      grid-column: 2;
       flex-direction: row;
       flex-wrap: wrap;
-      align-items: center;
-      justify-content: flex-start;
-      gap: 0.25rem 0.75rem;
+      align-items: baseline;
+      gap: 0.2rem 0.6rem;
       padding-top: 0;
       white-space: normal;
     }
   }
 
   @media (max-width: 520px) {
-    .series-page {
-      gap: 1.4rem;
-    }
-
     .series-header {
       align-items: flex-start;
       flex-direction: column;
-      gap: 0.25rem;
-    }
-
-    .series-title {
-      font-size: 1rem;
-      line-height: 1.6;
+      gap: 0.35rem;
     }
   }
 </style>

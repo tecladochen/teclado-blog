@@ -35,8 +35,24 @@ export interface ConfigSite {
   socialLinks: { name: string, href: string }[]
   navLinks: { name: string, href: string }[]
   categoryMap: { name: string, path: string }[]
-  seriesMap: { name: string, path: string, description?: string }[]
+  seriesMap: SeriesMapItem[]
   footer: string[]
+}
+
+export type SeriesStatus = 'planned' | 'active' | 'complete'
+
+export interface SeriesRoadmapItem {
+  order: number
+  title: string
+  description?: string
+}
+
+export interface SeriesMapItem {
+  name: string
+  path: string
+  description?: string
+  status: SeriesStatus
+  roadmap: SeriesRoadmapItem[]
 }
 
 export interface ConfigAppearance {

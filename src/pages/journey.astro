@@ -1,0 +1,409 @@
+---
+import type { JourneyEntry, Post, SeriesOverview } from '~/types'
+import { getCollection } from 'astro:content'
+import JourneyEntryContent from '~/components/JourneyEntryContent.astro'
+import SiteSeo from '~/components/SiteSeo.astro'
+import LayoutDefault from '~/layouts/LayoutDefault.astro'
+import { formatDate, getPostDescription, getPosts, getSeriesOverviews } from '~/utils'
+
+type TimelineSource = 'manual' | 'series' | 'post'
+
+interface TimelineEvent {
+  id: string
+  title: string
+  date: Date
+  kind: 'life' | 'project' | 'learning' | 'blog'
+  source: TimelineSource
+  summary: string
+  url?: string
+  links: { label: string; url: string }[]
+  featured: boolean
+  entry?: JourneyEntry
+}
+
+const { translate: t } = Astro.locals
+const posts = await getPosts()
+const series = await getSeriesOverviews()
+const manualEntries = (await getCollection('journey')).filter((entry) => entry.data.draft !== true)
+
+const events: TimelineEvent[] = [
+  ...manualEntries.map((entry) => ({
+    id: `manual:${entry.id}`,
+    title: entry.data.title,
+    date: entry.data.date,
+    kind: entry.data.kind,
+    source: 'manual' as const,
+    summary: entry.data.summary,
+    links: entry.data.links,
+    featured: entry.data.featured,
+    entry,
+  })),
+  ...posts.map(postToEvent),
+  ...series.flatMap(seriesToEvent),
+].sort(compareEvents)
+
+const yearGroups = Map.groupBy(events, (event) => event.date.getUTCFullYear())
+const filters = ['all', 'life', 'project', 'learning', 'blog'] as const
+
+function postToEvent(post: Post): TimelineEvent {
+  return {
+    id: `post:${post.id}`,
+    title: post.data.title,
+    date: post.data.pubDate,
+    kind: 'blog',
+    source: 'post',
+    summary: getPostDescription(post),
+    url: `/posts/${post.id}/`,
+    links: [],
+    featured: false,
+  }
+}
+
+function seriesToEvent(series: SeriesOverview): TimelineEvent[] {
+  const firstPost = [...series.posts].sort((a, b) => a.data.pubDate.getTime() - b.data.pubDate.getTime())[0]
+  if (!firstPost) {
+    return []
+  }
+  return [
+    {
+      id: `series:${series.path}`,
+      title: series.name,
+      date: firstPost.data.pubDate,
+      kind: 'blog',
+      source: 'series',
+      summary: series.description ?? '',
+      url: `/series/${series.path}`,
+      links: [],
+      featured: false,
+    },
+  ]
+}
+
+function compareEvents(a: TimelineEvent, b: TimelineEvent) {
+  const dateDiff = b.date.getTime() - a.date.getTime()
+  if (dateDiff) {
+    return dateDiff
+  }
+  const sourceOrder: Record<TimelineSource, number> = { manual: 1, series: 2, post: 3 }
+  const aOrder = a.featured ? 0 : sourceOrder[a.source]
+  const bOrder = b.featured ? 0 : sourceOrder[b.source]
+  return aOrder - bOrder || a.title.localeCompare(b.title)
+}
+---
+
+<LayoutDefault>
+  <SiteSeo slot="seo" title={`${t('Journey')} · 孤独终洁`} desc={t('journey_intro')} />
+
+  <section class="journey-page" data-journey-page>
+    <header class="journey-header">
+      <div>
+        <span class="journey-coordinate">PERSONAL ORBIT / {String(events.length).padStart(3, '0')}</span>
+        <h1 class="post-title">{t('Journey')}</h1>
+      </div>
+      <a href="/map">{t('Map')} <span aria-hidden="true">↗</span></a>
+    </header>
+
+    <p class="journey-intro">{t('journey_intro')}</p>
+
+    <div class="journey-filters" aria-label={t('Journey')}>
+      {
+        filters.map((filter, index) => (
+          <button type="button" data-journey-filter={filter} aria-pressed={index === 0 ? 'true' : 'false'}>
+            {t(`journey_filter_${filter}`)}
+          </button>
+        ))
+      }
+    </div>
+
+    <div class="journey-years" aria-live="polite">
+      {
+        [...yearGroups.entries()]
+          .sort(([a], [b]) => b - a)
+          .map(([year, yearEvents]) => (
+            <section class="journey-year" data-journey-year>
+              <h2>{year}</h2>
+              <ol>
+                {yearEvents.map((event) => (
+                  <li data-journey-event data-kind={event.kind}>
+                    <div class:list={['journey-marker', { 'is-featured': event.featured }]} aria-hidden="true" />
+                    <article>
+                      <header>
+                        <div>
+                          <span class="journey-kind">
+                            {event.source === 'manual'
+                              ? t('journey_manual')
+                              : event.source === 'series'
+                                ? t('journey_series')
+                                : t('journey_post')}
+                          </span>
+                          <h3>{event.url ? <a href={event.url}>{event.title}</a> : event.title}</h3>
+                        </div>
+                        <time datetime={event.date.toISOString()}>{formatDate(event.date, 'MM-DD')}</time>
+                      </header>
+                      <p>{event.summary}</p>
+                      {event.entry && <JourneyEntryContent entry={event.entry} />}
+                      {event.links.length > 0 && (
+                        <ul class="journey-links">
+                          {event.links.map((link) => (
+                            <li>
+                              <a href={link.url}>
+                                {link.label} <span aria-hidden="true">↗</span>
+                              </a>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </article>
+                  </li>
+                ))}
+              </ol>
+            </section>
+          ))
+      }
+    </div>
+  </section>
+</LayoutDefault>
+
+<script>
+  type JourneyWindow = Window & { __journeyFilterController?: AbortController }
+
+  const journeyWindow = window as JourneyWindow
+  journeyWindow.__journeyFilterController?.abort()
+  const journeyFilterController = new AbortController()
+  journeyWindow.__journeyFilterController = journeyFilterController
+
+  function initializeJourneyFilters() {
+    const page = document.querySelector<HTMLElement>('[data-journey-page]')
+    if (!page || page.dataset.ready) {
+      return
+    }
+    page.dataset.ready = 'true'
+    const buttons = Array.from(page.querySelectorAll<HTMLButtonElement>('[data-journey-filter]'))
+    const events = Array.from(page.querySelectorAll<HTMLElement>('[data-journey-event]'))
+    const years = Array.from(page.querySelectorAll<HTMLElement>('[data-journey-year]'))
+
+    buttons.forEach((button) => {
+      button.addEventListener(
+        'click',
+        () => {
+          const filter = button.dataset.journeyFilter ?? 'all'
+          buttons.forEach((item) => item.setAttribute('aria-pressed', String(item === button)))
+          events.forEach((event) => {
+            event.hidden = filter !== 'all' && event.dataset.kind !== filter
+          })
+          years.forEach((year) => {
+            year.hidden = !year.querySelector('[data-journey-event]:not([hidden])')
+          })
+        },
+        { signal: journeyFilterController.signal },
+      )
+    })
+  }
+
+  initializeJourneyFilters()
+  document.addEventListener('astro:page-load', initializeJourneyFilters, {
+    signal: journeyFilterController.signal,
+  })
+</script>
+
+<style>
+  .journey-page {
+    display: flex;
+    flex-direction: column;
+    gap: 1.55rem;
+  }
+
+  .journey-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--uno-colors-shadow);
+  }
+
+  .journey-header > a {
+    font-size: 0.82rem;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  .journey-coordinate {
+    display: block;
+    margin-bottom: 0.35rem;
+    font-size: 0.68rem;
+    letter-spacing: 0.16em;
+    opacity: 0.58;
+  }
+
+  .journey-intro {
+    max-width: 40rem;
+    margin: 0;
+    font-size: 1.02rem;
+    line-height: 1.8;
+  }
+
+  .journey-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+  }
+
+  .journey-filters button {
+    padding: 0.3rem 0.55rem;
+    border: 1px solid var(--uno-colors-shadow);
+    color: inherit;
+    background: transparent;
+    font: inherit;
+    font-size: 0.72rem;
+    cursor: pointer;
+  }
+
+  .journey-filters button[aria-pressed='true'],
+  .journey-filters button:hover,
+  .journey-filters button:focus-visible {
+    color: var(--uno-colors-background);
+    background: var(--uno-colors-primary);
+    outline: none;
+  }
+
+  .journey-years {
+    display: flex;
+    flex-direction: column;
+    gap: 2.2rem;
+  }
+
+  .journey-year {
+    display: grid;
+    grid-template-columns: 4.5rem minmax(0, 1fr);
+    gap: 1.2rem;
+  }
+
+  .journey-year > h2 {
+    position: sticky;
+    top: 1rem;
+    align-self: start;
+    margin: 0;
+    font-size: 1rem;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.08em;
+  }
+
+  .journey-year > ol {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .journey-year > ol > li {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1rem minmax(0, 1fr);
+    gap: 0.75rem;
+    padding: 0 0 1.4rem;
+  }
+
+  .journey-year > ol > li::before {
+    position: absolute;
+    top: 0.6rem;
+    bottom: -0.6rem;
+    left: 0.24rem;
+    width: 1px;
+    background: var(--uno-colors-shadow);
+    content: '';
+  }
+
+  .journey-year > ol > li:last-child::before {
+    display: none;
+  }
+
+  .journey-marker {
+    z-index: 1;
+    width: 0.48rem;
+    height: 0.48rem;
+    margin-top: 0.38rem;
+    border: 1px solid currentColor;
+    border-radius: 999px;
+    background: var(--uno-colors-background);
+  }
+
+  .journey-marker.is-featured {
+    background: currentColor;
+  }
+
+  .journey-year article {
+    min-width: 0;
+    padding-bottom: 1.15rem;
+    border-bottom: 1px solid var(--uno-colors-shadow);
+  }
+
+  .journey-year article > header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .journey-kind {
+    display: block;
+    margin-bottom: 0.2rem;
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    opacity: 0.48;
+  }
+
+  .journey-year h3 {
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.55;
+  }
+
+  .journey-year time {
+    padding-top: 0.1rem;
+    font-size: 0.72rem;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    opacity: 0.52;
+  }
+
+  .journey-year article > p {
+    margin: 0.35rem 0 0;
+    font-size: 0.87rem;
+    line-height: 1.7;
+    opacity: 0.74;
+  }
+
+  .journey-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem 1rem;
+    margin: 0.7rem 0 0;
+    padding: 0;
+    font-size: 0.78rem;
+    font-weight: 700;
+    list-style: none;
+  }
+
+  [hidden] {
+    display: none !important;
+  }
+
+  @media (max-width: 560px) {
+    .journey-header {
+      align-items: flex-start;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+
+    .journey-year {
+      grid-template-columns: 1fr;
+      gap: 0.85rem;
+    }
+
+    .journey-year > h2 {
+      position: static;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid currentColor;
+    }
+  }
+</style>

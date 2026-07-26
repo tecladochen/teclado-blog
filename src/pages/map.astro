@@ -1,0 +1,120 @@
+---
+import type { KnowledgeEdge, KnowledgeGraphData, KnowledgeNode } from '~/types'
+import { themeConfig } from '~/.config'
+import KnowledgeMap from '~/components/KnowledgeMap.astro'
+import SiteSeo from '~/components/SiteSeo.astro'
+import LayoutDefault from '~/layouts/LayoutDefault.astro'
+import { getPathFromCategory, getPostDescription, getPosts, getSeriesOverviews } from '~/utils'
+
+const { translate: t } = Astro.locals
+const posts = await getPosts()
+const series = await getSeriesOverviews()
+const usedCategories = [...new Set(posts.flatMap((post) => post.data.categories))].sort()
+
+const nodes: KnowledgeNode[] = [
+  ...usedCategories.map((category) => ({
+    id: `category:${category}`,
+    kind: 'category' as const,
+    label: category,
+    url: `/categories/${getPathFromCategory(category, themeConfig.site.categoryMap)}`,
+    description: t('categories_count', posts.filter((post) => post.data.categories.includes(category)).length),
+  })),
+  ...series.map((item) => ({
+    id: `series:${item.name}`,
+    kind: 'series' as const,
+    label: item.name,
+    url: `/series/${item.path}`,
+    description: item.description ?? '',
+    status: item.status,
+  })),
+  ...posts.map((post) => ({
+    id: `post:${post.id}`,
+    kind: 'post' as const,
+    label: post.data.title,
+    url: `/posts/${post.id}/`,
+    description: getPostDescription(post),
+    categories: post.data.categories,
+    series: post.data.series?.name,
+  })),
+]
+
+const edges: KnowledgeEdge[] = posts.flatMap((post) => [
+  ...post.data.categories.map((category) => ({
+    source: `post:${post.id}`,
+    target: `category:${category}`,
+  })),
+  ...(post.data.series
+    ? [
+        {
+          source: `post:${post.id}`,
+          target: `series:${post.data.series.name}`,
+        },
+      ]
+    : []),
+])
+
+const graph: KnowledgeGraphData = { nodes, edges }
+---
+
+<LayoutDefault>
+  <SiteSeo slot="seo" title={`${t('Map')} · 孤独终洁`} desc={t('knowledge_map_intro')} />
+
+  <section class="map-page">
+    <header class="map-header">
+      <div>
+        <span class="map-coordinate">KNOWLEDGE FIELD / {String(nodes.length).padStart(3, '0')}</span>
+        <h1 class="post-title">{t('Map')}</h1>
+      </div>
+      <a href="/journey">{t('Journey')} <span aria-hidden="true">↗</span></a>
+    </header>
+
+    <p class="map-intro">{t('knowledge_map_intro')}</p>
+    <KnowledgeMap data={graph} />
+  </section>
+</LayoutDefault>
+
+<style>
+  .map-page {
+    display: flex;
+    flex-direction: column;
+    gap: 1.4rem;
+  }
+
+  .map-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--uno-colors-shadow);
+  }
+
+  .map-header > a {
+    font-size: 0.82rem;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  .map-coordinate {
+    display: block;
+    margin-bottom: 0.35rem;
+    font-size: 0.68rem;
+    letter-spacing: 0.16em;
+    opacity: 0.58;
+  }
+
+  .map-intro {
+    max-width: 42rem;
+    margin: 0;
+    font-size: 1.02rem;
+    line-height: 1.8;
+  }
+
+  @media (max-width: 520px) {
+    .map-header {
+      align-items: flex-start;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+  }
+</style>

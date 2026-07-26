@@ -7,7 +7,7 @@ const { translate: t } = Astro.locals
 ---
 
 <nav class="text-center font-bold" flex="~ col gap-4">
-  <ul lg="flex-col items-start text-4" class="text-3.5" flex="~ row gap-2 justify-center">
+  <ul lg="flex-col items-start text-4" class="text-3.5" flex="~ row wrap gap-2 justify-center">
     {
       navLinks.map((nav) => (
         <li>
@@ -22,11 +22,51 @@ const { translate: t } = Astro.locals
     {
       socialLinks.map(({ href, name }) => (
         <li>
-          <a href={href} target="_blank" rel="noopener noreferrer" title={name} class="not-underline-hover inline-flex items-center justify-center">
+          <a
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            title={name}
+            class="not-underline-hover inline-flex items-center justify-center"
+          >
             <span class:list={[getSocialIconClass(name), 'w-6 h-6 shrink-0']} aria-hidden="true" />
           </a>
         </li>
       ))
     }
   </ul>
+  <button type="button" class="search-trigger" data-search-open aria-label={t('Search')}>
+    <span class="i-mdi-magnify w-4 h-4" aria-hidden="true"></span>
+    <span>{t('Search')}</span>
+    <kbd>⌘K</kbd>
+  </button>
 </nav>
+
+<style>
+  .search-trigger {
+    display: inline-flex;
+    align-items: center;
+    align-self: center;
+    gap: 0.35rem;
+    padding: 0.28rem 0.5rem;
+    border: 1px solid var(--uno-colors-shadow);
+    color: inherit;
+    background: transparent;
+    font: inherit;
+    font-size: 0.72rem;
+    cursor: pointer;
+  }
+
+  .search-trigger:hover,
+  .search-trigger:focus-visible {
+    color: var(--uno-colors-background);
+    background: var(--uno-colors-primary);
+    outline: none;
+  }
+
+  .search-trigger kbd {
+    font-family: inherit;
+    font-size: 0.58rem;
+    opacity: 0.55;
+  }
+</style>

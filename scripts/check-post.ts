@@ -93,8 +93,11 @@ function checkPosts(targets: string[]): void {
   // order 冲突要放在全量文章里判断，即使这次只检查一篇
   const seriesIndex = buildSeriesIndex(allPosts)
 
-  let errors = 0
+  const roadmapIssues = checkSeriesRoadmaps()
+  let errors = roadmapIssues.filter(issue => issue.level === 'error').length
   let warnings = 0
+
+  reportConfiguration(roadmapIssues)
 
   for (const post of selected) {
     const issues = checkPost(post, seriesIndex)
@@ -116,6 +119,53 @@ function checkPosts(targets: string[]): void {
   else {
     consola.success(summary)
   }
+}
+
+function checkSeriesRoadmaps(): Issue[] {
+  const issues: Issue[] = []
+  const names = new Set<string>()
+  const paths = new Set<string>()
+
+  for (const series of themeConfig.site.seriesMap) {
+    if (names.has(series.name)) {
+      issues.push({
+        level: 'error',
+        rule: 'series-roadmap',
+        message: `专栏名称重复：「${series.name}」`,
+      })
+    }
+    names.add(series.name)
+
+    if (paths.has(series.path)) {
+      issues.push({
+        level: 'error',
+        rule: 'series-roadmap',
+        message: `专栏路径重复：「${series.path}」`,
+      })
+    }
+    paths.add(series.path)
+
+    const orders = new Set<number>()
+    for (const chapter of series.roadmap) {
+      if (!Number.isInteger(chapter.order) || chapter.order <= 0) {
+        issues.push({
+          level: 'error',
+          rule: 'series-roadmap',
+          message: `专栏「${series.name}」的规划章节「${chapter.title}」order 必须是大于 0 的整数`,
+        })
+      }
+      else if (orders.has(chapter.order)) {
+        issues.push({
+          level: 'error',
+          rule: 'series-roadmap',
+          message: `专栏「${series.name}」的规划章节 order ${chapter.order} 重复`,
+        })
+      }
+      orders.add(chapter.order)
+    }
+  }
+
+  return issues
 }
 
 function collectPosts(): PostFile[] {
@@ -787,6 +837,18 @@ function report(post: PostFile, issues: Issue[]): void {
   for (const issue of issues) {
     const location = issue.line === undefined ? '' : `:${issue.line}`
     consola.log(`      ${issue.level === 'error' ? 'error' : 'warn '}  ${issue.rule}${location}  ${issue.message}`)
+  }
+}
+
+function reportConfiguration(issues: Issue[]): void {
+  if (issues.length === 0) {
+    consola.log('  ✔ seriesMap roadmap')
+    return
+  }
+
+  consola.log('  ✖ seriesMap roadmap')
+  for (const issue of issues) {
+    consola.log(`      ${issue.level === 'error' ? 'error' : 'warn '}  ${issue.rule}  ${issue.message}`)
   }
 }
 
