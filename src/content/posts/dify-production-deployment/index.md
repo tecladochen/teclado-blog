@@ -1,8 +1,10 @@
 ---
 title: Dify 生产级私有化部署实践
 pubDate: 2026-06-20
+modDate: 2026-07-26
 categories: ['工程实践']
 description: '记录一次 Dify 生产级私有化部署：拆分有状态与无状态组件，接入阿里云 RDS、Redis、OSS 和自建 Qdrant，并整理部署验证与常见故障。'
+draft: false
 ---
 
 > 一份从踩坑到落地的生产级 Dify 私有化部署经验总结，帮助你绕开官方一键部署到生产环境之间的那道鸿沟。

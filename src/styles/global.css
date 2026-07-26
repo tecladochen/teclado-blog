@@ -25,6 +25,11 @@ html {
   scroll-margin-top: 1.5rem;
 }
 
+/* 正文列窄，长 URL 和长英文标识符要能断行，否则会顶宽整行 */
+.prose {
+  overflow-wrap: break-word;
+}
+
 html,
 main {
   scroll-padding-top: 1.5rem;

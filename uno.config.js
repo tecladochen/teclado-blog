@@ -36,6 +36,14 @@ const cssExtend = {
     'white-space': 'normal',
     'word-wrap': 'break-word',
   },
+
+  // 正文列只有约 520px。收紧单元格内边距（默认 .625em 1em，三列光 padding 就吃掉近 100px），
+  // 并给出最小宽度，让宽表沿用 presetTypography 的 overflow-x: auto 横向滚动，
+  // 而不是把单元格挤成两三个字一行的竖条。
+  'td,th': {
+    'padding': '0.5em 0.75em',
+    'min-width': '5rem',
+  },
 }
 
 export default defineConfig({

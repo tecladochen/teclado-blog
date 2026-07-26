@@ -17,6 +17,7 @@
     "lint:fix": "eslint . --fix",
     "typecheck": "tsc --noEmit",
     "theme:create": "tsx scripts/create-post.ts",
+    "theme:check": "tsx scripts/check-post.ts",
     "theme:update": "tsx scripts/update-theme.ts"
   },
   "dependencies": {

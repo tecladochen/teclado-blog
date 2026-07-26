@@ -4,6 +4,8 @@ title: 理解 embedding（嵌入）
 
 pubDate: 2025-07-04
 
+modDate: 2026-07-26
+
 description: '从语义向量的基本概念出发，介绍 embedding 模型的底层原理、在 RAG 中的作用、模型选择维度，以及 Transformers 和 Sentence Transformers 的调用方式。'
 
 categories: ['AI']
@@ -22,7 +24,7 @@ draft: false
 
 在自然语言处理（NLP）中通常使用 embedding 模型将文本数据转换成 embedding 向量，这些 embedding 向量捕获了文本的语义特征，在 embedding 向量空间中，语义相近的实体在向量空间中距离更近，语义不相近的实体在向量空间中距离更远。
 
-![embedding的目的](./embedding的目的.png)
+![embedding 的目的](./embedding-purpose.png)
 
 
 
@@ -36,9 +38,11 @@ draft: false
 
 BERT 是针对于 NLU 任务打造的预训练模型，其输入一般是文本序列，而输出一般是 Label，例如情感分类的积极、消极 Label。但是，正如 Transformer 是一个 Seq2Seq 模型，使用 Encoder 堆叠而成的 BERT 本质上也是一个 Seq2Seq 模型，只是没有加入对特定任务的 Decoder，因此，为适配各种 NLU 任务，在模型的最顶层加入了一个分类头 prediction_heads，用于将多维度的隐藏状态通过线性层转换到分类维度（例如，如果一共有两个类别，prediction_heads 输出的就是两维向量）。
 
-输入的文本序列会首先通过 tokenizer（分词器） 转化成 input_ids（基本每一个模型在 tokenizer 的操作都类似，可以参考 Transformer 的 tokenizer 机制），然后进入 embedding 层转化为特定维度的 hidden_states，再经过 Encoder 块。Encoder 块中是对叠起来的 N 层 Encoder Layer，BERT 有两种规模的模型，分别是 base 版本（12层 Encoder Layer，768 的隐藏层维度，总参数量 110M），large 版本（24层 Encoder Layer，1024 的隐藏层维度，总参数量 340M）。通过 Encoder 编码之后的最顶层 hidden_states 最后经过 prediction_heads 就得到了最后的类别概率，经过 Softmax 计算就可以计算出模型预测的类别。
+输入的文本序列会首先通过 tokenizer（分词器） 转化成 input_ids（基本每一个模型在 tokenizer 的操作都类似，可以参考 Transformer 的 tokenizer 机制），然后进入 embedding 层转化为特定维度的 hidden_states，再经过 Encoder 块。
 
-![BERT模型架构](./BERT模型架构.png)
+Encoder 块中是对叠起来的 N 层 Encoder Layer，BERT 有两种规模的模型，分别是 base 版本（12层 Encoder Layer，768 的隐藏层维度，总参数量 110M），large 版本（24层 Encoder Layer，1024 的隐藏层维度，总参数量 340M）。通过 Encoder 编码之后的最顶层 hidden_states 最后经过 prediction_heads 就得到了最后的类别概率，经过 Softmax 计算就可以计算出模型预测的类别。
+
+![BERT 模型架构](./bert-architecture.png)
 
 BERT 更大的创新点在于提出了两个新的预训练任务上——MLM 和 NSP（Next Sentence Prediction，下一句预测），使用了预训练-微调范式将预训练和微调分离，完成一次预训练的模型可以仅通过微调应用在几乎所有下游任务上，所以只要微调的成本足够低，预训练的成本高一点也是有价值的。
 
@@ -98,11 +102,13 @@ HuggingFace 的 **MTEB leaderboard** 是一个一站式的文本 embedding 模�
 
 另外不推荐使用 LLM 微调的 embedding 模型，这类模型大小过大，并且性能和 BERT 模型差不多，但是计算成本高很多。
 
-但是最近的 Qwen3/Qwen3-Embedding 模型很火，这个模型基于 Qwen3-base 模型训练，属于 LLM 架构，但是采用了混合专家（MoE）架构设计，针对 embedding 任务做了深度优化，虽然单次推理成本比 BERT 模型高，但在大规模检索系统中，Qwen3-Embedding 的高准确率可减少召回次数，综合成本效益反而提升。所以说 Qwen3-Embedding 选择基于LLM架构，并非简单追求模型规模，而是通过平衡精度-成本来完成更好的 embedding 效果，对于简单任务，BERT 仍是高性价比选择；但在需要泛化性、多语言支持或长文本处理的场景，LLM 衍生的嵌入模型也许会变成发展趋势。
+但是最近的 Qwen3/Qwen3-Embedding 模型很火，这个模型基于 Qwen3-base 模型训练，属于 LLM 架构，但是采用了混合专家（MoE）架构设计，针对 embedding 任务做了深度优化。虽然单次推理成本比 BERT 模型高，但在大规模检索系统中，Qwen3-Embedding 的高准确率可减少召回次数，综合成本效益反而提升。
+
+所以说 Qwen3-Embedding 选择基于LLM架构，并非简单追求模型规模，而是通过平衡精度-成本来完成更好的 embedding 效果。对于简单任务，BERT 仍是高性价比选择；但在需要泛化性、多语言支持或长文本处理的场景，LLM 衍生的嵌入模型也许会变成发展趋势。
  
 因为 MTEB 评测数据集是公开的，所以模型通常会基于评测数据进行效果优化，因此 MTEB 的排名和评分更适合作为参考，一般来说选择合适 embedding 模型的流程是根据自己的场景需求参考 MTEB 榜单挑选出一些备选模型，然后构建 baseline 和自己评测的数据集，然后对于 baseline 进行测试，根据测试的结果来选择是否要更换或者优化 embedding 模型，经过反复迭代才能找到适合自己的 embedding 模型。
 
-![挑选embedding模型的流程](./挑选embedding模型的流程.png)
+![挑选 embedding 模型的流程](./embedding-model-selection.png)
 
 
 
