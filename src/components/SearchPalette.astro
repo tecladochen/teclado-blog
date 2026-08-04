@@ -402,11 +402,11 @@ const commands = [
     border-radius: 0;
     color: var(--uno-colors-primary);
     background: var(--uno-colors-background);
-    box-shadow: 0.8rem 0.8rem 0 var(--uno-colors-shadow);
+    box-shadow: 0.5rem 0.5rem 0 var(--uno-colors-shadow);
   }
 
   .search-palette::backdrop {
-    background: color-mix(in srgb, var(--uno-colors-primary) 28%, transparent);
+    background: color-mix(in srgb, var(--uno-colors-primary) 18%, transparent);
     backdrop-filter: blur(2px);
   }
 
@@ -421,8 +421,7 @@ const commands = [
     align-items: flex-start;
     justify-content: space-between;
     gap: 1rem;
-    padding: 1.15rem 1.25rem 1rem;
-    border-bottom: 1px solid var(--uno-colors-shadow);
+    padding: 1rem 1.25rem 0.85rem;
   }
 
   .search-coordinate {
@@ -439,7 +438,7 @@ const commands = [
   }
 
   .search-close {
-    padding: 0.28rem 0.45rem;
+    padding: 0.24rem 0.42rem;
     border: 1px solid var(--uno-colors-shadow);
     color: inherit;
     background: transparent;
@@ -453,9 +452,10 @@ const commands = [
     grid-template-columns: auto minmax(0, 1fr) auto;
     gap: 0.7rem;
     align-items: center;
-    margin: 1rem 1.25rem 0;
+    margin: 0.9rem 1.25rem 0;
     padding: 0.7rem 0.8rem;
     border: 1px solid currentColor;
+    background: color-mix(in srgb, var(--uno-colors-shadow) 16%, transparent);
   }
 
   .search-input-wrap input {
@@ -482,7 +482,7 @@ const commands = [
 
   .search-result-list {
     margin: 0;
-    padding: 1rem 1.25rem 0;
+    padding: 0.75rem 1.25rem 0;
     list-style: none;
   }
 
@@ -491,11 +491,14 @@ const commands = [
   }
 
   .search-result-list a {
+    position: relative;
     display: flex;
     flex-direction: column;
     gap: 0.22rem;
-    padding: 0.75rem 0.55rem;
+    padding: 0.72rem 0.55rem 0.72rem 0.7rem;
+    border-left: 2px solid transparent;
     text-decoration: none;
+    transition: background-color 120ms ease, border-color 120ms ease;
   }
 
   .search-result-list strong {
@@ -517,15 +520,23 @@ const commands = [
     opacity: 0.52;
   }
 
-  [data-search-option][data-active],
+  [data-search-option][data-active] {
+    border-left-color: var(--uno-colors-primary);
+    background: color-mix(in srgb, var(--uno-colors-primary) 12%, transparent);
+  }
+
+  [data-search-option]:hover {
+    background: color-mix(in srgb, var(--uno-colors-primary) 8%, transparent);
+  }
+
   [data-search-option]:focus-visible {
-    color: var(--uno-colors-background);
-    background: var(--uno-colors-primary);
+    border-left-color: var(--uno-colors-primary);
+    background: color-mix(in srgb, var(--uno-colors-primary) 12%, transparent);
     outline: none;
   }
 
   .search-commands {
-    padding: 1rem 1.25rem;
+    padding: 0.8rem 1.25rem 1rem;
   }
 
   .search-commands > p {
@@ -539,7 +550,6 @@ const commands = [
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     border-top: 1px solid var(--uno-colors-shadow);
-    border-left: 1px solid var(--uno-colors-shadow);
   }
 
   .search-commands a {
@@ -547,8 +557,7 @@ const commands = [
     align-items: center;
     justify-content: space-between;
     gap: 0.75rem;
-    padding: 0.7rem;
-    border-right: 1px solid var(--uno-colors-shadow);
+    padding: 0.7rem 0.15rem;
     border-bottom: 1px solid var(--uno-colors-shadow);
     text-decoration: none;
   }
@@ -561,7 +570,7 @@ const commands = [
 
   .search-status {
     margin: 0;
-    padding: 2rem 1.25rem 0.5rem;
+    padding: 1.75rem 1.25rem 0.5rem;
     text-align: center;
     opacity: 0.65;
   }
@@ -581,10 +590,10 @@ const commands = [
     display: flex;
     gap: 1rem;
     margin-top: auto;
-    padding: 0.7rem 1.25rem;
+    padding: 0.65rem 1.25rem;
     border-top: 1px solid var(--uno-colors-shadow);
     font-size: 0.65rem;
-    opacity: 0.58;
+    opacity: 0.52;
   }
 
   @media (max-width: 520px) {
