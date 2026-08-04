@@ -110,50 +110,40 @@ function compareEvents(a: TimelineEvent, b: TimelineEvent) {
         )
       }
     </div>
+
+    {/*
+      Keep this script inside <main> with is:inline.
+      Astro otherwise hoists the module outside </html>, and Swup only swaps
+      <main>, so soft-nav to /journey never attaches filter click handlers.
+    */}
+    <script is:inline>
+      (() => {
+        const page = document.querySelector('[data-journey-page]')
+        if (!page || page.dataset.ready === 'true') {
+          return
+        }
+        page.dataset.ready = 'true'
+
+        const buttons = Array.from(page.querySelectorAll('[data-journey-filter]'))
+        const events = Array.from(page.querySelectorAll('[data-journey-event]'))
+        const years = Array.from(page.querySelectorAll('[data-journey-year]'))
+
+        buttons.forEach((button) => {
+          button.addEventListener('click', () => {
+            const filter = button.dataset.journeyFilter || 'all'
+            buttons.forEach((item) => item.setAttribute('aria-pressed', String(item === button)))
+            events.forEach((event) => {
+              event.hidden = filter !== 'all' && event.dataset.kind !== filter
+            })
+            years.forEach((year) => {
+              year.hidden = !year.querySelector('[data-journey-event]:not([hidden])')
+            })
+          })
+        })
+      })()
+    </script>
   </section>
 </LayoutDefault>
-
-<script>
-  type JourneyWindow = Window & { __journeyFilterController?: AbortController }
-
-  const journeyWindow = window as JourneyWindow
-  journeyWindow.__journeyFilterController?.abort()
-  const journeyFilterController = new AbortController()
-  journeyWindow.__journeyFilterController = journeyFilterController
-
-  function initializeJourneyFilters() {
-    const page = document.querySelector<HTMLElement>('[data-journey-page]')
-    if (!page || page.dataset.ready) {
-      return
-    }
-    page.dataset.ready = 'true'
-    const buttons = Array.from(page.querySelectorAll<HTMLButtonElement>('[data-journey-filter]'))
-    const events = Array.from(page.querySelectorAll<HTMLElement>('[data-journey-event]'))
-    const years = Array.from(page.querySelectorAll<HTMLElement>('[data-journey-year]'))
-
-    buttons.forEach((button) => {
-      button.addEventListener(
-        'click',
-        () => {
-          const filter = button.dataset.journeyFilter ?? 'all'
-          buttons.forEach((item) => item.setAttribute('aria-pressed', String(item === button)))
-          events.forEach((event) => {
-            event.hidden = filter !== 'all' && event.dataset.kind !== filter
-          })
-          years.forEach((year) => {
-            year.hidden = !year.querySelector('[data-journey-event]:not([hidden])')
-          })
-        },
-        { signal: journeyFilterController.signal },
-      )
-    })
-  }
-
-  initializeJourneyFilters()
-  document.addEventListener('astro:page-load', initializeJourneyFilters, {
-    signal: journeyFilterController.signal,
-  })
-</script>
 
 <style>
   .journey-page {
