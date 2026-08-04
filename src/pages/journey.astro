@@ -1,92 +1,47 @@
 ---
-import type { JourneyEntry, Post, SeriesOverview } from '~/types'
+import type { JourneyEntry } from '~/types'
 import { getCollection } from 'astro:content'
 import JourneyEntryContent from '~/components/JourneyEntryContent.astro'
 import SiteSeo from '~/components/SiteSeo.astro'
 import LayoutDefault from '~/layouts/LayoutDefault.astro'
-import { formatDate, getPostDescription, getPosts, getSeriesOverviews } from '~/utils'
-
-type TimelineSource = 'manual' | 'series' | 'post'
+import { formatDate } from '~/utils'
 
 interface TimelineEvent {
   id: string
   title: string
   date: Date
   kind: 'life' | 'project' | 'learning' | 'blog'
-  source: TimelineSource
   summary: string
-  url?: string
   links: { label: string; url: string }[]
   featured: boolean
-  entry?: JourneyEntry
+  entry: JourneyEntry
 }
 
 const { translate: t } = Astro.locals
-const posts = await getPosts()
-const series = await getSeriesOverviews()
-const manualEntries = (await getCollection('journey')).filter((entry) => entry.data.draft !== true)
-
-const events: TimelineEvent[] = [
-  ...manualEntries.map((entry) => ({
-    id: `manual:${entry.id}`,
+const events: TimelineEvent[] = (await getCollection('journey'))
+  .filter((entry) => entry.data.draft !== true)
+  .map((entry) => ({
+    id: entry.id,
     title: entry.data.title,
     date: entry.data.date,
     kind: entry.data.kind,
-    source: 'manual' as const,
     summary: entry.data.summary,
     links: entry.data.links,
     featured: entry.data.featured,
     entry,
-  })),
-  ...posts.map(postToEvent),
-  ...series.flatMap(seriesToEvent),
-].sort(compareEvents)
+  }))
+  .sort(compareEvents)
 
 const yearGroups = Map.groupBy(events, (event) => event.date.getUTCFullYear())
 const filters = ['all', 'life', 'project', 'learning', 'blog'] as const
-
-function postToEvent(post: Post): TimelineEvent {
-  return {
-    id: `post:${post.id}`,
-    title: post.data.title,
-    date: post.data.pubDate,
-    kind: 'blog',
-    source: 'post',
-    summary: getPostDescription(post),
-    url: `/posts/${post.id}/`,
-    links: [],
-    featured: false,
-  }
-}
-
-function seriesToEvent(series: SeriesOverview): TimelineEvent[] {
-  const firstPost = [...series.posts].sort((a, b) => a.data.pubDate.getTime() - b.data.pubDate.getTime())[0]
-  if (!firstPost) {
-    return []
-  }
-  return [
-    {
-      id: `series:${series.path}`,
-      title: series.name,
-      date: firstPost.data.pubDate,
-      kind: 'blog',
-      source: 'series',
-      summary: series.description ?? '',
-      url: `/series/${series.path}`,
-      links: [],
-      featured: false,
-    },
-  ]
-}
 
 function compareEvents(a: TimelineEvent, b: TimelineEvent) {
   const dateDiff = b.date.getTime() - a.date.getTime()
   if (dateDiff) {
     return dateDiff
   }
-  const sourceOrder: Record<TimelineSource, number> = { manual: 1, series: 2, post: 3 }
-  const aOrder = a.featured ? 0 : sourceOrder[a.source]
-  const bOrder = b.featured ? 0 : sourceOrder[b.source]
+  const aOrder = a.featured ? 0 : 1
+  const bOrder = b.featured ? 0 : 1
   return aOrder - bOrder || a.title.localeCompare(b.title)
 }
 ---
@@ -96,11 +51,7 @@ function compareEvents(a: TimelineEvent, b: TimelineEvent) {
 
   <section class="journey-page" data-journey-page>
     <header class="journey-header">
-      <div>
-        <span class="journey-coordinate">PERSONAL ORBIT / {String(events.length).padStart(3, '0')}</span>
-        <h1 class="post-title">{t('Journey')}</h1>
-      </div>
-      <a href="/map">{t('Map')} <span aria-hidden="true">↗</span></a>
+      <h2 class="post-title">{t('Journey')}</h2>
     </header>
 
     <p class="journey-intro">{t('journey_intro')}</p>
@@ -117,48 +68,46 @@ function compareEvents(a: TimelineEvent, b: TimelineEvent) {
 
     <div class="journey-years" aria-live="polite">
       {
-        [...yearGroups.entries()]
-          .sort(([a], [b]) => b - a)
-          .map(([year, yearEvents]) => (
-            <section class="journey-year" data-journey-year>
-              <h2>{year}</h2>
-              <ol>
-                {yearEvents.map((event) => (
-                  <li data-journey-event data-kind={event.kind}>
-                    <div class:list={['journey-marker', { 'is-featured': event.featured }]} aria-hidden="true" />
-                    <article>
-                      <header>
-                        <div>
-                          <span class="journey-kind">
-                            {event.source === 'manual'
-                              ? t('journey_manual')
-                              : event.source === 'series'
-                                ? t('journey_series')
-                                : t('journey_post')}
-                          </span>
-                          <h3>{event.url ? <a href={event.url}>{event.title}</a> : event.title}</h3>
-                        </div>
-                        <time datetime={event.date.toISOString()}>{formatDate(event.date, 'MM-DD')}</time>
-                      </header>
-                      <p>{event.summary}</p>
-                      {event.entry && <JourneyEntryContent entry={event.entry} />}
-                      {event.links.length > 0 && (
-                        <ul class="journey-links">
-                          {event.links.map((link) => (
-                            <li>
-                              <a href={link.url}>
-                                {link.label} <span aria-hidden="true">↗</span>
-                              </a>
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-                    </article>
-                  </li>
-                ))}
-              </ol>
-            </section>
-          ))
+        events.length === 0 ? (
+          <p class="journey-empty">{t('journey_empty')}</p>
+        ) : (
+          [...yearGroups.entries()]
+            .sort(([a], [b]) => b - a)
+            .map(([year, yearEvents]) => (
+              <section class="journey-year" data-journey-year>
+                <h2>{year}</h2>
+                <ol>
+                  {yearEvents.map((event) => (
+                    <li data-journey-event data-kind={event.kind}>
+                      <div class:list={['journey-marker', { 'is-featured': event.featured }]} aria-hidden="true" />
+                      <article>
+                        <header>
+                          <div>
+                            <span class="journey-kind">{t(`journey_filter_${event.kind}`)}</span>
+                            <h3>{event.title}</h3>
+                          </div>
+                          <time datetime={event.date.toISOString()}>{formatDate(event.date, 'MM-DD')}</time>
+                        </header>
+                        <p>{event.summary}</p>
+                        <JourneyEntryContent entry={event.entry} />
+                        {event.links.length > 0 && (
+                          <ul class="journey-links">
+                            {event.links.map((link) => (
+                              <li>
+                                <a href={link.url}>
+                                  {link.label} <span aria-hidden="true">↗</span>
+                                </a>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </article>
+                    </li>
+                  ))}
+                </ol>
+              </section>
+            ))
+        )
       }
     </div>
   </section>
@@ -222,25 +171,18 @@ function compareEvents(a: TimelineEvent, b: TimelineEvent) {
     border-bottom: 1px solid var(--uno-colors-shadow);
   }
 
-  .journey-header > a {
-    font-size: 0.82rem;
-    font-weight: 700;
-    white-space: nowrap;
-  }
-
-  .journey-coordinate {
-    display: block;
-    margin-bottom: 0.35rem;
-    font-size: 0.68rem;
-    letter-spacing: 0.16em;
-    opacity: 0.58;
-  }
-
   .journey-intro {
     max-width: 40rem;
     margin: 0;
     font-size: 1.02rem;
     line-height: 1.8;
+  }
+
+  .journey-empty {
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.7;
+    opacity: 0.68;
   }
 
   .journey-filters {

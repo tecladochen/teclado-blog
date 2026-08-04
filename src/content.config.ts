@@ -34,8 +34,6 @@ const spec = defineCollection({
     description: z.string().optional(),
     pubDate: z.coerce.date(),
     updatedDate: z.coerce.date().optional(),
-    summary: z.string().optional(),
-    focus: z.array(z.string()).default([]),
   }),
 })
 

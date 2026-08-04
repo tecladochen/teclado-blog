@@ -5,7 +5,7 @@ kind: learning
 summary: 用一两句话说明这件事发生了什么，以及它为什么值得被记录。
 links:
   - label: 可选链接
-    url: /now
+    url: /archive
 featured: false
 draft: true
 ---

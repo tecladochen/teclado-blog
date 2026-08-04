@@ -27,7 +27,7 @@ const displayDate = post.data.modDate ?? post.data.pubDate
       <time datetime={displayDate.toISOString()}>{formatDate(displayDate)}</time>
     </span>
     {categoryList.map((category) => <PostCategory category={category} />)}
-    {series && <PostSeriesLink name={series.name} order={series.order} />}
+    {series && <PostSeriesLink name={series.name} />}
   </div>
 </header>
 

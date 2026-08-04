@@ -1,21 +1,9 @@
 ---
-
 title: Chroma 向量数据库
-
 pubDate: 2025-07-10 13:50:00
-
 modDate: 2026-07-26
-
 description: '从快速入门到架构、数据模型与部署方式，系统整理 Chroma 的集合管理、索引配置和数据操作，帮助理解如何用它存储并检索向量数据。'
-
 categories: ['AI']
-
-series:
-  name: '向量检索与 RAG 基础'
-  order: 3
-
-
-
 draft: false
 ---
 

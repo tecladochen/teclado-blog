@@ -24,21 +24,4 @@ const { Content } = await render(aboutPost)
   <article class="prose">
     <Content />
   </article>
-  <nav class="about-explore" aria-label={t('quick_actions')}>
-    <a href="/map">{t('view_knowledge_map')} <span aria-hidden="true">→</span></a>
-    <a href="/journey">{t('view_journey')} <span aria-hidden="true">→</span></a>
-  </nav>
 </LayoutDefault>
-
-<style>
-  .about-explore {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.65rem 1.25rem;
-    justify-content: flex-end;
-    padding-top: 0.8rem;
-    border-top: 1px solid var(--uno-colors-shadow);
-    font-size: 0.82rem;
-    font-weight: 700;
-  }
-</style>

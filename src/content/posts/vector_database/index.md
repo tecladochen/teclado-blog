@@ -1,22 +1,10 @@
 ---
-
 title: 向量数据库和索引技术
-
 pubDate: 2025-07-07
-
 modDate: 2026-07-26
-
 description: '介绍向量数据库的工作流程与选型思路，梳理 FLAT、IVF、HNSW、PQ 等索引技术，以及欧几里得距离、余弦相似度和点积等度量方法。'
-
 categories: ['AI']
-
-series:
-  name: '向量检索与 RAG 基础'
-  order: 2
-
-
 draft: false
-
 ---
 在之前介绍过了什么是 embedding 以及在构建 RAG 系统时如何选择合适的 embedding 模型，当我们将原始数据嵌入成 embedding 向量后，为了能重复使用这些向量数据，我们就需要一个专门用于向量存储的数据库——向量数据库（vector database）。
 

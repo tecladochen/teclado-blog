@@ -1,81 +1,47 @@
 ---
-import type { SeriesOverview } from '~/types'
+import { themeConfig } from '~/.config'
 import LayoutDefault from '~/layouts/LayoutDefault.astro'
-import { formatDate, getSeriesOverviews } from '~/utils'
+import { formatDate, getSeries, getSeriesDescription } from '~/utils'
 
 export async function getStaticPaths() {
-  const series = await getSeriesOverviews()
-  return series.map((overview) => ({
-    params: { series: overview.path },
-    props: { overview },
+  const postsBySeries = await getSeries()
+  return themeConfig.site.seriesMap.map((config) => ({
+    params: { series: config.path },
+    props: {
+      posts: postsBySeries.get(config.name) ?? [],
+      name: config.name,
+      description: config.description ?? getSeriesDescription(config.name, themeConfig.site.seriesMap),
+    },
   }))
 }
 
-const { overview } = Astro.props as { overview: SeriesOverview }
+const { posts, name, description } = Astro.props
 const { translate: t } = Astro.locals
 ---
 
 <LayoutDefault>
   <section class="series-detail-page">
     <header class="series-detail-header">
-      <div>
-        <span class="series-coordinate">PATH / {overview.path.toUpperCase()}</span>
-        <h1 class="post-title">{overview.name}</h1>
-      </div>
-      <span class:list={['series-status', `is-${overview.status}`]}>
-        {t(`series_status_${overview.status}`)}
-      </span>
+      <h2 class="post-title">{name}</h2>
+      <p>{t('series_count', posts.length)}</p>
     </header>
 
-    {overview.description && <p class="series-description">{overview.description}</p>}
+    {description && <p class="series-description">{description}</p>}
 
-    <section class="series-summary" aria-label={t('series_progress')}>
-      <div>
-        <strong>{overview.publishedCount} / {overview.totalCount}</strong>
-        <span>{t('chapters_published')}</span>
-      </div>
-      <div
-        class="series-progress"
-        role="progressbar"
-        aria-label={t('series_progress')}
-        aria-valuemin="0"
-        aria-valuemax={overview.totalCount}
-        aria-valuenow={overview.publishedCount}
-      >
-        <span style={`--progress: ${overview.progress * 100}%`}></span>
-      </div>
-    </section>
-
-    <ol class="series-roadmap">
-      {
-        overview.chapters.map((chapter) => (
-          <li class:list={['roadmap-item', `is-${chapter.state}`]}>
-            <div class="roadmap-marker" aria-hidden="true">
-              <span>{String(chapter.order).padStart(2, '0')}</span>
-            </div>
-            <div class="roadmap-main">
-              <div class="roadmap-heading">
-                {chapter.url ? <a href={chapter.url}>{chapter.title}</a> : <span>{chapter.title}</span>}
-                <small>{t(`chapter_${chapter.state}`)}</small>
-              </div>
-              {chapter.description && <p>{chapter.description}</p>}
-            </div>
-            {chapter.publishedAt ? (
-              <time datetime={chapter.publishedAt.toISOString()}>{formatDate(chapter.publishedAt)}</time>
-            ) : (
-              <span class="roadmap-pending" aria-hidden="true">
-                ···
-              </span>
-            )}
-          </li>
-        ))
-      }
-    </ol>
-
-    <footer class="series-detail-footer">
-      <a href="/series">← {t('view_all_series')}</a>
-      <a href="/map">{t('view_knowledge_map')} →</a>
-    </footer>
+    {
+      posts.length === 0 ? (
+        <p class="series-empty">{t('series_empty')}</p>
+      ) : (
+        <ol class="series-post-list">
+          {posts.map((post) => (
+            <li class="series-post-item">
+              <time datetime={post.data.pubDate.toISOString()}>{formatDate(post.data.pubDate)}</time>
+              <a class="series-post-title" href={`/posts/${post.id}/`}>{post.data.title}</a>
+            </li>
+          ))}
+        </ol>
+      )
+    }
   </section>
 </LayoutDefault>
 
@@ -83,7 +49,7 @@ const { translate: t } = Astro.locals
   .series-detail-page {
     display: flex;
     flex-direction: column;
-    gap: 1.4rem;
+    gap: 1.35rem;
   }
 
   .series-detail-header {
@@ -95,184 +61,80 @@ const { translate: t } = Astro.locals
     border-bottom: 1px solid var(--uno-colors-shadow);
   }
 
-  .series-coordinate {
-    display: block;
-    max-width: min(32rem, 70vw);
-    margin-bottom: 0.35rem;
-    overflow: hidden;
-    font-size: 0.68rem;
-    letter-spacing: 0.14em;
-    text-overflow: ellipsis;
+  .series-detail-header p {
+    margin: 0;
+    font-size: 0.875rem;
+    line-height: 1.5;
     white-space: nowrap;
-    opacity: 0.58;
-  }
-
-  .series-status {
-    padding: 0.18rem 0.45rem;
-    border: 1px solid var(--uno-colors-shadow);
-    font-size: 0.65rem;
-    letter-spacing: 0.08em;
-    white-space: nowrap;
-  }
-
-  .series-status.is-planned {
-    border-style: dashed;
-    opacity: 0.62;
+    opacity: 0.72;
   }
 
   .series-description {
-    max-width: 42rem;
-    margin: 0;
+    margin: -0.25rem 0 0;
     line-height: 1.75;
     opacity: 0.82;
+    overflow-wrap: break-word;
   }
 
-  .series-summary {
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
-    gap: 1rem;
-    align-items: center;
-    padding: 0.9rem 0;
-    border-top: 1px solid var(--uno-colors-shadow);
-    border-bottom: 1px solid var(--uno-colors-shadow);
-  }
-
-  .series-summary > div:first-child {
-    display: flex;
-    gap: 0.55rem;
-    align-items: baseline;
-    font-size: 0.72rem;
+  .series-empty {
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.7;
     opacity: 0.68;
   }
 
-  .series-summary strong {
-    font-size: 1.15rem;
-    font-variant-numeric: tabular-nums;
-    opacity: 1;
-  }
-
-  .series-progress {
-    height: 2px;
-    overflow: hidden;
-    background: var(--uno-colors-shadow);
-  }
-
-  .series-progress span {
-    display: block;
-    width: var(--progress);
-    height: 100%;
-    background: currentColor;
-  }
-
-  .series-roadmap {
+  .series-post-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
     margin: 0;
     padding: 0;
     list-style: none;
   }
 
-  .roadmap-item {
-    position: relative;
+  .series-post-item {
     display: grid;
-    grid-template-columns: 2.5rem minmax(0, 1fr) auto;
-    gap: 0.9rem;
-    min-width: 0;
-    padding: 1rem 0;
-  }
-
-  .roadmap-item + .roadmap-item {
-    border-top: 1px solid var(--uno-colors-shadow);
-  }
-
-  .roadmap-marker {
-    display: flex;
-    align-items: flex-start;
-    justify-content: center;
-    padding-top: 0.15rem;
-  }
-
-  .roadmap-marker span {
-    display: grid;
-    width: 1.65rem;
-    height: 1.65rem;
-    border: 1px solid currentColor;
-    border-radius: 999px;
-    place-items: center;
-    font-size: 0.62rem;
-    font-variant-numeric: tabular-nums;
-  }
-
-  .is-planned .roadmap-marker span {
-    border-style: dashed;
-    opacity: 0.48;
-  }
-
-  .roadmap-main {
+    grid-template-columns: 5.5rem minmax(0, 1fr);
+    column-gap: 1rem;
+    align-items: start;
     min-width: 0;
   }
 
-  .roadmap-heading {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.4rem 0.7rem;
-    align-items: baseline;
-    font-size: 1rem;
+  .series-post-item time {
+    padding-top: 0.1rem;
+    font-size: 0.82rem;
     line-height: 1.6;
-    font-weight: 700;
-  }
-
-  .roadmap-heading small {
-    font-size: 0.6rem;
-    font-weight: 400;
-    letter-spacing: 0.08em;
-    opacity: 0.5;
-  }
-
-  .roadmap-main p {
-    margin: 0.3rem 0 0;
-    font-size: 0.85rem;
-    line-height: 1.65;
-    opacity: 0.7;
-  }
-
-  .roadmap-item time,
-  .roadmap-pending {
-    padding-top: 0.25rem;
-    font-size: 0.72rem;
     font-variant-numeric: tabular-nums;
     white-space: nowrap;
-    opacity: 0.5;
+    opacity: 0.68;
   }
 
-  .series-detail-footer {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.75rem 1.5rem;
-    justify-content: space-between;
-    padding-top: 0.3rem;
-    font-size: 0.82rem;
+  .series-post-title {
+    font-size: 1.08rem;
+    line-height: 1.65;
     font-weight: 700;
+    overflow-wrap: break-word;
   }
 
-  @media (max-width: 560px) {
+  @media (max-width: 520px) {
+    .series-detail-page {
+      gap: 1.2rem;
+    }
+
     .series-detail-header {
       align-items: flex-start;
       flex-direction: column;
+      gap: 0.25rem;
     }
 
-    .series-summary {
-      grid-template-columns: 1fr;
-      gap: 0.65rem;
+    .series-post-item {
+      grid-template-columns: 4.9rem minmax(0, 1fr);
+      column-gap: 0.75rem;
     }
 
-    .roadmap-item {
-      grid-template-columns: 2rem minmax(0, 1fr);
-      gap: 0.7rem;
-    }
-
-    .roadmap-item time,
-    .roadmap-pending {
-      grid-column: 2;
-      padding-top: 0;
+    .series-post-title {
+      font-size: 1rem;
+      line-height: 1.6;
     }
   }
 </style>

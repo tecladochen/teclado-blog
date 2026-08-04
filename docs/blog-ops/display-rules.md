@@ -80,7 +80,7 @@ Frontmatter 的 `description` 写 **55~120 个汉字**的完整摘要：说明�
 ## Frontmatter 约束
 
 - `categories` 的每一项必须出现在 `src/.config/user.ts` 的 `categoryMap` 里。
-- `series.name` 必须出现在 `seriesMap` 里，`order` 为大于 0 的整数且同专栏内唯一。
+- `series.name` 必须出现在 `seriesMap` 里。`order` 可选；若填写，需为大于 0 的整数且同专栏内唯一。
 - 二者未登记时，`src/utils/index.ts` 的 `getPathFromCategory` / `getPathFromSeries`
   会回退成用中文名当 URL 路径，产生中文编码链接。新增分类或专栏必须同时改 `user.ts`。
 - 文章正文文件必须叫 `index.md` 或 `index.mdx`。用别的文件名会把文件名并进 URL，
