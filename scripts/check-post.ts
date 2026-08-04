@@ -17,11 +17,11 @@ const POSTS_DIR = path.resolve('src/content/posts')
 
 /** 宽度单位为半宽字符：汉字算 2，ASCII 算 1。 */
 const LIMITS = {
-  titleWidth: 32, // 16 个汉字，移动端主标题单行上限
-  titleWidthMax: 40, // 20 个汉字，超过必须改短
-  headingWidth: 40, // 20 个汉字
+  titleWidth: 40, // 20 个汉字，主标题占满正文列，可略长
+  titleWidthMax: 48, // 24 个汉字，超过必须改短
+  headingWidth: 28, // 14 个汉字，目录两列单行上限
   descriptionMin: 55, // 汉字数
-  descriptionMax: 120,
+  descriptionMax: 75,
   tableColumns: 3,
   tableColumnsMax: 4,
   paragraphChars: 240, // 汉字数，移动端约 12 行
@@ -265,7 +265,7 @@ function checkFrontmatter(
       issues.push({
         level: 'error',
         rule: 'title',
-        message: `标题视觉宽度 ${width}，超过上限 ${LIMITS.titleWidthMax}（约 ${LIMITS.titleWidthMax / 2} 个汉字），移动端会折成多行`,
+        message: `标题视觉宽度 ${width}，超过上限 ${LIMITS.titleWidthMax}（约 ${LIMITS.titleWidthMax / 2} 个汉字），主标题也会折成过多行`,
       })
     }
     else if (width > LIMITS.titleWidth) {
@@ -405,7 +405,7 @@ function checkHeadings(body: string[], offset: number): Issue[] {
       issues.push({
         level: 'warn',
         rule: 'heading',
-        message: `标题视觉宽度 ${width}，建议压到 ${LIMITS.headingWidth} 以内（约 ${LIMITS.headingWidth / 2} 个汉字）：${text}`,
+        message: `小标题视觉宽度 ${width}，建议压到 ${LIMITS.headingWidth} 以内（约 ${LIMITS.headingWidth / 2} 个汉字），否则目录两列会换行：${text}`,
         line: lineNumber,
       })
     }
