@@ -1,7 +1,5 @@
 ---
-import type { JourneyEntry } from '~/types'
 import { getCollection } from 'astro:content'
-import JourneyEntryContent from '~/components/JourneyEntryContent.astro'
 import SiteSeo from '~/components/SiteSeo.astro'
 import LayoutDefault from '~/layouts/LayoutDefault.astro'
 import { formatDate } from '~/utils'
@@ -14,7 +12,6 @@ interface TimelineEvent {
   summary: string
   links: { label: string; url: string }[]
   featured: boolean
-  entry: JourneyEntry
 }
 
 const { translate: t } = Astro.locals
@@ -28,7 +25,6 @@ const events: TimelineEvent[] = (await getCollection('journey'))
     summary: entry.data.summary,
     links: entry.data.links,
     featured: entry.data.featured,
-    entry,
   }))
   .sort(compareEvents)
 
@@ -89,7 +85,6 @@ function compareEvents(a: TimelineEvent, b: TimelineEvent) {
                           <time datetime={event.date.toISOString()}>{formatDate(event.date, 'MM-DD')}</time>
                         </header>
                         <p>{event.summary}</p>
-                        <JourneyEntryContent entry={event.entry} />
                         {event.links.length > 0 && (
                           <ul class="journey-links">
                             {event.links.map((link) => (
