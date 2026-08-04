@@ -29,6 +29,12 @@ pnpm typecheck      # tsc --noEmit
 
 改完文章跑 `pnpm theme:check`，必须零 error。
 
+## 轨迹节点
+
+给 `/journey` 加节点或改节点，按
+[docs/blog-ops/journey-rules.md](docs/blog-ops/journey-rules.md) 写：title 写发生了什么，
+summary 写 title 说不出的那层，两层不互相复述。信息不够就问，不要替作者编。
+
 ## 代码约定
 
 - 路径别名 `~/` 指向 `src/`。
