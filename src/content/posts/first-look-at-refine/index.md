@@ -3,7 +3,7 @@ title: '第一次了解 Refine：业务系统的骨架'
 pubDate: 2026-08-04
 description: '从技术选型切入，说明 Refine 是数据密集型 React 应用的元框架，梳理资源驱动与 Headless，并对比常见工具帮助判断是否引入。'
 categories: ['编程']
-draft: true
+draft: false
 ---
 
 最近在做技术选型时，我接触到了一个叫 Refine 的前端框架。
