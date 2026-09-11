@@ -1,0 +1,47 @@
+---
+import { SEO } from 'astro-seo'
+import { site } from '~/site'
+
+interface Props {
+  title: string
+  description: string
+  type?: 'website' | 'article'
+}
+
+const { title, description, type = 'website' } = Astro.props
+const siteUrl = Astro.site ?? new URL(site.website)
+const canonical = new URL(Astro.url.pathname, siteUrl).toString()
+const og = new URL('/og.png', siteUrl).toString()
+const rss = new URL('/atom.xml', siteUrl).toString()
+---
+
+<SEO
+  charset="utf-8"
+  title={title}
+  description={description}
+  canonical={canonical}
+  openGraph={{
+    basic: {
+      title,
+      type,
+      image: og,
+      url: canonical,
+    },
+  }}
+  extend={{
+    link: [
+      { rel: 'icon', href: '/favicon.png', type: 'image/png' },
+      { rel: 'alternate', type: 'application/rss+xml', title: site.title, href: rss },
+      { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
+      { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },
+    ],
+    meta: [
+      { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+      { name: 'theme-color', content: '#f2eadc' },
+      { name: 'twitter:card', content: 'summary_large_image' },
+      { name: 'twitter:title', content: title },
+      { name: 'twitter:description', content: description },
+      { name: 'twitter:image', content: og },
+    ],
+  }}
+/>

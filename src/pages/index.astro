@@ -1,0 +1,71 @@
+---
+import FeaturedEssay from '~/components/FeaturedEssay.astro'
+import Base from '~/layouts/Base.astro'
+import { formatDotDate, getPosts } from '~/lib/content'
+import { site } from '~/site'
+
+const [featured] = await getPosts()
+const empties = ['未写', '未写', '未写']
+---
+
+<Base>
+  <main class="page">
+    <section class="hero">
+      <div>
+        <p class="hero-kicker">{site.subtitle}</p>
+        <h1 class="hero-title">
+          <b>孤</b><b>独</b><b>终</b><b>洁</b>
+        </h1>
+        <p class="hero-copy">想得太多，做得太少。这个角落用来把走过的路慢慢写下来——先从读书开始。</p>
+      </div>
+      <aside class="hero-side">
+        <div class="meta-line">
+          <span>Now</span>
+          <span>Hangzhou</span>
+        </div>
+        <div class="now-card">
+          <div class="now-label">
+            <span>正在做</span>
+          </div>
+          <p>在创业团队里做 AI 产品，业余读刘震云，备着软考。</p>
+        </div>
+      </aside>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <h2>正在读</h2>
+        <a href="/writing">全部文章</a>
+      </div>
+      {featured && <FeaturedEssay post={featured} />}
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <h2>痕迹</h2>
+        <a href="/about">关于我</a>
+      </div>
+      <div class="marks">
+        {
+          site.marks.map((mark) => (
+            <article class="mark">
+              <time datetime={mark.date}>{formatDotDate(new Date(mark.date))}</time>
+              <h3>{mark.title}</h3>
+              <p>{mark.summary}</p>
+            </article>
+          ))
+        }
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <h2>书架</h2>
+        <span class="section-note">以后再写</span>
+      </div>
+      <div class="empties">
+        {empties.map((label) => <div class="empty-slot">{label}</div>)}
+      </div>
+    </section>
+  </main>
+</Base>

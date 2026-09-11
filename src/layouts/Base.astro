@@ -1,0 +1,44 @@
+---
+import { ClientRouter } from 'astro:transitions'
+import Analytics from '~/components/Analytics.astro'
+import Seo from '~/components/Seo.astro'
+import SiteFooter from '~/components/SiteFooter.astro'
+import SiteHeader from '~/components/SiteHeader.astro'
+import { site } from '~/site'
+import '~/styles/global.css'
+
+interface Props {
+  title?: string
+  description?: string
+  type?: 'website' | 'article'
+}
+
+const props = Astro.props
+const pageTitle = props.title ? `${props.title} · ${site.title}` : `${site.title} · ${site.subtitle}`
+---
+
+<html lang="zh-CN">
+  <head>
+    <Seo title={pageTitle} description={props.description ?? site.description} type={props.type} />
+    <ClientRouter />
+    <Analytics />
+    <script src="/theme-init.js"></script>
+  </head>
+  <body>
+    <div class="progress" data-progress></div>
+    <div class="site-shell">
+      <a class="spine" href="/" transition:name="spine">
+        <span>{site.title}</span>
+        <span class="spine-mark">{site.subtitle}</span>
+      </a>
+      <div class="site-main">
+        <SiteHeader />
+        <slot />
+        <SiteFooter />
+      </div>
+    </div>
+    <script>
+      import '~/scripts/ui.ts'
+    </script>
+  </body>
+</html>

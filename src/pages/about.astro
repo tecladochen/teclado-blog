@@ -1,27 +1,45 @@
 ---
 import { getEntry, render } from 'astro:content'
-import LayoutDefault from '~/layouts/LayoutDefault.astro'
-import { formatDate } from '~/utils'
+import Base from '~/layouts/Base.astro'
+import { formatDotDate } from '~/lib/content'
+import { site } from '~/site'
 
-const { translate: t } = Astro.locals
-const aboutPost = await getEntry('spec', 'about')
-if (!aboutPost) {
-  throw new Error('No about post found')
-}
-const { Content } = await render(aboutPost)
+const about = await getEntry('pages', 'about')
+if (!about) throw new Error('about page is missing')
+
+const { Content } = await render(about)
 ---
 
-<LayoutDefault>
-  <header flex="~ col gap-2">
-    <h1 class="post-title">
-      <a class="not-prose">{aboutPost.data.title}</a>
-    </h1>
-    <div class="text-3.5">
-      <span>{t('posted_at')}</span>
-      <time>{formatDate(aboutPost.data.pubDate)}</time>
+<Base title="关于" description="关于 Teclado，以及这块叫孤独终洁的角落。">
+  <main class="page">
+    <div class="page-intro">
+      <p class="hero-kicker">About</p>
+      <h1>关于</h1>
     </div>
-  </header>
-  <article class="prose">
-    <Content />
-  </article>
-</LayoutDefault>
+    <div class="about-grid">
+      <article class="prose">
+        <Content />
+      </article>
+      <aside>
+        <div class="meta-line">
+          <span>痕迹</span>
+          <span>{site.author}</span>
+        </div>
+        <div class="about-marks">
+          {
+            site.marks.map((mark) => (
+              <article class="mark">
+                <time datetime={mark.date}>{formatDotDate(new Date(mark.date))}</time>
+                <h3>{mark.title}</h3>
+                <p>{mark.summary}</p>
+              </article>
+            ))
+          }
+        </div>
+        <div class="footer-links about-links">
+          {site.social.map((item) => <a href={item.href}>{item.name}</a>)}
+        </div>
+      </aside>
+    </div>
+  </main>
+</Base>

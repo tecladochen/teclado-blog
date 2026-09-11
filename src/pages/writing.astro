@@ -1,0 +1,21 @@
+---
+import FeaturedEssay from '~/components/FeaturedEssay.astro'
+import Base from '~/layouts/Base.astro'
+import { getPosts } from '~/lib/content'
+
+const posts = await getPosts()
+---
+
+<Base title="文章" description="读书笔记，和以后慢慢补上的文字。">
+  <main class="page">
+    <div class="page-intro">
+      <p class="hero-kicker">Writing</p>
+      <h1>文章</h1>
+      <p>先把读过的书留下来。技术教程和空转的长文先拿掉，书架空着也没关系。</p>
+    </div>
+    <div class="writing-list">
+      {posts.map((post) => <FeaturedEssay post={post} />)}
+      <div class="empty-slot">下一篇还没写</div>
+    </div>
+  </main>
+</Base>

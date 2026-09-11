@@ -1,14 +1,5 @@
 ---
-import GoogleAnalytics from '~/components/analytics/GoogleAnalytics.astro'
-import UmamiAnalytics from '~/components/analytics/UmamiAnalytics.astro'
-import { themeConfig } from '~/.config'
-
-const PUBLIC_GOOGLE_ANALYTICS_ID = import.meta.env.PUBLIC_GOOGLE_ANALYTICS_ID
-const googleAnalyticsId = themeConfig.analytics.googleAnalyticsId || PUBLIC_GOOGLE_ANALYTICS_ID
-
-const PUBLIC_UMAMI_ANALYTICS_ID = import.meta.env.PUBLIC_UMAMI_ANALYTICS_ID
-const umamiAnalyticsId = themeConfig.analytics.umamiAnalyticsId || PUBLIC_UMAMI_ANALYTICS_ID
+import { site } from '~/site'
 ---
 
-{googleAnalyticsId && <GoogleAnalytics id={googleAnalyticsId} />}
-{umamiAnalyticsId && <UmamiAnalytics id={umamiAnalyticsId} />}
+{site.umamiId && <script is:inline defer src="https://cloud.umami.is/script.js" data-website-id={site.umamiId} />}

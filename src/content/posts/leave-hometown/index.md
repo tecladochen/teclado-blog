@@ -2,7 +2,7 @@
 title: 读《出延津记》
 pubDate: 2025-06-30
 modDate: 2026-07-26
-categories: ['读书']
+kind: reading
 description: '读完《一句顶一万句》上篇《出延津记》后的随笔：从杨百顺辗转失意的人生，到老裴、来喜与老詹带来的短暂温暖，记录那些令人难忘的人物和情节。'
 draft: false
 ---

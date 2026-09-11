@@ -1,0 +1,20 @@
+---
+import type { Post } from '~/lib/content'
+import { formatChineseDate } from '~/lib/content'
+
+interface Props {
+  post: Post
+}
+
+const { post } = Astro.props
+const kindLabel = post.data.kind === 'reading' ? '读书' : post.data.kind === 'life' ? '生活' : '笔记'
+---
+
+<a class="essay-card" href={`/posts/${post.id}/`} transition:name={`essay-${post.id}`}>
+  <span class="essay-kind">{kindLabel}</span>
+  <div>
+    <h3>{post.data.title}</h3>
+    <p>{post.data.description}</p>
+    <time datetime={post.data.pubDate.toISOString()}>{formatChineseDate(post.data.pubDate)}</time>
+  </div>
+</a>
