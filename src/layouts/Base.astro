@@ -22,7 +22,7 @@ const pageTitle = props.title ? `${props.title} · ${site.title}` : `${site.titl
     <Seo title={pageTitle} description={props.description ?? site.description} type={props.type} />
     <ClientRouter />
     <Analytics />
-    <script src="/theme-init.js"></script>
+    <script is:inline src="/theme-init.js"></script>
   </head>
   <body>
     <div class="progress" data-progress></div>

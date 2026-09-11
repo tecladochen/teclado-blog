@@ -646,7 +646,7 @@ button {
   position: fixed;
   top: 0;
   left: 0;
-  height: 2px;
+  height: 3px;
   width: 0;
   z-index: 50;
   background: var(--seal);

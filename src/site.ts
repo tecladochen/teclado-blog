@@ -18,8 +18,8 @@ export const site = {
   ],
   nav: [
     { name: '首页', href: '/' },
-    { name: '文章', href: '/writing' },
-    { name: '关于', href: '/about' },
+    { name: '文章', href: '/writing/' },
+    { name: '关于', href: '/about/' },
   ],
   marks: [
     {

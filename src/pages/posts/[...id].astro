@@ -22,7 +22,7 @@ const kindLabel = post.data.kind === 'reading' ? '读书笔记' : post.data.kind
 
 <Base title={post.data.title} description={post.data.description} type="article">
   <main class="page">
-    <a class="back-link" href="/writing">← 返回文章</a>
+    <a class="back-link" href="/writing/">← 返回文章</a>
     <div class="article-hero" transition:name={`essay-${post.id}`}>
       <div class="ghost" aria-hidden="true">读</div>
       <header>
