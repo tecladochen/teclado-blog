@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "private": true,
   "packageManager": "pnpm@10.13.1",
-  "description": "孤独终洁 - Teclado 的个人博客",
+  "description": "teclado 的个人博客",
   "author": "Teclado <tecladochen@qq.com> (https://github.com/tecladochen)",
   "license": "MIT",
   "repository": "https://github.com/tecladochen/teclado-blog",

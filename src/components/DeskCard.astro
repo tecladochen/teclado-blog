@@ -1,0 +1,27 @@
+---
+interface Props {
+  item: {
+    no: string
+    kicker: string
+    title: string
+    excerpt: string
+    year: string
+  }
+}
+
+const { item } = Astro.props
+---
+
+<article class="desk-card" data-magnetic>
+  <b class="desk-ghost" aria-hidden="true">{item.no}</b>
+  <div class="desk-card-top">
+    <span>{item.no}</span>
+    <span class="desk-kicker">{item.kicker}</span>
+  </div>
+  <h3>{item.title}</h3>
+  <p>{item.excerpt}</p>
+  <div class="desk-card-foot">
+    <time>{item.year}</time>
+    <span>placeholder</span>
+  </div>
+</article>

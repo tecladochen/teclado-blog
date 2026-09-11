@@ -1,0 +1,65 @@
+---
+import { ClientRouter } from 'astro:transitions'
+import '~/styles/global.css'
+import { site } from '~/site'
+import SiteHeader from '~/components/SiteHeader.astro'
+import SiteFooter from '~/components/SiteFooter.astro'
+import Analytics from '~/components/Analytics.astro'
+
+interface Props {
+  title?: string
+  description?: string
+  ogType?: 'website' | 'article'
+  surface?: 'studio' | 'read'
+}
+
+const { title, description = site.description, ogType = 'website', surface = 'studio' } = Astro.props
+
+const pageTitle = title ? `${title} · ${site.title}` : `${site.title} · ${site.subtitle}`
+const canonical = new URL(Astro.url.pathname, site.website).href
+---
+
+<!doctype html>
+<html lang="zh-CN" data-theme="night" data-surface={surface}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="theme-color" content="#0b0a09" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="alternate" type="application/atom+xml" title={`${site.title} Atom`} href="/atom.xml" />
+    <link rel="icon" href="/favicon.png" type="image/png" />
+    <meta property="og:type" content={ogType} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:site_name" content={site.title} />
+    <meta name="twitter:card" content="summary" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Noto+Serif+SC:wght@400;500;600;700&family=Syne:wght@500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <script is:inline src="/theme-init.js"></script>
+    <ClientRouter />
+    <Analytics />
+  </head>
+  <body>
+    <div class="cursor" data-cursor aria-hidden="true"></div>
+    <div class="cursor-dot" data-cursor-dot aria-hidden="true"></div>
+    <div class="progress" data-progress aria-hidden="true"></div>
+    <div class="site-shell">
+      <SiteHeader />
+      <div class="page">
+        <slot />
+      </div>
+      <SiteFooter />
+    </div>
+    <script>
+      import '~/scripts/ui.ts'
+    </script>
+  </body>
+</html>

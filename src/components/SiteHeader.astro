@@ -1,0 +1,24 @@
+---
+import { site } from '~/site'
+
+const path = Astro.url.pathname
+---
+
+<header class="site-header" data-header>
+  <a class="brand" href="/" data-cursor="text">
+    <span class="brand-mark">{site.title}</span>
+    <span class="brand-line">{site.subtitle}</span>
+  </a>
+  <nav class="nav" aria-label="主导航">
+    {
+      site.nav.map((item) => (
+        <a href={item.href} aria-current={path === item.href ? 'page' : undefined}>
+          {item.name}
+        </a>
+      ))
+    }
+  </nav>
+  <button class="mode-btn" type="button" data-theme-toggle aria-label="切换日夜">
+    <span data-theme-label>墨</span>
+  </button>
+</header>

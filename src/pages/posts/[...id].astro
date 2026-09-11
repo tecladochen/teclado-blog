@@ -1,138 +1,51 @@
 ---
-import type { GetStaticPaths, InferGetStaticPropsType } from 'astro'
-import Comments from '~/components/Comments.astro'
-import Pagination from '~/components/Pagination.astro'
-import SiteSeo from '~/components/SiteSeo.astro'
-import TableOfContents from '~/components/TableOfContents.astro'
-import LayoutDefault from '~/layouts/LayoutDefault.astro'
-import LayoutPost from '~/layouts/LayoutPost.astro'
-import { getPosts, sortSeriesPosts } from '~/utils'
 import { render } from 'astro:content'
+import type { GetStaticPaths } from 'astro'
+import Base from '~/layouts/Base.astro'
+import { formatChineseDate, getPosts, kindLabel } from '~/lib/content'
 
 export const getStaticPaths = (async () => {
   const posts = await getPosts()
-  return posts.map((post, idx) => {
-    const prev = posts[idx - 1]
-    const next = posts[idx + 1]
-    return {
-      params: { id: post.id },
-      props: { entry: post, next, prev },
-    }
-  })
+  return posts.map((post) => ({
+    params: { id: post.id },
+    props: { post },
+  }))
 }) satisfies GetStaticPaths
 
-// type Params = InferGetStaticParamsType<typeof getStaticPaths>
-type Props = InferGetStaticPropsType<typeof getStaticPaths>
-
-const { entry, prev, next } = Astro.props
-const { Content, headings } = await render(entry)
-const { translate: t } = Astro.locals
-
-const seriesPosts = entry.data.series
-  ? sortSeriesPosts((await getPosts()).filter((post) => post.data.series?.name === entry.data.series?.name))
-  : []
-const seriesIndex = seriesPosts.findIndex((post) => post.id === entry.id)
-const prevSeriesPost = seriesIndex > 0 ? seriesPosts[seriesIndex - 1] : undefined
-const nextSeriesPost = seriesIndex >= 0 ? seriesPosts[seriesIndex + 1] : undefined
-
-function getUrl(id?: string) {
-  return `/posts/${id}`
-}
+const { post } = Astro.props
+const { Content, headings } = await render(post)
 ---
 
-<LayoutDefault>
-  <SiteSeo
-    slot="seo"
-    title={entry.data.title}
-    desc={entry.data.description}
-    banner={entry.data.banner}
-    type="article"
-  />
-
-  <LayoutPost post={entry}>
-    <TableOfContents headings={headings} />
-    <Content />
-  </LayoutPost>
-
-  {
-    entry.data.series && (prevSeriesPost || nextSeriesPost) && (
-      <Pagination
-        showLeft={Boolean(prevSeriesPost)}
-        leftTitle={`${t('prev_series_post')}: ${prevSeriesPost?.data.title}`}
-        leftUrl={getUrl(prevSeriesPost?.id)}
-        showRight={Boolean(nextSeriesPost)}
-        rightTitle={`${t('next_series_post')}: ${nextSeriesPost?.data.title}`}
-        rightUrl={getUrl(nextSeriesPost?.id)}
-        showPageCount={false}
-      />
-    )
-  }
-
-  {
-    !entry.data.series && (prev || next) && (
-      <Pagination
-        showLeft={Boolean(prev)}
-        leftTitle={`${t('prev_post')}: ${prev?.data.title}`}
-        leftUrl={getUrl(prev?.id)}
-        showRight={Boolean(next)}
-        rightTitle={`${t('next_post')}: ${next?.data.title}`}
-        rightUrl={getUrl(next?.id)}
-        showPageCount={false}
-      />
-    )
-  }
-  <!-- BUG 这里使用 client:visible 会导致构建失败。ref: https://github.com/withastro/astro/issues/7329 -->
-  <Comments post={entry} />
-</LayoutDefault>
-
-<script>
-  import '@github/clipboard-copy-element'
-
-  document.addEventListener('clipboard-copy', (event) => {
-    const target = event.target as HTMLElement
-    const icon = target.querySelector('.icon') as HTMLElement
-    icon.classList.replace('i-mdi-content-copy', 'i-mdi-check')
-    setTimeout(() => {
-      icon.classList.replace('i-mdi-check', 'i-mdi-content-copy')
-    }, 1500)
-  })
-
-  const codeBlocks = Array.from(document.querySelectorAll('pre'))
-  const icon = "<div class='i-mdi-content-copy icon text-white'></div>"
-  for (const codeBlock of codeBlocks) {
-    const wrapper = document.createElement('div')
-    wrapper.className = 'code-container'
-
-    const copyButton = document.createElement('clipboard-copy')
-    const code = codeBlock.querySelector('code')
-    copyButton.value = code?.textContent ?? ''
-    copyButton.className = 'clipboard-copy'
-    copyButton.innerHTML = icon
-
-    codeBlock.appendChild(copyButton)
-
-    codeBlock.parentNode?.insertBefore(wrapper, codeBlock)
-    wrapper.appendChild(codeBlock)
-  }
-</script>
-
-<style is:global>
-  .code-container {
-    position: relative;
-  }
-  .clipboard-copy {
-    position: absolute;
-    top: 0.5rem;
-    right: 0.5rem;
-    width: 1.75rem;
-    height: 1.75rem;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border-radius: 0.25rem;
-  }
-
-  .clipboard-copy:hover {
-    background-color: #30363d;
-  }
-</style>
+<Base title={post.data.title} description={post.data.description} ogType="article" surface="read">
+  <a class="back-link" href="/writing/">← notes</a>
+  <article class="essay" data-article>
+    <header class="article-hero">
+      <span class="ghost" aria-hidden="true">01</span>
+      <p class="article-kicker">
+        {kindLabel(post.data.kind)}
+      </p>
+      <h1>{post.data.title}</h1>
+      <p class="hero-copy">{post.data.description}</p>
+      <p class="article-meta">
+        <time datetime={post.data.pubDate.toISOString()}>{formatChineseDate(post.data.pubDate)}</time>
+        {post.data.modDate && <span>改过 {formatChineseDate(post.data.modDate)}</span>}
+      </p>
+    </header>
+    <div class="article-layout">
+      <div class="prose">
+        <Content />
+      </div>
+      {
+        headings.length > 0 && (
+          <nav class="toc" aria-label="目录">
+            {headings
+              .filter((heading) => heading.depth === 2)
+              .map((heading) => (
+                <a href={`#${heading.slug}`}>{heading.text}</a>
+              ))}
+          </nav>
+        )
+      }
+    </div>
+  </article>
+</Base>
