@@ -1031,25 +1031,37 @@ img {
   }
 
   .brand {
+    grid-column: 1;
+    grid-row: 1;
     font-size: 1.2rem;
+  }
+
+  .mode-btn {
+    grid-column: 2;
+    grid-row: 1;
+    margin-left: 0;
+    justify-self: end;
+    align-self: center;
+  }
+
+  .nav {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    justify-content: flex-start;
   }
 
   .brand-line {
     display: none;
   }
 
-  .nav {
-    grid-column: 1 / -1;
-    justify-content: flex-start;
-  }
-
   .nav a {
-    padding: 0.35rem 0.55rem 0.35rem 0;
+    padding: 0.35rem 0.7rem 0.2rem 0;
     letter-spacing: 0.12em;
   }
 
-  .mode-btn {
-    margin-left: 0;
+  .article-meta {
+    flex-wrap: wrap;
+    gap: 0.4rem 1rem;
   }
 
   .page,
