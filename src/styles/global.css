@@ -1019,13 +1019,40 @@ img {
     font-size: 16px;
   }
 
+  .site-header {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto auto;
+    height: auto;
+    min-height: var(--header-h);
+    padding: 0.75rem 1.15rem 0.55rem;
+    column-gap: 0.6rem;
+    row-gap: 0.15rem;
+  }
+
+  .brand {
+    font-size: 1.2rem;
+  }
+
+  .brand-line {
+    display: none;
+  }
+
+  .nav {
+    grid-column: 1 / -1;
+    justify-content: flex-start;
+  }
+
   .nav a {
-    padding: 0.4rem 0.45rem;
-    letter-spacing: 0.08em;
+    padding: 0.35rem 0.55rem 0.35rem 0;
+    letter-spacing: 0.12em;
+  }
+
+  .mode-btn {
+    margin-left: 0;
   }
 
   .page,
-  .site-header,
   .site-footer {
     padding-left: 1.15rem;
     padding-right: 1.15rem;
