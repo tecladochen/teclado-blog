@@ -1,71 +1,104 @@
 ---
-import FeaturedEssay from '~/components/FeaturedEssay.astro'
 import Base from '~/layouts/Base.astro'
-import { formatDotDate, getPosts } from '~/lib/content'
+import FeaturedEssay from '~/components/FeaturedEssay.astro'
+import DeskCard from '~/components/DeskCard.astro'
+import { getPosts } from '~/lib/content'
 import { site } from '~/site'
 
-const [featured] = await getPosts()
-const empties = ['未写', '未写', '未写']
+const posts = await getPosts()
+const featured = posts[0]
+const letters = site.title.split('')
+const ticker = [...site.ticker, ...site.ticker]
 ---
 
 <Base>
-  <main class="page">
-    <section class="hero">
-      <div>
-        <p class="hero-kicker">{site.subtitle}</p>
-        <h1 class="hero-title">
-          <b>孤</b><b>独</b><b>终</b><b>洁</b>
-        </h1>
-        <p class="hero-copy">想得太多，做得太少。这个角落用来把走过的路慢慢写下来——先从读书开始。</p>
-      </div>
-      <aside class="hero-side">
-        <div class="meta-line">
-          <span>Now</span>
-          <span>Hangzhou</span>
-        </div>
-        <div class="now-card">
-          <div class="now-label">
-            <span>正在做</span>
-          </div>
-          <p>在创业团队里做 AI 产品，业余读刘震云，备着软考。</p>
-        </div>
+  <section class="hero">
+    <div class="hero-meta">
+      <span>personal notes</span>
+      <span>{site.now.title}</span>
+    </div>
+    <h1 class="wordmark" aria-label={site.title}>
+      {letters.map((letter) => <span>{letter}</span>)}
+    </h1>
+    <div class="hero-row">
+      <p class="hero-copy">
+        名即站。这里不堆教程，也不假装成刊。桌上现在只有一篇读书笔记，其余格子是给以后留的位置——<em
+          >空着难看，先把形状摆出来。</em
+        >
+      </p>
+      <aside class="now-box">
+        <span>{site.now.kicker}</span>
+        <p>{site.now.body}</p>
       </aside>
-    </section>
+    </div>
+  </section>
 
-    <section class="section">
-      <div class="section-head">
-        <h2>正在读</h2>
-        <a href="/writing/">全部文章</a>
-      </div>
-      {featured && <FeaturedEssay post={featured} />}
-    </section>
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee-track">
+      {ticker.map((word) => <span>{word}</span>)}
+    </div>
+  </div>
 
-    <section class="section">
-      <div class="section-head">
-        <h2>痕迹</h2>
-        <a href="/about/">关于我</a>
-      </div>
-      <div class="marks">
-        {
-          site.marks.map((mark) => (
-            <article class="mark">
-              <time datetime={mark.date}>{formatDotDate(new Date(mark.date))}</time>
-              <h3>{mark.title}</h3>
-              <p>{mark.summary}</p>
-            </article>
-          ))
-        }
-      </div>
-    </section>
+  <section class="section">
+    <div class="section-head">
+      <h2>on the desk</h2>
+      <a href="/writing/">全部格子</a>
+    </div>
+    {featured && <FeaturedEssay post={featured} />}
+  </section>
 
-    <section class="section">
-      <div class="section-head">
-        <h2>书架</h2>
-        <span class="section-note">以后再写</span>
-      </div>
-      <div class="empties">
-        {empties.map((label) => <div class="empty-slot">{label}</div>)}
-      </div>
-    </section>
-  </main>
+  <section class="section">
+    <div class="section-head">
+      <h2>reserved</h2>
+      <span class="section-note">未写成 · 占位</span>
+    </div>
+    <div class="desk-grid">
+      {site.desk.map((item) => <DeskCard item={item} />)}
+    </div>
+  </section>
+
+  <section class="quote-band">
+    <blockquote>
+      {site.quote.text}
+    </blockquote>
+    <cite>— {site.quote.source}</cite>
+  </section>
+
+  <section class="section">
+    <div class="section-head">
+      <h2>marks</h2>
+      <span class="section-note">痕迹，不是年表</span>
+    </div>
+    <div class="marks">
+      {
+        site.marks.map((mark) => (
+          <article class="mark">
+            <time datetime={mark.date}>{mark.year}</time>
+            <h3>{mark.title}</h3>
+            <p>{mark.summary}</p>
+          </article>
+        ))
+      }
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-head">
+      <h2>materials</h2>
+      <span class="section-note">还没变成文章的东西</span>
+    </div>
+    <div class="materials">
+      {
+        site.materials.map((item) => (
+          <article class="material" data-magnetic>
+            <span>
+              {item.no} · {item.kind}
+            </span>
+            <h3>{item.title}</h3>
+            <p>{item.note}</p>
+          </article>
+        ))
+      }
+    </div>
+  </section>
 </Base>

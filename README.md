@@ -1,8 +1,6 @@
-# 孤独终洁
+# teclado
 
-> No More Solitude
-
-Teclado 的个人博客。Astro 5，站点信息在 `src/site.ts`，文章在 `src/content/posts/<slug>/index.md`。
+个人博客。Astro 5，站点信息在 `src/site.ts`，文章在 `src/content/posts/<slug>/index.md`。
 
 线上地址：<https://blog.teclado.cn>
 

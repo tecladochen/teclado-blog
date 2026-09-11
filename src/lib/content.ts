@@ -5,12 +5,22 @@ export type Post = CollectionEntry<'posts'>
 
 const DIGITS = ['〇', '一', '二', '三', '四', '五', '六', '七', '八', '九']
 
+const KIND_LABEL = {
+  reading: '读书笔记',
+  note: '笔记',
+  life: '生活',
+} as const
+
 export async function getPosts(): Promise<Post[]> {
   const posts = await getCollection('posts', ({ data }) => {
     return import.meta.env.PROD ? data.draft !== true : true
   })
 
   return posts.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+}
+
+export function kindLabel(kind: Post['data']['kind']): string {
+  return KIND_LABEL[kind]
 }
 
 export function formatDotDate(date: Date): string {

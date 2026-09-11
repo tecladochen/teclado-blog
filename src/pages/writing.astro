@@ -1,21 +1,33 @@
 ---
-import FeaturedEssay from '~/components/FeaturedEssay.astro'
 import Base from '~/layouts/Base.astro'
+import FeaturedEssay from '~/components/FeaturedEssay.astro'
+import DeskCard from '~/components/DeskCard.astro'
 import { getPosts } from '~/lib/content'
+import { site } from '~/site'
 
 const posts = await getPosts()
 ---
 
-<Base title="文章" description="读书笔记，和以后慢慢补上的文字。">
-  <main class="page">
-    <div class="page-intro">
-      <p class="hero-kicker">Writing</p>
-      <h1>文章</h1>
-      <p>先把读过的书留下来。技术教程和空转的长文先拿掉，书架空着也没关系。</p>
+<Base title="notes" description="已写成的笔记，以及桌上还空着的格子。">
+  <section class="page-intro">
+    <p class="hero-kicker">notes</p>
+    <h1>notes</h1>
+    <p>
+      目前公开的只有一篇读书笔记。下面那些编号不是假装发过的文章，是故意摆在桌上的空位——让版面先有密度，也提醒自己后面要写什么。
+    </p>
+  </section>
+
+  <section class="section writing-list">
+    {posts.map((post) => <FeaturedEssay post={post} />)}
+  </section>
+
+  <section class="section">
+    <div class="section-head">
+      <h2>placeholders</h2>
+      <span class="section-note">{site.desk.length} 个空位</span>
     </div>
-    <div class="writing-list">
-      {posts.map((post) => <FeaturedEssay post={post} />)}
-      <div class="empty-slot">下一篇还没写</div>
+    <div class="desk-grid">
+      {site.desk.map((item) => <DeskCard item={item} />)}
     </div>
-  </main>
+  </section>
 </Base>

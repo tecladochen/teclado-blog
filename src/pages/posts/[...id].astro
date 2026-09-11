@@ -1,8 +1,8 @@
 ---
-import type { GetStaticPaths, InferGetStaticPropsType } from 'astro'
 import { render } from 'astro:content'
+import type { GetStaticPaths } from 'astro'
 import Base from '~/layouts/Base.astro'
-import { formatChineseDate, getPosts } from '~/lib/content'
+import { formatChineseDate, getPosts, kindLabel } from '~/lib/content'
 
 export const getStaticPaths = (async () => {
   const posts = await getPosts()
@@ -12,42 +12,40 @@ export const getStaticPaths = (async () => {
   }))
 }) satisfies GetStaticPaths
 
-type Props = InferGetStaticPropsType<typeof getStaticPaths>
-
 const { post } = Astro.props
 const { Content, headings } = await render(post)
-const toc = headings.filter((item) => item.depth === 2)
-const kindLabel = post.data.kind === 'reading' ? '读书笔记' : post.data.kind === 'life' ? '生活' : '笔记'
 ---
 
-<Base title={post.data.title} description={post.data.description} type="article">
-  <main class="page">
-    <a class="back-link" href="/writing/">← 返回文章</a>
-    <div class="article-hero" transition:name={`essay-${post.id}`}>
-      <div class="ghost" aria-hidden="true">读</div>
-      <header>
-        <p class="article-kicker">{kindLabel}</p>
-        <h1>{post.data.title}</h1>
-        <div class="article-meta">
-          <time datetime={post.data.pubDate.toISOString()}>{formatChineseDate(post.data.pubDate)}</time>
-          {post.data.modDate && <span>补记于 {formatChineseDate(post.data.modDate)}</span>}
-        </div>
-      </header>
-    </div>
-
+<Base title={post.data.title} description={post.data.description} ogType="article" surface="read">
+  <a class="back-link" href="/writing/">← notes</a>
+  <article class="essay" data-article>
+    <header class="article-hero">
+      <span class="ghost" aria-hidden="true">01</span>
+      <p class="article-kicker">
+        {kindLabel(post.data.kind)}
+      </p>
+      <h1>{post.data.title}</h1>
+      <p class="hero-copy">{post.data.description}</p>
+      <p class="article-meta">
+        <time datetime={post.data.pubDate.toISOString()}>{formatChineseDate(post.data.pubDate)}</time>
+        {post.data.modDate && <span>改过 {formatChineseDate(post.data.modDate)}</span>}
+      </p>
+    </header>
     <div class="article-layout">
-      <article class="prose" data-article>
+      <div class="prose">
         <Content />
-      </article>
+      </div>
       {
-        toc.length > 0 && (
+        headings.length > 0 && (
           <nav class="toc" aria-label="目录">
-            {toc.map((item) => (
-              <a href={`#${item.slug}`}>{item.text}</a>
-            ))}
+            {headings
+              .filter((heading) => heading.depth === 2)
+              .map((heading) => (
+                <a href={`#${heading.slug}`}>{heading.text}</a>
+              ))}
           </nav>
         )
       }
     </div>
-  </main>
+  </article>
 </Base>

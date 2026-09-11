@@ -5,23 +5,18 @@ const year = new Date().getFullYear()
 ---
 
 <footer class="site-footer">
-  <div>
-    © {year}
-    {site.author}
-    ·
-    <a href={site.icp.href} target="_blank" rel="noopener">{site.icp.text}</a>
-  </div>
-  <div class="footer-links">
-    {
-      site.social.map((item) => (
-        <a
-          href={item.href}
-          target={item.href.startsWith('http') ? '_blank' : undefined}
-          rel={item.href.startsWith('http') ? 'noopener' : undefined}
-        >
-          {item.name}
-        </a>
-      ))
-    }
+  <p class="footer-word" aria-hidden="true">{site.title}</p>
+  <div class="footer-row">
+    <p>
+      © {year}
+      {site.author}
+      <span aria-hidden="true"> · </span>
+      只留能过自己这一关的字
+      <span aria-hidden="true"> · </span>
+      <a href={site.icp.href} rel="nofollow">{site.icp.text}</a>
+    </p>
+    <p>
+      {site.social.map((item) => <a href={item.href}>{item.name}</a>)}
+    </p>
   </div>
 </footer>

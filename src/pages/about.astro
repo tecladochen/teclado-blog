@@ -1,45 +1,52 @@
 ---
 import { getEntry, render } from 'astro:content'
 import Base from '~/layouts/Base.astro'
-import { formatDotDate } from '~/lib/content'
 import { site } from '~/site'
 
-const about = await getEntry('pages', 'about')
-if (!about) throw new Error('about page is missing')
-
-const { Content } = await render(about)
+const page = await getEntry('pages', 'about')
+if (!page) {
+  throw new Error('缺少关于页：src/content/pages/about.md')
+}
+const { Content } = await render(page)
 ---
 
-<Base title="关于" description="关于 Teclado，以及这块叫孤独终洁的角落。">
-  <main class="page">
-    <div class="page-intro">
-      <p class="hero-kicker">About</p>
-      <h1>关于</h1>
-    </div>
-    <div class="about-grid">
-      <article class="prose">
-        <Content />
+<Base title="about" description={page.data.description}>
+  <section class="page-intro">
+    <p class="hero-kicker">about</p>
+    <h1>about</h1>
+    <p>{page.data.description}</p>
+  </section>
+
+  <div class="about-grid">
+    <article class="prose">
+      <Content />
+    </article>
+    <aside>
+      <article class="now-box">
+        <span>{site.now.kicker}</span>
+        <h2>{site.now.title}</h2>
+        <p>{site.now.body}</p>
       </article>
-      <aside>
-        <div class="meta-line">
-          <span>痕迹</span>
-          <span>{site.author}</span>
-        </div>
-        <div class="about-marks">
-          {
-            site.marks.map((mark) => (
-              <article class="mark">
-                <time datetime={mark.date}>{formatDotDate(new Date(mark.date))}</time>
-                <h3>{mark.title}</h3>
-                <p>{mark.summary}</p>
-              </article>
-            ))
-          }
-        </div>
-        <div class="footer-links about-links">
-          {site.social.map((item) => <a href={item.href}>{item.name}</a>)}
-        </div>
-      </aside>
-    </div>
-  </main>
+      <div class="about-marks">
+        {
+          site.marks.map((mark) => (
+            <article class="mark">
+              <time datetime={mark.date}>{mark.year}</time>
+              <h3>{mark.title}</h3>
+              <p>{mark.summary}</p>
+            </article>
+          ))
+        }
+      </div>
+      <p class="about-links">
+        {
+          site.social.map((item) => (
+            <a class="text-link" href={item.href}>
+              {item.name}
+            </a>
+          ))
+        }
+      </p>
+    </aside>
+  </div>
 </Base>

@@ -1,20 +1,31 @@
 ---
-import type { Post } from '~/lib/content'
-import { formatChineseDate } from '~/lib/content'
+import type { CollectionEntry } from 'astro:content'
+import { formatChineseDate, kindLabel } from '~/lib/content'
 
 interface Props {
-  post: Post
+  post: CollectionEntry<'posts'>
+  index?: string
 }
 
-const { post } = Astro.props
-const kindLabel = post.data.kind === 'reading' ? '读书' : post.data.kind === 'life' ? '生活' : '笔记'
+const { post, index = '01' } = Astro.props
 ---
 
-<a class="essay-card" href={`/posts/${post.id}/`} transition:name={`essay-${post.id}`}>
-  <span class="essay-kind">{kindLabel}</span>
-  <div>
-    <h3>{post.data.title}</h3>
+<article class="featured" data-magnetic>
+  <a class="featured-visual" href={`/posts/${post.id}/`}>
+    <span class="featured-kicker">{index} · {kindLabel(post.data.kind)}</span>
+    <b aria-hidden="true">{index}</b>
+  </a>
+  <div class="featured-body">
+    <p class="featured-kicker">此刻桌上只有这一篇</p>
+    <h3>
+      <a href={`/posts/${post.id}/`}>{post.data.title}</a>
+    </h3>
     <p>{post.data.description}</p>
-    <time datetime={post.data.pubDate.toISOString()}>{formatChineseDate(post.data.pubDate)}</time>
+    <div class="featured-meta">
+      <time datetime={post.data.pubDate.toISOString()}>
+        {formatChineseDate(post.data.pubDate)}
+      </time>
+      <a class="text-link" href={`/posts/${post.id}/`}>打开这篇</a>
+    </div>
   </div>
-</a>
+</article>
