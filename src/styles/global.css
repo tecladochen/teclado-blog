@@ -384,9 +384,15 @@ img {
 }
 
 .wordmark-svg {
-  width: min(92vw, 58rem);
+  width: min(100%, 58rem);
   height: auto;
   overflow: visible;
+}
+
+.wordmark-sign {
+  width: min(68%, 28rem);
+  height: auto;
+  margin-left: 0.2rem;
 }
 
 .wordmark-svg path {
@@ -431,12 +437,6 @@ html[data-visit='first'] .wordmark-svg path:nth-child(7) {
 html:not([data-visit='first']) .wordmark-svg path {
   fill: var(--fg);
   stroke: transparent;
-}
-
-.wordmark-sign {
-  width: min(52vw, 28rem);
-  height: auto;
-  margin-left: 0.2rem;
 }
 
 .wordmark-sign path {
