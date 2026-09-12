@@ -2,13 +2,15 @@
 import Base from '~/layouts/Base.astro'
 import FeaturedEssay from '~/components/FeaturedEssay.astro'
 import DeskCard from '~/components/DeskCard.astro'
+import HeroWordmark from '~/components/HeroWordmark.astro'
+import Timeline from '~/components/Timeline.astro'
 import { getPosts } from '~/lib/content'
 import { site } from '~/site'
 
 const posts = await getPosts()
 const featured = posts[0]
-const letters = site.title.split('')
 const ticker = [...site.ticker, ...site.ticker]
+const phrases = JSON.stringify(site.hero.phrases)
 ---
 
 <Base>
@@ -17,15 +19,41 @@ const ticker = [...site.ticker, ...site.ticker]
       <span>personal notes</span>
       <span>{site.now.title}</span>
     </div>
-    <h1 class="wordmark" aria-label={site.title}>
-      {letters.map((letter) => <span>{letter}</span>)}
+    <HeroWordmark />
+    <h1 class="hero-title">
+      <span>
+        {site.hero.line1}<span class="punct">，</span>
+      </span>
+      <span>
+        {site.hero.line2}<span class="punct">。</span>
+      </span>
     </h1>
     <div class="hero-row">
-      <p class="hero-copy">
-        名即站。这里不堆教程，也不假装成刊。桌上现在只有一篇读书笔记，其余格子是给以后留的位置——<em
-          >空着难看，先把形状摆出来。</em
-        >
-      </p>
+      <div>
+        <p class="hero-copy">{site.hero.lead}</p>
+        <p class="hero-cycle" data-phrases={phrases}>
+          {
+            site.hero.phrases.map((phrase) => (
+              <span class="hero-cycle-sizer" aria-hidden="true">
+                {phrase}
+              </span>
+            ))
+          }
+          <span class="hero-cycle-now" data-phrase>
+            {site.hero.phrases[0]}
+          </span>
+        </p>
+        <p class="hero-actions">
+          {
+            featured && (
+              <a class="primary" href={`/posts/${featured.id}/`}>
+                打开这篇
+              </a>
+            )
+          }
+          <a href="/about/">about</a>
+        </p>
+      </div>
       <aside class="now-box">
         <span>{site.now.kicker}</span>
         <p>{site.now.body}</p>
@@ -39,8 +67,8 @@ const ticker = [...site.ticker, ...site.ticker]
     </div>
   </div>
 
-  <section class="section">
-    <div class="section-head">
+  <section class="section" id="featured">
+    <div class="section-head" data-reveal>
       <h2>on the desk</h2>
       <a href="/writing/">全部格子</a>
     </div>
@@ -48,7 +76,22 @@ const ticker = [...site.ticker, ...site.ticker]
   </section>
 
   <section class="section">
-    <div class="section-head">
+    <div class="section-head" data-reveal>
+      <h2>marks</h2>
+      <span class="section-note">痕迹，不是年表</span>
+    </div>
+    <Timeline items={site.marks} />
+  </section>
+
+  <section class="quote-band" data-reveal>
+    <blockquote>
+      {site.quote.text}
+    </blockquote>
+    <cite>— {site.quote.source}</cite>
+  </section>
+
+  <section class="section">
+    <div class="section-head" data-reveal>
       <h2>reserved</h2>
       <span class="section-note">未写成 · 占位</span>
     </div>
@@ -57,40 +100,15 @@ const ticker = [...site.ticker, ...site.ticker]
     </div>
   </section>
 
-  <section class="quote-band">
-    <blockquote>
-      {site.quote.text}
-    </blockquote>
-    <cite>— {site.quote.source}</cite>
-  </section>
-
   <section class="section">
-    <div class="section-head">
-      <h2>marks</h2>
-      <span class="section-note">痕迹，不是年表</span>
-    </div>
-    <div class="marks">
-      {
-        site.marks.map((mark) => (
-          <article class="mark">
-            <time datetime={mark.date}>{mark.year}</time>
-            <h3>{mark.title}</h3>
-            <p>{mark.summary}</p>
-          </article>
-        ))
-      }
-    </div>
-  </section>
-
-  <section class="section">
-    <div class="section-head">
+    <div class="section-head" data-reveal>
       <h2>materials</h2>
       <span class="section-note">还没变成文章的东西</span>
     </div>
     <div class="materials">
       {
-        site.materials.map((item) => (
-          <article class="material" data-magnetic>
+        site.materials.map((item, index) => (
+          <article class="material" data-magnetic data-reveal style={`--stagger: ${index}`}>
             <span>
               {item.no} · {item.kind}
             </span>

@@ -1,0 +1,30 @@
+---
+interface Item {
+  date: string
+  year: string
+  title: string
+  summary: string
+}
+
+interface Props {
+  items: readonly Item[]
+}
+
+const { items } = Astro.props
+---
+
+<div class="timeline" data-reveal>
+  <svg class="timeline-spine" viewBox="0 0 2 100" preserveAspectRatio="none" aria-hidden="true">
+    <path pathLength="1" d="M1 0 V100"></path>
+  </svg>
+  {
+    items.map((item, index) => (
+      <article class="timeline-item" data-reveal style={`--stagger: ${index}`}>
+        <span class="timeline-dot" aria-hidden="true" />
+        <time datetime={item.date}>{item.year}</time>
+        <h3>{item.title}</h3>
+        <p>{item.summary}</p>
+      </article>
+    ))
+  }
+</div>

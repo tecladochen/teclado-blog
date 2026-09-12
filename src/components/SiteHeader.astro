@@ -9,7 +9,7 @@ const path = Astro.url.pathname
     <span class="brand-mark">{site.title}</span>
     <span class="brand-line">{site.subtitle}</span>
   </a>
-  <nav class="nav" aria-label="主导航">
+  <nav class="nav" aria-label="主导航" data-nav>
     {
       site.nav.map((item) => (
         <a href={item.href} aria-current={path === item.href ? 'page' : undefined}>
@@ -17,6 +17,7 @@ const path = Astro.url.pathname
         </a>
       ))
     }
+    <span class="nav-ink" data-nav-ink aria-hidden="true"></span>
   </nav>
   <button class="mode-btn" type="button" data-theme-toggle aria-label="切换日夜">
     <span data-theme-label>墨</span>

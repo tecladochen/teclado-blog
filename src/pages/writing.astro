@@ -1,7 +1,6 @@
 ---
 import Base from '~/layouts/Base.astro'
 import FeaturedEssay from '~/components/FeaturedEssay.astro'
-import DeskCard from '~/components/DeskCard.astro'
 import { getPosts } from '~/lib/content'
 import { site } from '~/site'
 
@@ -22,12 +21,24 @@ const posts = await getPosts()
   </section>
 
   <section class="section">
-    <div class="section-head">
+    <div class="section-head" data-reveal>
       <h2>placeholders</h2>
       <span class="section-note">{site.desk.length} 个空位</span>
     </div>
-    <div class="desk-grid">
-      {site.desk.map((item) => <DeskCard item={item} />)}
+    <div class="writing-rows">
+      {
+        site.desk.map((item, index) => (
+          <article class="writing-row" data-reveal style={`--stagger: ${index}`}>
+            <span class="no">{item.no}</span>
+            <span class="kind">{item.kicker}</span>
+            <div>
+              <h3>{item.title}</h3>
+              <p>{item.excerpt}</p>
+            </div>
+            <time>{item.year}</time>
+          </article>
+        ))
+      }
     </div>
   </section>
 </Base>

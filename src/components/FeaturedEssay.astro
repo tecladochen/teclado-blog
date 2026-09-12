@@ -8,9 +8,10 @@ interface Props {
 }
 
 const { post, index = '01' } = Astro.props
+const titleName = `post-${post.id}`
 ---
 
-<article class="featured" data-magnetic>
+<article class="featured" data-magnetic data-reveal>
   <a class="featured-visual" href={`/posts/${post.id}/`}>
     <span class="featured-kicker">{index} · {kindLabel(post.data.kind)}</span>
     <b aria-hidden="true">{index}</b>
@@ -18,7 +19,9 @@ const { post, index = '01' } = Astro.props
   <div class="featured-body">
     <p class="featured-kicker">此刻桌上只有这一篇</p>
     <h3>
-      <a href={`/posts/${post.id}/`}>{post.data.title}</a>
+      <a href={`/posts/${post.id}/`} style={`view-transition-name: ${titleName}`}>
+        {post.data.title}
+      </a>
     </h3>
     <p>{post.data.description}</p>
     <div class="featured-meta">
