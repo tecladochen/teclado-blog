@@ -313,6 +313,16 @@ function bindOnce() {
     placeNavInk()
     startField()
   })
+  document.addEventListener('astro:before-swap', (event) => {
+    const next = (event as Event & { newDocument: Document }).newDocument.documentElement
+    const current = document.documentElement
+    next.dataset.theme = current.dataset.theme
+    next.dataset.visit = current.dataset.visit === 'first' ? 'again' : (current.dataset.visit || 'again')
+    next.classList.toggle('has-motion', current.classList.contains('has-motion'))
+    const themeColor = next.querySelector('meta[name="theme-color"]')
+    if (themeColor)
+      themeColor.setAttribute('content', current.dataset.theme === 'day' ? '#ebe4d6' : '#131210')
+  })
   document.addEventListener('visibilitychange', () => {
     if (!document.hidden)
       startField()

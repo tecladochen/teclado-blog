@@ -1395,6 +1395,11 @@ html.has-motion .prose img[data-reveal].is-in {
     margin-right: -1.15rem;
   }
 
+  .hero {
+    min-height: 0;
+    padding: 2.8rem 0 2.2rem;
+  }
+
   .hero-title {
     font-size: 1.55rem;
   }
