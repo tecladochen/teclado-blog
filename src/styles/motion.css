@@ -1,0 +1,163 @@
+@keyframes grain {
+  0%,
+  100% {
+    transform: translate(0);
+  }
+  50% {
+    transform: translate(-1.2%, 0.8%);
+  }
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes stroke-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes stroke-fill {
+  to {
+    fill: var(--fg);
+    stroke: transparent;
+  }
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(22px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+html.has-motion [data-reveal] {
+  opacity: 0;
+  transform: translateY(18px);
+}
+
+html.has-motion [data-reveal].is-in {
+  animation: rise-in 0.85s var(--spring) both;
+  animation-delay: calc(var(--stagger, 0) * 70ms);
+}
+
+html[data-visit='first'] .hero-title > span,
+html[data-visit='first'] .hero-copy,
+html[data-visit='first'] .hero-cycle,
+html[data-visit='first'] .hero-actions,
+html[data-visit='first'] .now-box {
+  opacity: 0;
+  animation: rise-in 0.9s var(--spring) forwards;
+}
+
+html[data-visit='first'] .hero-title > span:nth-child(1) {
+  animation-delay: 0.85s;
+}
+html[data-visit='first'] .hero-title > span:nth-child(2) {
+  animation-delay: 0.96s;
+}
+html[data-visit='first'] .hero-copy {
+  animation-delay: 1.08s;
+}
+html[data-visit='first'] .hero-cycle {
+  animation-delay: 1.18s;
+}
+html[data-visit='first'] .hero-actions {
+  animation-delay: 1.28s;
+}
+html[data-visit='first'] .now-box {
+  animation-delay: 1.12s;
+}
+
+html.theme-swap::view-transition-old(root) {
+  animation: none;
+  mix-blend-mode: normal;
+  z-index: 1;
+}
+
+html.theme-swap::view-transition-new(root) {
+  animation: clip-reveal 0.48s var(--ease);
+  mix-blend-mode: normal;
+  z-index: 2;
+}
+
+@keyframes clip-reveal {
+  from {
+    clip-path: circle(0 at var(--reveal-x) var(--reveal-y));
+  }
+  to {
+    clip-path: circle(var(--reveal-r) at var(--reveal-x) var(--reveal-y));
+  }
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.38s;
+  animation-timing-function: var(--ease);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+
+  [data-reveal],
+  html[data-visit='first'] .hero-title > span,
+  html[data-visit='first'] .hero-copy,
+  html[data-visit='first'] .hero-cycle,
+  html[data-visit='first'] .hero-actions,
+  html[data-visit='first'] .now-box,
+  html[data-visit='first'] .wordmark-svg path,
+  html[data-visit='first'] .wordmark-sign path {
+    opacity: 1;
+    transform: none;
+    stroke-dashoffset: 0;
+    fill: var(--fg);
+    stroke: transparent;
+  }
+
+  html[data-visit='first'] .wordmark-sign path {
+    stroke: color-mix(in srgb, var(--accent) 80%, var(--fg));
+    fill: none;
+  }
+
+  .marquee-track {
+    width: auto;
+    animation: none !important;
+  }
+
+  .prose h2::before,
+  .prose img {
+    transform: none;
+    clip-path: none;
+    filter: none;
+  }
+
+  .cursor,
+  .cursor-dot,
+  body::before {
+    display: none;
+  }
+
+  @media (pointer: fine) {
+    body,
+    a,
+    button {
+      cursor: auto;
+    }
+  }
+}

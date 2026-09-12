@@ -22,6 +22,16 @@ export const site = {
     { name: 'about', href: '/about/' },
   ],
   ticker: ['write', 'read', 'hangzhou', 'teclado', 'slow notes', 'desk', 'out of yanjin'],
+  hero: {
+    line1: '名即站',
+    line2: '只留过自己这一关的字',
+    lead: '这里不堆教程，也不假装成刊。',
+    phrases: [
+      '桌上现在只有一篇读书笔记。',
+      '其余格子是给以后留的位置。',
+      '空着难看，先把形状摆出来。',
+    ],
+  },
   quote: {
     text: '我想每个人都能从杨百顺身上看到自己看到无奈。',
     source: '读《出延津记》',

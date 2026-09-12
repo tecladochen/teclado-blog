@@ -24,7 +24,7 @@ const { Content, headings } = await render(post)
       <p class="article-kicker">
         {kindLabel(post.data.kind)}
       </p>
-      <h1>{post.data.title}</h1>
+      <h1 style={`view-transition-name: post-${post.id}`}>{post.data.title}</h1>
       <p class="hero-copy">{post.data.description}</p>
       <p class="article-meta">
         <time datetime={post.data.pubDate.toISOString()}>{formatChineseDate(post.data.pubDate)}</time>

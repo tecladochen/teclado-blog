@@ -12,7 +12,7 @@ interface Props {
 const { item } = Astro.props
 ---
 
-<article class="desk-card" data-magnetic>
+<article class="desk-card" data-magnetic data-reveal style={`--stagger: ${Number(item.no) % 6}`}>
   <b class="desk-ghost" aria-hidden="true">{item.no}</b>
   <div class="desk-card-top">
     <span>{item.no}</span>
