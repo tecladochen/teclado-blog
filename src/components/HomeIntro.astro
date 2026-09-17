@@ -1,0 +1,59 @@
+---
+import { themeConfig } from '~/.config'
+import Signature from './Signature.astro'
+
+const { description } = themeConfig.site
+---
+
+<header class="home-intro" mb-9 pb-7 b-b="1px dashed hex-88888825">
+  <div flex="~ wrap items-center justify-between gap-3" mb-2>
+    <div flex="~ items-center gap-3">
+      <Signature style="script" />
+      <div flex="~ items-center gap-1.5" class="status-pill px-2 py-0.5 rounded-full text-3 opacity-70 b b-hex-88888820 select-none">
+        <span class="status-indicator inline-block w-1.75 h-1.75 rounded-full bg-emerald-500" title="思考与记录中"></span>
+        <span class="text-2.75 tracking-wider uppercase opacity-80">in flow</span>
+      </div>
+    </div>
+  </div>
+
+  <p class="text-3.5 lh-6.5 mt-2 opacity-80 max-w-full">
+    {description}
+  </p>
+
+  <div class="intro-shortcuts" flex="~ wrap items-center gap-3.5" mt-3.5 text-3.25>
+    <a
+      href="/journey"
+      class="inline-flex items-center gap-1 opacity-70 hover:opacity-100 hover:text-primary transition-opacity not-underline-hover"
+    >
+      <span>轨迹足迹</span>
+      <span class="text-xs">↗</span>
+    </a>
+    <span class="opacity-25 select-none">/</span>
+    <a
+      href="/about"
+      class="inline-flex items-center gap-1 opacity-70 hover:opacity-100 hover:text-primary transition-opacity not-underline-hover"
+    >
+      <span>关于我</span>
+      <span class="text-xs">↗</span>
+    </a>
+    <span class="opacity-25 select-none">/</span>
+    <span class="opacity-50 text-3">00 后 · INFJ · 全栈与 AI 实践</span>
+  </div>
+</header>
+
+<style>
+  .status-indicator {
+    animation: status-pulse 3s infinite ease-in-out;
+  }
+  @keyframes status-pulse {
+    0%,
+    100% {
+      transform: scale(0.92);
+      opacity: 0.65;
+    }
+    50% {
+      transform: scale(1.1);
+      opacity: 1;
+    }
+  }
+</style>
