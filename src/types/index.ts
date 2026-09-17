@@ -13,4 +13,5 @@ export interface SearchIndexItem {
   content: string
 }
 
+export * from './friends.ts'
 export * from './themeConfig.ts'

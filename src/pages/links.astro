@@ -1,0 +1,433 @@
+---
+import { friendLinks, myBlogInfo, themeConfig } from '~/.config'
+import SiteSeo from '~/components/SiteSeo.astro'
+import LayoutDefault from '~/layouts/LayoutDefault.astro'
+import type { FriendLink } from '~/types'
+
+const { translate: t } = Astro.locals
+
+// 保持既定顺序的分类列表
+const categories = Array.from(new Set(friendLinks.map((item) => item.category).filter(Boolean))) as string[]
+
+const linksByCategory = new Map<string, FriendLink[]>()
+for (const cat of categories) {
+  linksByCategory.set(
+    cat,
+    friendLinks.filter((item) => item.category === cat),
+  )
+}
+const uncategorized = friendLinks.filter((item) => !item.category)
+if (uncategorized.length > 0) {
+  linksByCategory.set('其他', uncategorized)
+}
+---
+
+<LayoutDefault>
+  <SiteSeo slot="seo" title={`${t('Links')} · ${themeConfig.site.title}`} desc="个人独立博客友链与优质站点储备" />
+
+  <section class="links-page">
+    <header class="links-header">
+      <h2 class="post-title">{t('Links')}</h2>
+      <p class="links-count">{friendLinks.length} 个站点</p>
+    </header>
+
+    <div class="links-intro">
+      <p>
+        独行疾，众行远。这里整理了各具风格、值得深度研读学习的独立博客与同行者。后续将逐步汲取各家在排版、交互与思考上的亮点，持续打磨本站。
+      </p>
+    </div>
+
+    <!-- 本站信息 / 交换指南基础框架 -->
+    <details class="site-info-box">
+      <summary class="site-info-summary">
+        <span>交换友链 / 本站信息</span>
+        <span class="site-info-hint">点击展开</span>
+      </summary>
+      <div class="site-info-content">
+        <dl class="site-info-list">
+          <div class="info-row">
+            <dt>名称：</dt>
+            <dd><code>{myBlogInfo.name}</code></dd>
+          </div>
+          <div class="info-row">
+            <dt>链接：</dt>
+            <dd>
+              <a href={myBlogInfo.url} target="_blank" rel="noopener noreferrer"><code>{myBlogInfo.url}</code></a>
+            </dd>
+          </div>
+          <div class="info-row">
+            <dt>描述：</dt>
+            <dd>{myBlogInfo.desc}</dd>
+          </div>
+          {
+            myBlogInfo.feed && (
+              <div class="info-row">
+                <dt>RSS：</dt>
+                <dd>
+                  <a href={myBlogInfo.feed} target="_blank" rel="noopener noreferrer">
+                    <code>{myBlogInfo.feed}</code>
+                  </a>
+                </dd>
+              </div>
+            )
+          }
+        </dl>
+      </div>
+    </details>
+
+    <!-- 友链分组列表 -->
+    <div class="links-groups">
+      {
+        Array.from(linksByCategory.entries()).map(([category, links]) => (
+          <section class="links-group">
+            <header class="group-header">
+              <h3 class="group-title">
+                <span class="group-hash">#</span>
+                <span>{category}</span>
+              </h3>
+              <span class="group-count">{links.length}</span>
+            </header>
+
+            <div class="links-grid">
+              {links.map((link) => (
+                <article class="link-card">
+                  <header class="card-header">
+                    {link.avatar ? (
+                      <img
+                        src={link.avatar}
+                        alt=""
+                        width="32"
+                        height="32"
+                        loading="lazy"
+                        class="card-avatar"
+                        onerror="this.style.display='none'"
+                      />
+                    ) : (
+                      <div class="card-avatar-placeholder" aria-hidden="true">
+                        {link.name.slice(0, 1)}
+                      </div>
+                    )}
+                    <div class="card-title-wrap">
+                      <h4 class="card-name">
+                        <a href={link.url} target="_blank" rel="noopener noreferrer">
+                          {link.name}
+                        </a>
+                      </h4>
+                      {link.author && <span class="card-author">@{link.author}</span>}
+                    </div>
+                  </header>
+
+                  <p class="card-desc">{link.desc}</p>
+
+                  {link.notes && (
+                    <div class="card-notes">
+                      <span class="notes-tag">学习参考</span>
+                      <span class="notes-body">{link.notes}</span>
+                    </div>
+                  )}
+
+                  <footer class="card-footer">
+                    {link.tags && link.tags.length > 0 && (
+                      <div class="card-tags">
+                        {link.tags.map((tag) => (
+                          <span class="card-tag">#{tag}</span>
+                        ))}
+                      </div>
+                    )}
+
+                    {link.feed && (
+                      <a
+                        href={link.feed}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="card-feed not-underline-hover"
+                        title="RSS 订阅"
+                        aria-label={`${link.name} RSS 订阅`}
+                      >
+                        <span class="i-tabler-rss w-3.5 h-3.5 shrink-0" aria-hidden="true" />
+                        <span>RSS</span>
+                      </a>
+                    )}
+                  </footer>
+                </article>
+              ))}
+            </div>
+          </section>
+        ))
+      }
+    </div>
+  </section>
+</LayoutDefault>
+
+<style>
+  .links-page {
+    display: flex;
+    flex-direction: column;
+    gap: 1.75rem;
+  }
+
+  .links-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--uno-colors-shadow);
+  }
+
+  .links-count {
+    margin: 0;
+    font-size: 0.875rem;
+    opacity: 0.72;
+    white-space: nowrap;
+  }
+
+  .links-intro p {
+    margin: 0;
+    font-size: 0.95rem;
+    line-height: 1.7;
+    opacity: 0.85;
+  }
+
+  /* 本站信息框 */
+  .site-info-box {
+    padding: 0.85rem 1rem;
+    border: 1px dashed var(--uno-colors-shadow);
+    border-radius: 4px;
+    font-size: 0.875rem;
+  }
+
+  .site-info-summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    font-weight: 600;
+    user-select: none;
+  }
+
+  .site-info-hint {
+    font-size: 0.75rem;
+    opacity: 0.6;
+    font-weight: normal;
+  }
+
+  .site-info-content {
+    margin-top: 0.85rem;
+    padding-top: 0.75rem;
+    border-top: 1px dashed var(--uno-colors-shadow);
+  }
+
+  .site-info-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin: 0;
+  }
+
+  .info-row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+
+  @media (min-width: 640px) {
+    .info-row {
+      flex-direction: row;
+      align-items: baseline;
+    }
+  }
+
+  .info-row dt {
+    font-weight: 600;
+    min-width: 4rem;
+    opacity: 0.8;
+  }
+
+  .info-row dd {
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  /* 友链分组 */
+  .links-groups {
+    display: flex;
+    flex-direction: column;
+    gap: 2.25rem;
+  }
+
+  .links-group {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .group-header {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    padding-bottom: 0.4rem;
+    border-bottom: 1px solid var(--uno-colors-shadow);
+  }
+
+  .group-title {
+    margin: 0;
+    font-size: 1.15rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  .group-hash {
+    opacity: 0.5;
+    font-weight: normal;
+  }
+
+  .group-count {
+    font-size: 0.8rem;
+    opacity: 0.55;
+  }
+
+  /* 友链卡片网格 */
+  .links-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  @media (min-width: 640px) {
+    .links-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  .link-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+    padding: 0.9rem;
+    border: 1px solid var(--uno-colors-shadow);
+    border-radius: 4px;
+    background: transparent;
+  }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+  }
+
+  .card-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+    border: 1px solid var(--uno-colors-shadow);
+  }
+
+  .card-avatar-placeholder {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+    border: 1px solid var(--uno-colors-shadow);
+    opacity: 0.7;
+  }
+
+  .card-title-wrap {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  .card-name {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.4;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .card-author {
+    font-size: 0.75rem;
+    opacity: 0.6;
+    line-height: 1.2;
+  }
+
+  .card-desc {
+    margin: 0;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    opacity: 0.85;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .card-notes {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 0.45rem 0.6rem;
+    background-color: var(--uno-colors-shadow);
+    border-radius: 3px;
+    font-size: 0.75rem;
+    line-height: 1.45;
+  }
+
+  .notes-tag {
+    font-weight: 600;
+    opacity: 0.7;
+    font-size: 0.7rem;
+  }
+
+  .notes-body {
+    opacity: 0.85;
+  }
+
+  .card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-top: auto;
+    padding-top: 0.35rem;
+  }
+
+  .card-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+  }
+
+  .card-tag {
+    font-size: 0.7rem;
+    opacity: 0.6;
+  }
+
+  .card-feed {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.2rem;
+    font-size: 0.72rem;
+    opacity: 0.65;
+    margin-left: auto;
+    padding: 0.15rem 0.35rem;
+    border: 1px solid var(--uno-colors-shadow);
+    border-radius: 3px;
+  }
+
+  .card-feed:hover {
+    opacity: 1;
+  }
+</style>

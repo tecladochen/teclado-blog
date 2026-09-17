@@ -17,9 +17,7 @@ export const userConfig: Partial<UserConfig> = {
     navLinks: [
       { name: 'Posts', href: '/' },
       { name: 'Journey', href: '/journey' },
-      { name: 'Archive', href: '/archive' },
-      { name: 'Categories', href: '/categories' },
-      { name: 'Series', href: '/series' },
+      { name: 'Links', href: '/links' },
       { name: 'About', href: '/about' },
     ],
     footer: [

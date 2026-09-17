@@ -2,6 +2,8 @@ import type { DeepPartial, ThemeConfig } from '~/types'
 import { defaultConfig } from './default'
 import { userConfig } from './user'
 
+export * from './friends'
+
 export const themeConfig = deepMerge<ThemeConfig>(defaultConfig, userConfig)
 
 function deepMerge<T>(target: T, source: DeepPartial<T>): T {
