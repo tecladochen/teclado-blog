@@ -6,15 +6,12 @@ const { navLinks, socialLinks } = themeConfig.site
 const { translate: t } = Astro.locals
 ---
 
-<nav class="site-nav flex flex-wrap items-center gap-x-5 gap-y-2 text-3.75 font-medium">
-  <ul class="flex flex-wrap items-center gap-4 m-0 p-0 list-none">
+<nav class="site-nav">
+  <ul class="nav-menu">
     {
       navLinks.map((nav) => (
         <li>
-          <a
-            class="nav-link not-underline-hover opacity-70 hover:opacity-100 hover:text-primary transition-opacity py-1"
-            href={nav.href}
-          >
+          <a class="nav-item" href={nav.href}>
             {t(nav.name)}
           </a>
         </li>
@@ -22,9 +19,9 @@ const { translate: t } = Astro.locals
     }
   </ul>
 
-  <span class="nav-divider opacity-20 hidden sm:inline-block select-none">|</span>
+  <div class="nav-separator" role="presentation"></div>
 
-  <ul class="flex items-center gap-3 m-0 p-0 list-none">
+  <ul class="social-menu">
     {
       socialLinks.map(({ href, name }) => (
         <li>
@@ -33,9 +30,9 @@ const { translate: t } = Astro.locals
             target="_blank"
             rel="noopener noreferrer"
             title={name}
-            class="social-icon-link not-underline-hover opacity-60 hover:opacity-100 hover:text-primary transition-opacity inline-flex items-center justify-center p-1"
+            class="social-item"
           >
-            <span class:list={[getSocialIconClass(name), 'w-4.5 h-4.5 shrink-0']} aria-hidden="true" />
+            <span class:list={[getSocialIconClass(name), 'w-4 h-4']} aria-hidden="true" />
           </a>
         </li>
       ))
@@ -44,7 +41,80 @@ const { translate: t } = Astro.locals
 </nav>
 
 <style>
-  .nav-link {
+  .site-nav {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .nav-menu,
+  .social-menu {
+    display: flex;
+    align-items: center;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .nav-menu {
+    gap: 0.25rem;
+  }
+
+  .social-menu {
+    gap: 0.25rem;
+  }
+
+  .nav-item {
+    font-size: 0.875rem;
+    font-weight: 400;
+    color: currentColor;
+    opacity: 0.65;
+    padding: 0.35rem 0.65rem;
+    border-radius: 6px;
+    text-decoration: none !important;
     letter-spacing: 0.02em;
+    transition: all 0.2s ease;
+  }
+
+  .nav-item:hover {
+    opacity: 1;
+    color: var(--uno-colors-primary, currentColor);
+    background-color: rgba(125, 125, 125, 0.08);
+  }
+
+  .nav-separator {
+    width: 1px;
+    height: 1rem;
+    background-color: rgba(125, 125, 125, 0.2);
+    margin: 0 0.25rem;
+  }
+
+  .social-item {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.4rem;
+    border-radius: 6px;
+    color: currentColor;
+    opacity: 0.55;
+    text-decoration: none !important;
+    transition: all 0.2s ease;
+  }
+
+  .social-item:hover {
+    opacity: 1;
+    color: var(--uno-colors-primary, currentColor);
+    background-color: rgba(125, 125, 125, 0.08);
+    transform: translateY(-1px);
+  }
+
+  @media (max-width: 640px) {
+    .site-nav {
+      width: 100%;
+      justify-content: space-between;
+    }
+    .nav-separator {
+      display: none;
+    }
   }
 </style>

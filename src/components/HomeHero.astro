@@ -1,131 +1,161 @@
 ---
 import { themeConfig } from '~/.config'
-
-const { description } = themeConfig.site
 ---
 
-<header class="home-hero">
-  <div class="status-bar">
-    <span class="status-dot"></span>
-    <span class="status-text">HELLO, I'M TECLADO</span>
+<header class="hero-section">
+  <!-- 灵动状态胶囊 -->
+  <div class="hero-status">
+    <span class="status-indicator"></span>
+    <span class="status-text">Digital Garden & Field Notes</span>
   </div>
 
-  <h1 class="hero-title font-header">
-    与自己对话，留下成长的痕迹
+  <!-- 核心诗意标语 -->
+  <h1 class="hero-headline">
+    在网络的角落，记录思考、实践与生活。<br />
+    <span class="headline-sub">不再只是孤独，而是与自己对话。</span>
   </h1>
 
-  <p class="hero-desc">
-    {description}
-  </p>
-
-  <div class="hero-links">
-    <a href="/journey" class="hero-link">
-      <span>轨迹足迹</span>
-      <span class="link-arrow">↗</span>
+  <!-- 探索快捷索引 -->
+  <div class="hero-pills">
+    <a href="/journey" class="pill-btn">
+      <span>轨迹记录</span>
+      <span class="arrow">↗</span>
     </a>
-    <span class="hero-slash">/</span>
-    <a href="/about" class="hero-link">
-      <span>关于我</span>
-      <span class="link-arrow">↗</span>
+    <a href="/about" class="pill-btn">
+      <span>关于作者</span>
+      <span class="arrow">↗</span>
     </a>
-    <span class="hero-slash">/</span>
-    <span class="hero-tag">00 后 · INFJ · 全栈与 AI 实践</span>
+    <span class="pill-badge">00 后 · INFJ · 全栈与 AI 探索</span>
   </div>
+
+  <!-- 两端淡隐的极细分割线 -->
+  <div class="hero-divider" role="separator"></div>
 </header>
 
 <style>
-  .home-hero {
-    margin-bottom: 2.75rem;
-    padding-bottom: 2rem;
-    border-bottom: 1px dashed rgba(136, 136, 136, 0.22);
+  .hero-section {
+    padding-top: 0.5rem;
+    margin-bottom: 3.5rem;
   }
 
-  .status-bar {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 0.6rem;
-  }
-
-  .status-dot {
-    width: 0.45rem;
-    height: 0.45rem;
-    border-radius: 50%;
-    background-color: #10b981;
-    animation: pulse 3s infinite ease-in-out;
-  }
-
-  .status-text {
-    font-size: 0.76rem;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    opacity: 0.6;
-  }
-
-  .hero-title {
-    font-size: 1.35rem;
-    font-weight: 700;
-    line-height: 1.45;
-    margin: 0.25rem 0 0.6rem 0;
-    color: var(--uno-colors-primary, currentColor);
-    letter-spacing: -0.01em;
-  }
-
-  .hero-desc {
-    font-size: 0.925rem;
-    line-height: 1.8;
-    opacity: 0.8;
-    margin: 0 0 1rem 0;
-    text-wrap: pretty;
-  }
-
-  .hero-links {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.85rem;
-    font-size: 0.825rem;
-  }
-
-  .hero-link {
-    color: currentColor;
-    text-decoration: none !important;
-    opacity: 0.72;
+  .hero-status {
     display: inline-flex;
     align-items: center;
-    gap: 0.2rem;
-    transition: opacity 0.2s ease, color 0.2s ease;
-  }
-
-  .hero-link:hover {
-    opacity: 1;
-    color: var(--uno-colors-primary, currentColor);
-  }
-
-  .link-arrow {
-    font-size: 0.75rem;
-    opacity: 0.8;
-  }
-
-  .hero-slash {
-    opacity: 0.25;
+    gap: 0.5rem;
+    padding: 0.25rem 0.65rem;
+    border-radius: 9999px;
+    background-color: rgba(125, 125, 125, 0.07);
+    border: 1px solid rgba(125, 125, 125, 0.12);
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    opacity: 0.85;
+    margin-bottom: 1.25rem;
     user-select: none;
   }
 
-  .hero-tag {
-    opacity: 0.5;
+  .status-indicator {
+    width: 0.4rem;
+    height: 0.4rem;
+    border-radius: 50%;
+    background-color: #10b981;
+    box-shadow: 0 0 6px rgba(16, 185, 129, 0.5);
+    animation: pulse 3s infinite ease-in-out;
+  }
+
+  .hero-headline {
+    font-size: 1.5rem;
+    font-weight: 600;
+    line-height: 1.55;
+    letter-spacing: -0.02em;
+    margin: 0 0 1.5rem 0;
+    color: var(--uno-colors-primary, currentColor);
+  }
+
+  .headline-sub {
+    font-size: 1.15rem;
+    font-weight: 400;
+    opacity: 0.65;
+    letter-spacing: normal;
+  }
+
+  .hero-pills {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: 2.25rem;
+  }
+
+  .pill-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.3rem 0.75rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    color: currentColor;
+    opacity: 0.75;
+    background: rgba(125, 125, 125, 0.06);
+    border: 1px solid rgba(125, 125, 125, 0.12);
+    text-decoration: none !important;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .pill-btn:hover {
+    opacity: 1;
+    background: rgba(125, 125, 125, 0.12);
+    border-color: rgba(125, 125, 125, 0.25);
+    transform: translateY(-1px);
+  }
+
+  .arrow {
+    font-size: 0.75rem;
+    opacity: 0.7;
+    transition: transform 0.2s ease;
+  }
+
+  .pill-btn:hover .arrow {
+    transform: translate(1px, -1px);
+  }
+
+  .pill-badge {
     font-size: 0.78rem;
+    padding: 0.3rem 0.6rem;
+    opacity: 0.45;
+    user-select: none;
+  }
+
+  .hero-divider {
+    height: 1px;
+    width: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(136, 136, 136, 0.2) 25%,
+      rgba(136, 136, 136, 0.2) 75%,
+      transparent 100%
+    );
   }
 
   @keyframes pulse {
     0%, 100% {
-      transform: scale(0.92);
-      opacity: 0.65;
+      transform: scale(0.9);
+      opacity: 0.7;
     }
     50% {
-      transform: scale(1.1);
+      transform: scale(1.15);
       opacity: 1;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .hero-headline {
+      font-size: 1.3rem;
+    }
+    .headline-sub {
+      font-size: 1rem;
     }
   }
 </style>
