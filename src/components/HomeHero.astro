@@ -1,161 +1,80 @@
 ---
-import { themeConfig } from '~/.config'
+import { getPosts } from '~/utils'
+
+const posts = await getPosts()
+const postCount = posts.length
 ---
 
-<header class="hero-section">
-  <!-- 灵动状态胶囊 -->
-  <div class="hero-status">
-    <span class="status-indicator"></span>
-    <span class="status-text">Digital Garden & Field Notes</span>
+<section class="frontispiece-section grid grid-cols-1 md:grid-cols-12 gap-8 mb-14 py-4">
+  <!-- 左侧：经典排版引言 (7 列) -->
+  <div class="md:col-span-7 flex flex-col justify-between">
+    <div>
+      <div class="flex items-center gap-2 mb-4">
+        <span class="w-1.5 h-1.5 rounded-full bg-[var(--paper-rust)]"></span>
+        <span class="text-[11px] font-mono tracking-widest uppercase text-[var(--paper-muted)]"
+          >OPENING EPIGRAPH · 题记</span
+        >
+      </div>
+      <blockquote
+        class="font-serif text-2xl sm:text-[26px] leading-[1.55] text-[var(--uno-colors-primary)] mb-4 font-normal m-0"
+      >
+        “写文字，做创造。<br />在喧嚣的网络里，留下一座持续生长、与自己真诚对话的数字花园。”
+      </blockquote>
+      <p class="text-[14px] text-[var(--paper-sub)] leading-relaxed max-w-lg mb-6 font-sans m-0">
+        陈（Teclado），00 后开发者，生活在深圳。专注探索 AI Harness
+        运行时架构与产品级工作区设计，同时在此记录阅读的温度与生活切片的沉思。
+      </p>
+    </div>
+
+    <div
+      class="flex items-center gap-4 text-xs text-[var(--paper-muted)] font-mono pt-3 border-t border-[var(--paper-border)]"
+    >
+      <span>INFJ</span>
+      <span class="opacity-50">·</span>
+      <span>全栈工程</span>
+      <span class="opacity-50">·</span>
+      <span>AI 实践</span>
+      <span class="opacity-50">·</span>
+      <a href="/about" class="text-[var(--paper-rust)] hover:underline font-serif not-underline-hover"
+        >阅读作者手记 ↗</a
+      >
+    </div>
   </div>
 
-  <!-- 核心诗意标语 -->
-  <h1 class="hero-headline">
-    在网络的角落，记录思考、实践与生活。<br />
-    <span class="headline-sub">不再只是孤独，而是与自己对话。</span>
-  </h1>
+  <!-- 右侧：编者札记与读书感悟 (5 列) -->
+  <div class="md:col-span-5 frontispiece-box p-6 flex flex-col justify-between">
+    <div>
+      <div
+        class="flex items-center justify-between mb-3 text-[10.5px] font-mono tracking-wider text-[var(--paper-muted)] uppercase"
+      >
+        <span>FIELD NOTE 札记</span>
+        <span class="text-[var(--paper-rust)] font-semibold">NO. 08</span>
+      </div>
+      <div
+        class="font-serif italic text-[14.5px] leading-relaxed text-[var(--uno-colors-primary)] mb-4 pl-3 border-l-2 border-[var(--paper-rust)]"
+      >
+        “世界上有一句话，能顶得上一万句；有万语千言，不如一次真正的触动。”
+        <div class="text-xs text-[var(--paper-muted)] font-sans not-italic mt-2">— 刘震云《一句顶一万句》重读笔记</div>
+      </div>
+    </div>
 
-  <!-- 探索快捷索引 -->
-  <div class="hero-pills">
-    <a href="/journey" class="pill-btn">
-      <span>轨迹记录</span>
-      <span class="arrow">↗</span>
-    </a>
-    <a href="/about" class="pill-btn">
-      <span>关于作者</span>
-      <span class="arrow">↗</span>
-    </a>
-    <span class="pill-badge">00 后 · INFJ · 全栈与 AI 探索</span>
+    <div class="pt-4 border-t border-[var(--paper-border)] text-xs space-y-2 font-sans">
+      <div class="flex items-center justify-between text-[var(--paper-muted)]">
+        <span>当前状态：</span>
+        <span class="text-[var(--uno-colors-primary)] font-medium">探索跨仓库契约治理</span>
+      </div>
+      <div class="flex items-center justify-between text-[var(--paper-muted)]">
+        <span>全站馆藏：</span>
+        <span class="text-[var(--uno-colors-primary)] font-mono tabular">{postCount} 篇文章 · 深度实践</span>
+      </div>
+    </div>
   </div>
-
-  <!-- 两端淡隐的极细分割线 -->
-  <div class="hero-divider" role="separator"></div>
-</header>
+</section>
 
 <style>
-  .hero-section {
-    padding-top: 0.5rem;
-    margin-bottom: 3.5rem;
-  }
-
-  .hero-status {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.25rem 0.65rem;
-    border-radius: 9999px;
-    background-color: rgba(125, 125, 125, 0.07);
-    border: 1px solid rgba(125, 125, 125, 0.12);
-    font-size: 0.72rem;
-    font-weight: 500;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    opacity: 0.85;
-    margin-bottom: 1.25rem;
-    user-select: none;
-  }
-
-  .status-indicator {
-    width: 0.4rem;
-    height: 0.4rem;
-    border-radius: 50%;
-    background-color: #10b981;
-    box-shadow: 0 0 6px rgba(16, 185, 129, 0.5);
-    animation: pulse 3s infinite ease-in-out;
-  }
-
-  .hero-headline {
-    font-size: 1.5rem;
-    font-weight: 600;
-    line-height: 1.55;
-    letter-spacing: -0.02em;
-    margin: 0 0 1.5rem 0;
-    color: var(--uno-colors-primary, currentColor);
-  }
-
-  .headline-sub {
-    font-size: 1.15rem;
-    font-weight: 400;
-    opacity: 0.65;
-    letter-spacing: normal;
-  }
-
-  .hero-pills {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.6rem;
-    margin-bottom: 2.25rem;
-  }
-
-  .pill-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.25rem;
-    padding: 0.3rem 0.75rem;
-    border-radius: 6px;
-    font-size: 0.8rem;
-    color: currentColor;
-    opacity: 0.75;
-    background: rgba(125, 125, 125, 0.06);
-    border: 1px solid rgba(125, 125, 125, 0.12);
-    text-decoration: none !important;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  .pill-btn:hover {
-    opacity: 1;
-    background: rgba(125, 125, 125, 0.12);
-    border-color: rgba(125, 125, 125, 0.25);
-    transform: translateY(-1px);
-  }
-
-  .arrow {
-    font-size: 0.75rem;
-    opacity: 0.7;
-    transition: transform 0.2s ease;
-  }
-
-  .pill-btn:hover .arrow {
-    transform: translate(1px, -1px);
-  }
-
-  .pill-badge {
-    font-size: 0.78rem;
-    padding: 0.3rem 0.6rem;
-    opacity: 0.45;
-    user-select: none;
-  }
-
-  .hero-divider {
-    height: 1px;
-    width: 100%;
-    background: linear-gradient(
-      90deg,
-      transparent 0%,
-      rgba(136, 136, 136, 0.2) 25%,
-      rgba(136, 136, 136, 0.2) 75%,
-      transparent 100%
-    );
-  }
-
-  @keyframes pulse {
-    0%, 100% {
-      transform: scale(0.9);
-      opacity: 0.7;
-    }
-    50% {
-      transform: scale(1.15);
-      opacity: 1;
-    }
-  }
-
-  @media (max-width: 640px) {
-    .hero-headline {
-      font-size: 1.3rem;
-    }
-    .headline-sub {
-      font-size: 1rem;
-    }
+  .frontispiece-box {
+    background-color: var(--paper-card);
+    border: 1px solid var(--paper-border);
+    border-radius: 4px;
   }
 </style>

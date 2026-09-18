@@ -34,6 +34,22 @@ export const userConfig: Partial<UserConfig> = {
     ],
     seriesMap: [],
   },
+  appearance: {
+    theme: 'system',
+    colorsLight: {
+      primary: '#1C1B1A',
+      background: '#FAF8F5',
+    },
+    colorsDark: {
+      primary: '#F0ECE4',
+      background: '#181716',
+    },
+    fonts: {
+      header:
+        '"Newsreader", "Songti SC", "Source Han Serif SC", "Noto Serif SC", Georgia, serif',
+      ui: '"Inter", -apple-system, BlinkMacSystemFont, "PingFang SC", "Source Han Sans SC", sans-serif',
+    },
+  },
   latex: {
     katex: true,
   },

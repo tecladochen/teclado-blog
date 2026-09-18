@@ -4,7 +4,7 @@ import { themeConfig } from '~/.config'
 import Pagination from '~/components/Pagination.astro'
 import HomeHero from '~/components/HomeHero.astro'
 import LayoutDefault from '~/layouts/LayoutDefault.astro'
-import LayoutPost from '~/layouts/LayoutPost.astro'
+import EditorialPostItem from '~/components/EditorialPostItem.astro'
 import { getPostDescription, getPosts } from '~/utils'
 
 const { translate: t } = Astro.locals
@@ -26,23 +26,31 @@ const { page } = Astro.props
 
 <LayoutDefault>
   {page.currentPage === 1 && <HomeHero />}
-  <section contain-layout flex="~ col gap-7.5">
-    {
-      page.data.map((post) => (
-        <LayoutPost post={post}>
-          <p class="line-clamp-4">{getPostDescription(post)}</p>
-        </LayoutPost>
-      ))
-    }
+
+  <!-- 3. 时间线编目分割线 -->
+  <div
+    class="flex items-center justify-between py-2.5 hairline-y mb-2 text-xs font-mono text-[var(--paper-muted)] select-none"
+  >
+    <span class="uppercase tracking-widest">— 2026 丙午 · 见字如面 —</span>
+    <span class="hidden sm:inline">CHRONOLOGICAL ARCHIVE</span>
+    <span>共 {page.total} 篇精选</span>
+  </div>
+
+  <!-- 4. 人文流式双栏时间线列表 (Disciplined Timeline Stream) -->
+  <section contain-layout class="divide-y divide-[var(--paper-border)]">
+    {page.data.map((post) => <EditorialPostItem post={post} description={getPostDescription(post)} />)}
   </section>
-  <Pagination
-    showLeft={Boolean(page.url.prev)}
-    leftTitle={t('prev')}
-    leftUrl={page.url.prev}
-    showRight={Boolean(page.url.next)}
-    rightTitle={t('next')}
-    rightUrl={page.url.next}
-    currentPage={page.currentPage}
-    totalPage={page.lastPage}
-  />
+
+  <div class="pt-8">
+    <Pagination
+      showLeft={Boolean(page.url.prev)}
+      leftTitle={t('prev')}
+      leftUrl={page.url.prev}
+      showRight={Boolean(page.url.next)}
+      rightTitle={t('next')}
+      rightUrl={page.url.next}
+      currentPage={page.currentPage}
+      totalPage={page.lastPage}
+    />
+  </div>
 </LayoutDefault>
