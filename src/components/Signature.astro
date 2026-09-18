@@ -77,9 +77,11 @@ const centerlines = {
 
   @keyframes write-eclado {
     0% {
+      opacity: 1;
       stroke-dashoffset: 1000;
     }
     100% {
+      opacity: 1;
       stroke-dashoffset: 0;
     }
   }
@@ -101,13 +103,14 @@ const centerlines = {
   }
 
   .mask-path-t {
-    stroke-dasharray: 1000;
+    stroke-dasharray: 1000 1500;
     stroke-dashoffset: 1000;
     animation: write-t 0.75s cubic-bezier(0.4, 0, 0.2, 1) 0.15s forwards;
   }
 
   .mask-path-eclado {
-    stroke-dasharray: 1000;
+    opacity: 0;
+    stroke-dasharray: 1000 1500;
     stroke-dashoffset: 1000;
     animation: write-eclado 1.55s cubic-bezier(0.25, 1, 0.5, 1) 0.7s forwards;
   }
@@ -122,6 +125,7 @@ const centerlines = {
   @media (prefers-reduced-motion: reduce) {
     .mask-path-t,
     .mask-path-eclado {
+      opacity: 1;
       stroke-dashoffset: 0;
       animation: none;
     }
