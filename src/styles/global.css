@@ -4,20 +4,16 @@
   --uno-fonts-ui: theme('fontFamily.ui');
   --uno-fonts-header: theme('fontFamily.header');
   --uno-colors-shadow: theme('colors.shadow');
-  --paper-border: #E6E1D8;
-  --paper-card: #F4F0E8;
-  --paper-card-hover: #ECE6DA;
-  --paper-rust: #9E472A;
-  --paper-muted: #706C66;
-  --paper-sub: #524F4B;
+  --theme-border: rgba(0, 0, 0, 0.08);
+  --theme-border-subtle: rgba(0, 0, 0, 0.05);
+  --theme-muted: #737373;
+  --theme-sub: #525252;
 }
 .dark {
-  --paper-border: #2E2C29;
-  --paper-card: #22201E;
-  --paper-card-hover: #2B2926;
-  --paper-rust: #D97757;
-  --paper-muted: #9E988F;
-  --paper-sub: #C2BCB3;
+  --theme-border: rgba(255, 255, 255, 0.1);
+  --theme-border-subtle: rgba(255, 255, 255, 0.06);
+  --theme-muted: #a3a3a3;
+  --theme-sub: #d4d4d4;
 }
 html {
   --at-apply: antialiased;
@@ -25,26 +21,30 @@ html {
   background-color: var(--uno-colors-background);
   color: var(--uno-colors-primary);
   text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+body {
+  overflow-x: hidden;
 }
 
 ::selection {
-  background-color: #EBE5D8;
-  color: #1C1B1A;
+  background-color: rgba(16, 185, 129, 0.2);
+  color: #171717;
 }
 .dark ::selection {
-  background-color: #38342F;
-  color: #F0ECE4;
+  background-color: rgba(16, 185, 129, 0.3);
+  color: #ededed;
 }
 
 .hairline-b {
-  border-bottom: 1px solid var(--paper-border);
+  border-bottom: 1px solid var(--theme-border);
 }
 .hairline-t {
-  border-top: 1px solid var(--paper-border);
+  border-top: 1px solid var(--theme-border);
 }
 .hairline-y {
-  border-top: 1px solid var(--paper-border);
-  border-bottom: 1px solid var(--paper-border);
+  border-top: 1px solid var(--theme-border);
+  border-bottom: 1px solid var(--theme-border);
 }
 
 .tabular {
@@ -52,10 +52,8 @@ html {
 }
 
 :where(a):not(.not-underline-hover) {
-  --at-apply: 'p-1.5px';
-  --at-apply: 'decoration-underline decoration-0.1em decoration-offset-2px';
-  --at-apply: 'ease-in-out duration-300ms';
-  --at-apply: 'hover:(c-background bg-primary decoration-primary)';
+  --at-apply: 'ease-in-out duration-200ms';
+  transition-property: color, opacity;
 }
 
 .prose :where(h2, h3, h4) {

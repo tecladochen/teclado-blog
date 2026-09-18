@@ -23,44 +23,26 @@ const dark = themeConfig.appearance.theme === 'dark'
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
       rel="stylesheet"
     />
   </head>
 
-  <body
-    class="min-h-100vh max-w-[1000px] min-w-360px mx-auto px-6 sm:px-8 py-6 sm:py-8 flex flex-col selection:bg-[#EBE5D8] selection:text-[#1C1B1A]"
-  >
-    <!-- 1. 人文杂志式报头 (Editorial Masthead) -->
-    <header class="transition-swup-header w-full mb-10 sm:mb-12">
-      <!-- 顶部卷期与城市信息 -->
-      <div
-        class="flex items-center justify-between text-[11px] font-mono tracking-widest uppercase py-2 hairline-b text-[var(--paper-muted)] opacity-80"
+  <body class="min-h-100vh w-full max-w-[740px] mx-auto px-4 sm:px-6 py-5 sm:py-10 flex flex-col">
+    <!-- 极简现代顶栏 -->
+    <header
+      class="transition-swup-header w-full pb-5 sm:pb-6 mb-8 sm:mb-12 border-b border-black/[0.06] dark:border-white/[0.08] flex items-center justify-between gap-1 sm:gap-4"
+    >
+      <a
+        href="/"
+        class="not-underline-hover inline-flex items-center gap-1.5 transition-transform duration-200 hover:-translate-y-0.5 shrink-0"
+        title="Teclado - 首页"
       >
-        <span>NO. 28 · VOL. IV — 2026</span>
-        <span class="hidden sm:inline">FIELD NOTES &amp; DIGITAL CRAFT</span>
-        <span>SHENZHEN / REMOTE</span>
-      </div>
+        <Signature />
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-2 sm:mt-2.5"></span>
+      </a>
 
-      <!-- 报头中央：手写签名与双细线装饰 -->
-      <div class="py-6 sm:py-7 text-center">
-        <div class="flex items-center justify-center gap-6">
-          <div class="h-[1px] bg-[var(--paper-border)] flex-1 max-w-[140px] hidden sm:block"></div>
-          <a
-            href="/"
-            class="not-underline-hover inline-block transition-transform duration-300 hover:scale-[1.02]"
-            title="Teclado - Home"
-          >
-            <Signature height="2.75rem" />
-          </a>
-          <div class="h-[1px] bg-[var(--paper-border)] flex-1 max-w-[140px] hidden sm:block"></div>
-        </div>
-        <p class="font-serif italic text-xs tracking-[0.25em] text-[var(--paper-muted)] mt-2 uppercase select-none">
-          Digital Garden &amp; Essays by Teclado
-        </p>
-      </div>
-
-      <!-- 经典报刊式导航条目 -->
+      <!-- 顶部导航 -->
       <SiteNavigation />
     </header>
 
@@ -69,7 +51,7 @@ const dark = themeConfig.appearance.theme === 'dark'
     </main>
 
     <footer
-      class="transition-swup-footer pt-10 pb-8 hairline-t mt-16 flex flex-wrap items-center justify-between gap-3 text-xs text-[var(--paper-muted)] font-mono"
+      class="transition-swup-footer pt-8 pb-10 border-t border-black/[0.06] dark:border-white/[0.08] mt-16 sm:mt-20 flex flex-wrap items-center justify-between gap-4 text-xs text-neutral-500 dark:text-neutral-400 font-mono"
     >
       <SiteFooter />
     </footer>

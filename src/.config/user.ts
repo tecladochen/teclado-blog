@@ -37,17 +37,17 @@ export const userConfig: Partial<UserConfig> = {
   appearance: {
     theme: 'system',
     colorsLight: {
-      primary: '#1C1B1A',
-      background: '#FAF8F5',
+      primary: '#171717',
+      background: '#FAFAFA',
     },
     colorsDark: {
-      primary: '#F0ECE4',
-      background: '#181716',
+      primary: '#EDEDED',
+      background: '#121212',
     },
     fonts: {
       header:
-        '"Newsreader", "Songti SC", "Source Han Serif SC", "Noto Serif SC", Georgia, serif',
-      ui: '"Inter", -apple-system, BlinkMacSystemFont, "PingFang SC", "Source Han Sans SC", sans-serif',
+        '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif',
+      ui: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif',
     },
   },
   latex: {

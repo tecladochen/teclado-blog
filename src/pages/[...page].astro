@@ -27,17 +27,8 @@ const { page } = Astro.props
 <LayoutDefault>
   {page.currentPage === 1 && <HomeHero />}
 
-  <!-- 3. 时间线编目分割线 -->
-  <div
-    class="flex items-center justify-between py-2.5 hairline-y mb-2 text-xs font-mono text-[var(--paper-muted)] select-none"
-  >
-    <span class="uppercase tracking-widest">— 2026 丙午 · 见字如面 —</span>
-    <span class="hidden sm:inline">CHRONOLOGICAL ARCHIVE</span>
-    <span>共 {page.total} 篇精选</span>
-  </div>
-
-  <!-- 4. 人文流式双栏时间线列表 (Disciplined Timeline Stream) -->
-  <section contain-layout class="divide-y divide-[var(--paper-border)]">
+  <!-- 文章流 -->
+  <section contain-layout class="flex flex-col gap-6 sm:gap-8">
     {page.data.map((post) => <EditorialPostItem post={post} description={getPostDescription(post)} />)}
   </section>
 

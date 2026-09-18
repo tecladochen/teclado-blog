@@ -88,5 +88,6 @@ export default defineConfig({
     ...themeConfig.site.socialLinks.map(social => getSocialIconClass(social.name)),
     'i-mdi-content-copy',
     'i-mdi-check',
+    'i-tabler-search',
   ],
 })

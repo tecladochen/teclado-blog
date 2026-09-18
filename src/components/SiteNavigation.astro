@@ -6,11 +6,11 @@ const { navLinks, socialLinks } = themeConfig.site
 const { translate: t } = Astro.locals
 const currentPath = Astro.url.pathname
 
-const navLabels: Record<string, { num: string; zh: string; en: string }> = {
-  Posts: { num: '01', zh: '目录', en: 'Essays' },
-  Journey: { num: '02', zh: '轨迹', en: 'Journey' },
-  Links: { num: '03', zh: '友人', en: 'Links' },
-  About: { num: '04', zh: '题记', en: 'About' },
+const navLabels: Record<string, string> = {
+  Posts: '文章',
+  Journey: '轨迹',
+  Links: '链接',
+  About: '关于',
 }
 
 function isNavActive(href: string) {
@@ -21,28 +21,24 @@ function isNavActive(href: string) {
 }
 ---
 
-<nav
-  class="editorial-nav flex flex-wrap items-center justify-between gap-y-2 text-xs font-serif tracking-wider uppercase py-2.5 hairline-y text-[var(--paper-sub)]"
->
-  <ul class="flex items-center gap-5 sm:gap-8 m-0 p-0 list-none">
+<nav class="flex items-center gap-1 sm:gap-4 text-xs font-sans shrink-0">
+  <ul class="flex items-center gap-0.5 sm:gap-1.5 m-0 p-0 list-none">
     {
       navLinks.map((nav) => {
-        const item = navLabels[nav.name] ?? { num: '', zh: t(nav.name), en: nav.name }
+        const label = navLabels[nav.name] ?? t(nav.name)
         const active = isNavActive(nav.href)
         return (
           <li>
             <a
               class:list={[
-                'editorial-nav-link not-underline-hover transition-colors pb-0.5',
+                'not-underline-hover px-1.5 sm:px-2.5 py-0.8 rounded-md transition-all duration-200 block text-[12px] sm:text-[13px]',
                 active
-                  ? 'text-[var(--paper-rust)] font-semibold border-b-2 border-[var(--paper-rust)]'
-                  : 'hover:text-[var(--uno-colors-primary)] text-[var(--paper-sub)]',
+                  ? 'font-medium text-neutral-900 dark:text-neutral-100 bg-black/[0.05] dark:bg-white/[0.08]'
+                  : 'text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-200 hover:bg-black/[0.03] dark:hover:bg-white/[0.04]',
               ]}
               href={nav.href}
             >
-              <span class="nav-num font-mono opacity-65 mr-1">{item.num}.</span>
-              <span>{item.zh}</span>
-              <span class="nav-en font-sans text-[10px] opacity-65 ml-1 hidden sm:inline">{item.en}</span>
+              {label}
             </a>
           </li>
         )
@@ -50,18 +46,23 @@ function isNavActive(href: string) {
     }
   </ul>
 
-  <div class="flex items-center gap-3 sm:gap-4 text-xs font-mono">
+  <div class="hidden sm:block h-3 w-[1px] bg-black/10 dark:bg-white/10 mx-0.5 select-none"></div>
+
+  <div class="flex items-center gap-1 sm:gap-2.5">
     <button
       type="button"
       data-search-open
-      class="hover:text-[var(--uno-colors-primary)] flex items-center gap-1.5 transition-colors text-[11px] bg-transparent border-0 cursor-pointer p-0 text-[var(--paper-muted)]"
-      title="检索"
+      class="flex items-center gap-1 text-[11px] text-neutral-400 hover:text-neutral-700 dark:text-neutral-500 dark:hover:text-neutral-300 transition-colors bg-transparent border-0 cursor-pointer p-1 rounded"
+      title="全局搜索 (⌘K)"
     >
-      <span>检索</span>
-      <span class="text-[10px] px-1 py-0.5 border border-[var(--paper-border)] rounded bg-[var(--paper-card)]">⌘K</span>
+      <span class="i-tabler-search w-3.5 h-3.5" aria-hidden="true"></span>
+      <span
+        class="text-[10px] font-mono px-1 py-0.2 border border-black/10 dark:border-white/15 rounded bg-black/[0.02] dark:bg-white/[0.04] hidden sm:inline"
+        >⌘K</span
+      >
     </button>
-    <span class="text-[var(--paper-border)] select-none">|</span>
-    <ul class="flex items-center gap-2.5 m-0 p-0 list-none">
+
+    <ul class="hidden sm:flex items-center gap-1 m-0 p-0 list-none">
       {
         socialLinks.map(({ href, name }) => (
           <li>
@@ -70,7 +71,7 @@ function isNavActive(href: string) {
               target="_blank"
               rel="noopener noreferrer"
               title={name}
-              class="hover:text-[var(--uno-colors-primary)] text-[var(--paper-muted)] transition-colors inline-flex items-center justify-center p-0.5 not-underline-hover"
+              class="text-neutral-400 hover:text-neutral-700 dark:text-neutral-500 dark:hover:text-neutral-200 transition-all p-1 inline-flex items-center justify-center rounded not-underline-hover hover:bg-black/[0.03] dark:hover:bg-white/[0.05]"
             >
               <span class:list={[getSocialIconClass(name), 'w-3.5 h-3.5']} aria-hidden="true" />
             </a>
@@ -80,11 +81,3 @@ function isNavActive(href: string) {
     </ul>
   </div>
 </nav>
-
-<style>
-  .editorial-nav-link {
-    display: inline-flex;
-    align-items: baseline;
-    text-decoration: none !important;
-  }
-</style>

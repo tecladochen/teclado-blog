@@ -4,7 +4,7 @@ interface Props {
   height?: string
 }
 
-const { class: className = '', height = '2.2rem' } = Astro.props
+const { class: className = '', height } = Astro.props
 
 // Sacramento: 优雅手写连笔签名，纯原生 SVG 路径
 const signature = {
@@ -16,12 +16,12 @@ const signature = {
 <div class:list={['signature-wrapper inline-flex items-center', className]}>
   <svg
     viewBox={signature.viewBox}
-    class="signature-svg fill-current text-primary transition-transform duration-300 hover:scale-105"
-    style={`height: ${height};`}
+    class="signature-svg fill-current text-primary transition-transform duration-300 hover:scale-105 h-[1.75rem] sm:h-[2.35rem]"
+    style={height ? `height: ${height};` : undefined}
     aria-label="Teclado 手写签名"
     role="img"
   >
-    <path d={signature.d} />
+    <path d={signature.d}></path>
   </svg>
 </div>
 

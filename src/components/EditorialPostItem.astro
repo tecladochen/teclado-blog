@@ -10,76 +10,57 @@ interface Props {
 const { post, description } = Astro.props
 
 const displayDate = post.data.modDate ?? post.data.pubDate
-const dateStr = formatDate(displayDate, 'YYYY.MM.DD')
+const dateStr = formatDate(displayDate, 'YYYY-MM-DD')
 const categoryList = post.data.categories ?? []
-const primaryCategory = categoryList.length > 0 ? categoryList.join(' · ') : '随笔'
-const bodyLength = (post.body ?? '').length || 1500
-const readTime = Math.max(1, Math.round(bodyLength / 350))
-const wordCountFormatted = bodyLength >= 1000 ? `${(bodyLength / 1000).toFixed(1)}k` : `${bodyLength}`
 ---
 
-<article class="editorial-row py-6 sm:py-7 group cursor-pointer">
-  <div class="grid grid-cols-1 md:grid-cols-12 gap-3 sm:gap-6 items-baseline">
-    <!-- 左栏：时间戳与类别元信息 (3 列) -->
-    <div
-      class="md:col-span-3 flex md:flex-col justify-between md:justify-start gap-1 text-xs text-[var(--paper-muted)]"
+<article class="article-entry flex flex-col gap-2 py-4 sm:py-5 group">
+  <!-- 标题与悬浮反馈 -->
+  <h2
+    class="text-[19px] sm:text-[21px] font-semibold tracking-tight text-neutral-900 dark:text-neutral-100 leading-snug m-0"
+  >
+    <a
+      href={`/posts/${post.id}/`}
+      class="not-underline-hover inline-block group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-200"
     >
-      <div class="font-serif text-sm text-[var(--uno-colors-primary)] font-medium tracking-tight font-mono">
-        {dateStr}
-      </div>
-      <div class="text-[11px] font-mono text-[var(--paper-rust)] font-medium">
-        [ {primaryCategory} ]
-      </div>
-      <div class="text-[11px] font-mono text-[var(--paper-muted)] tabular opacity-80">
-        {readTime} min · {wordCountFormatted} 字
-      </div>
-    </div>
+      {post.data.title}
+    </a>
+  </h2>
 
-    <!-- 右栏：标题与舒展摘要 (9 列) -->
-    <div class="md:col-span-9">
-      <div class="flex items-baseline justify-between gap-4 mb-2">
-        <h2
-          class="row-title font-serif text-lg sm:text-[20px] font-semibold text-[var(--uno-colors-primary)] transition-colors leading-snug tracking-tight m-0"
+  <!-- 元信息行：日期 + 分类标签胶囊 -->
+  <div class="flex flex-wrap items-center gap-2 text-xs">
+    <time datetime={dateStr} class="font-mono text-neutral-400 dark:text-neutral-500 tabular">
+      {dateStr}
+    </time>
+
+    {
+      categoryList.map((cat) => (
+        <a
+          href={`/categories/${cat}/`}
+          class="not-underline-hover inline-flex items-center text-[11.5px] px-2 py-0.5 rounded bg-black/[0.04] dark:bg-white/[0.06] text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-200 hover:bg-black/[0.07] dark:hover:bg-white/[0.1] transition-colors"
         >
-          <a class="not-prose not-underline-hover text-inherit block" href={`/posts/${post.id}/`}>
-            {post.data.title}
-          </a>
-        </h2>
-        <span
-          class="row-arrow text-xs text-[var(--paper-rust)] opacity-0 group-hover:opacity-100 transition-all font-mono hidden sm:inline transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
-        >
-          ↗
+          <span class="opacity-40 mr-0.5">#</span>
+          <span>{cat}</span>
+        </a>
+      ))
+    }
+
+    {
+      post.data.series && (
+        <span class="inline-flex items-center text-[11.5px] px-2 py-0.5 rounded bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 font-mono">
+          <span class="opacity-40 mr-0.5">§</span>
+          <span>{post.data.series.name}</span>
         </span>
-      </div>
+      )
+    }
+  </div>
 
-      <p class="text-[14px] text-[var(--paper-sub)] leading-[1.8] line-clamp-2 mb-3 font-sans m-0">
+  <!-- 摘要 -->
+  {
+    description && (
+      <p class="text-[14px] sm:text-[14.5px] leading-[1.75] text-neutral-600 dark:text-neutral-400 line-clamp-3 m-0">
         {description}
       </p>
-
-      {
-        post.data.series && (
-          <div class="flex items-center gap-3 text-xs text-[var(--paper-muted)] font-mono text-[11px]">
-            <span class="text-[var(--paper-rust)]">#{post.data.series.name}</span>
-          </div>
-        )
-      }
-    </div>
-  </div>
+    )
+  }
 </article>
-
-<style>
-  .editorial-row {
-    transition: background-color 0.2s ease;
-    border-bottom: 1px solid var(--paper-border);
-    margin: 0 -0.75rem;
-    padding-left: 0.75rem;
-    padding-right: 0.75rem;
-    border-radius: 4px;
-  }
-  .editorial-row:hover {
-    background-color: var(--paper-card);
-  }
-  .editorial-row:hover .row-title {
-    color: var(--paper-rust);
-  }
-</style>
