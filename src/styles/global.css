@@ -3,13 +3,16 @@
   --uno-colors-background: theme('colors.background');
   --uno-fonts-ui: theme('fontFamily.ui');
   --uno-fonts-header: theme('fontFamily.header');
-  --uno-colors-shadow: theme('colors.shadow');
+  --uno-colors-shadow: rgba(0, 0, 0, 0.08);
+  --theme-grid: rgba(0, 0, 0, 0.08);
   --theme-border: rgba(0, 0, 0, 0.08);
   --theme-border-subtle: rgba(0, 0, 0, 0.05);
   --theme-muted: #737373;
   --theme-sub: #525252;
 }
 .dark {
+  --uno-colors-shadow: rgba(255, 255, 255, 0.08);
+  --theme-grid: rgba(255, 255, 255, 0.08);
   --theme-border: rgba(255, 255, 255, 0.1);
   --theme-border-subtle: rgba(255, 255, 255, 0.06);
   --theme-muted: #a3a3a3;
@@ -22,6 +25,9 @@ html {
   color: var(--uno-colors-primary);
   text-rendering: optimizeLegibility;
   overflow-x: hidden;
+  background-size: 14px 14px;
+  background-image: linear-gradient(to right, var(--theme-grid) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--theme-grid) 1px, transparent 1px);
 }
 body {
   overflow-x: hidden;

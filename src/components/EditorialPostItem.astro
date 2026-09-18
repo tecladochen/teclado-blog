@@ -14,53 +14,51 @@ const dateStr = formatDate(displayDate, 'YYYY-MM-DD')
 const categoryList = post.data.categories ?? []
 ---
 
-<article class="article-entry flex flex-col gap-2 py-4 sm:py-5 group">
-  <!-- 标题与悬浮反馈 -->
+<article
+  class="post-entry bg-white dark:bg-neutral-900/80 border border-black/[0.065] dark:border-white/[0.08] rounded-2xl p-6 sm:p-7 flex flex-col gap-2.5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_-4px_rgba(0,0,0,0.06)] group"
+>
+  <!-- 顶部元信息行：分类标签 + 日期 -->
+  <div class="flex items-center justify-between gap-2 text-xs text-neutral-400 dark:text-neutral-500 font-mono tabular">
+    <div class="flex items-center gap-2">
+      {
+        categoryList.map((cat) => (
+          <a
+            href={`/categories/${cat}/`}
+            class="not-underline-hover px-2 py-0.5 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 font-medium text-[11px] hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+          >
+            {cat}
+          </a>
+        ))
+      }
+      {categoryList.length > 0 && <span>·</span>}
+      <time datetime={dateStr}>{dateStr}</time>
+    </div>
+  </div>
+
+  <!-- 标题 -->
   <h2
-    class="text-[19px] sm:text-[21px] font-semibold tracking-tight text-neutral-900 dark:text-neutral-100 leading-snug m-0"
+    class="text-lg sm:text-[20px] font-semibold tracking-tight text-neutral-900 dark:text-neutral-100 leading-snug m-0 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors"
   >
-    <a
-      href={`/posts/${post.id}/`}
-      class="not-underline-hover inline-block group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-200"
-    >
+    <a href={`/posts/${post.id}/`} class="not-underline-hover block">
       {post.data.title}
     </a>
   </h2>
 
-  <!-- 元信息行：日期 + 分类标签胶囊 -->
-  <div class="flex flex-wrap items-center gap-2 text-xs">
-    <time datetime={dateStr} class="font-mono text-neutral-400 dark:text-neutral-500 tabular">
-      {dateStr}
-    </time>
-
-    {
-      categoryList.map((cat) => (
-        <a
-          href={`/categories/${cat}/`}
-          class="not-underline-hover inline-flex items-center text-[11.5px] px-2 py-0.5 rounded bg-black/[0.04] dark:bg-white/[0.06] text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-200 hover:bg-black/[0.07] dark:hover:bg-white/[0.1] transition-colors"
-        >
-          <span class="opacity-40 mr-0.5">#</span>
-          <span>{cat}</span>
-        </a>
-      ))
-    }
-
-    {
-      post.data.series && (
-        <span class="inline-flex items-center text-[11.5px] px-2 py-0.5 rounded bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 font-mono">
-          <span class="opacity-40 mr-0.5">§</span>
-          <span>{post.data.series.name}</span>
-        </span>
-      )
-    }
-  </div>
-
   <!-- 摘要 -->
   {
     description && (
-      <p class="text-[14px] sm:text-[14.5px] leading-[1.75] text-neutral-600 dark:text-neutral-400 line-clamp-3 m-0">
-        {description}
-      </p>
+      <p class="text-[14px] text-neutral-600 dark:text-neutral-400 leading-[1.75] line-clamp-3 m-0">{description}</p>
     )
   }
+
+  <!-- 底栏：阅读全文交互 -->
+  <div class="flex items-center justify-end pt-3 mt-1 border-t border-black/[0.04] dark:border-white/[0.05] text-xs">
+    <a
+      href={`/posts/${post.id}/`}
+      class="not-underline-hover inline-flex items-center gap-1 font-medium text-neutral-700 dark:text-neutral-300 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors"
+    >
+      <span>阅读随笔</span>
+      <span class="text-xs transition-transform duration-200 group-hover:translate-x-1">→</span>
+    </a>
+  </div>
 </article>

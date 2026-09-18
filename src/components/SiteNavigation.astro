@@ -14,15 +14,17 @@ const navLabels: Record<string, string> = {
 }
 
 function isNavActive(href: string) {
-  if (href === '/') {
-    return currentPath === '/' || currentPath.startsWith('/posts') || /^\/\d+/.test(currentPath)
+  const cleanPath = currentPath.replace(/\/$/, '') || '/'
+  const cleanHref = href.replace(/\/$/, '') || '/'
+  if (cleanHref === '/') {
+    return cleanPath === '/' || cleanPath.startsWith('/posts') || /^\/\d+/.test(cleanPath)
   }
-  return currentPath.startsWith(href)
+  return cleanPath === cleanHref || cleanPath.startsWith(`${cleanHref}/`)
 }
 ---
 
-<nav class="flex items-center gap-1 sm:gap-4 text-xs font-sans shrink-0">
-  <ul class="flex items-center gap-0.5 sm:gap-1.5 m-0 p-0 list-none">
+<nav class="flex items-center gap-3 sm:gap-5 text-xs font-sans shrink-0" id="site-nav">
+  <ul class="flex items-center gap-1 sm:gap-1.5 m-0 p-0 list-none">
     {
       navLinks.map((nav) => {
         const label = navLabels[nav.name] ?? t(nav.name)
@@ -30,11 +32,11 @@ function isNavActive(href: string) {
         return (
           <li>
             <a
+              data-nav-item
+              data-href={nav.href}
               class:list={[
-                'not-underline-hover px-1.5 sm:px-2.5 py-0.8 rounded-md transition-all duration-200 block text-[12px] sm:text-[13px]',
-                active
-                  ? 'font-medium text-neutral-900 dark:text-neutral-100 bg-black/[0.05] dark:bg-white/[0.08]'
-                  : 'text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-200 hover:bg-black/[0.03] dark:hover:bg-white/[0.04]',
+                'nav-link not-underline-hover px-2.5 sm:px-3 py-1 rounded-md transition-colors duration-150 block text-[13px] sm:text-[14px]',
+                active ? 'is-active' : 'is-inactive',
               ]}
               href={nav.href}
             >
@@ -46,38 +48,98 @@ function isNavActive(href: string) {
     }
   </ul>
 
-  <div class="hidden sm:block h-3 w-[1px] bg-black/10 dark:bg-white/10 mx-0.5 select-none"></div>
+  <div class="hidden sm:block h-3.5 w-[1px] bg-black/10 dark:bg-white/10 mx-1 select-none"></div>
 
-  <div class="flex items-center gap-1 sm:gap-2.5">
-    <button
-      type="button"
-      data-search-open
-      class="flex items-center gap-1 text-[11px] text-neutral-400 hover:text-neutral-700 dark:text-neutral-500 dark:hover:text-neutral-300 transition-colors bg-transparent border-0 cursor-pointer p-1 rounded"
-      title="全局搜索 (⌘K)"
-    >
-      <span class="i-tabler-search w-3.5 h-3.5" aria-hidden="true"></span>
-      <span
-        class="text-[10px] font-mono px-1 py-0.2 border border-black/10 dark:border-white/15 rounded bg-black/[0.02] dark:bg-white/[0.04] hidden sm:inline"
-        >⌘K</span
-      >
-    </button>
-
-    <ul class="hidden sm:flex items-center gap-1 m-0 p-0 list-none">
-      {
-        socialLinks.map(({ href, name }) => (
-          <li>
-            <a
-              href={href}
-              target="_blank"
-              rel="noopener noreferrer"
-              title={name}
-              class="text-neutral-400 hover:text-neutral-700 dark:text-neutral-500 dark:hover:text-neutral-200 transition-all p-1 inline-flex items-center justify-center rounded not-underline-hover hover:bg-black/[0.03] dark:hover:bg-white/[0.05]"
-            >
-              <span class:list={[getSocialIconClass(name), 'w-3.5 h-3.5']} aria-hidden="true" />
-            </a>
-          </li>
-        ))
-      }
-    </ul>
-  </div>
+  <ul class="flex items-center gap-1.5 sm:gap-2 m-0 p-0 list-none">
+    {
+      socialLinks.map(({ href, name }) => (
+        <li>
+          <a
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            title={name}
+            class="text-neutral-400 hover:text-neutral-800 dark:text-neutral-500 dark:hover:text-neutral-200 transition-colors p-1.5 inline-flex items-center justify-center rounded not-underline-hover hover:bg-black/[0.04] dark:hover:bg-white/[0.06]"
+          >
+            <span class:list={[getSocialIconClass(name), 'w-4 h-4 sm:w-4.5 sm:h-4.5']} aria-hidden="true" />
+          </a>
+        </li>
+      ))
+    }
+  </ul>
 </nav>
+
+<style>
+  .nav-link {
+    cursor: pointer;
+    user-select: none;
+  }
+  .nav-link.is-active {
+    font-weight: 600;
+    color: #171717;
+    background-color: rgba(0, 0, 0, 0.08);
+  }
+  :global(.dark) .nav-link.is-active {
+    color: #ededed;
+    background-color: rgba(255, 255, 255, 0.12);
+  }
+  .nav-link.is-inactive {
+    font-weight: 400;
+    color: #737373;
+  }
+  .nav-link.is-inactive:hover {
+    color: #171717;
+    background-color: rgba(0, 0, 0, 0.04);
+  }
+  :global(.dark) .nav-link.is-inactive {
+    color: #a3a3a3;
+  }
+  :global(.dark) .nav-link.is-inactive:hover {
+    color: #ededed;
+    background-color: rgba(255, 255, 255, 0.06);
+  }
+</style>
+
+<script>
+  function syncActiveNav(targetHref?: string) {
+    const navItems = document.querySelectorAll<HTMLAnchorElement>('[data-nav-item]')
+    const path = (targetHref !== undefined ? targetHref : window.location.pathname).replace(/\/$/, '') || '/'
+
+    function checkActive(href: string, targetPath: string) {
+      if (href === '/') {
+        return targetPath === '/' || targetPath.startsWith('/posts') || /^\/\d+/.test(targetPath)
+      }
+      return targetPath === href || targetPath.startsWith(`${href}/`)
+    }
+
+    navItems.forEach((item) => {
+      const itemHref = (item.getAttribute('data-href') || item.getAttribute('href') || '').replace(/\/$/, '') || '/'
+      const active = checkActive(itemHref, path)
+      item.classList.toggle('is-active', active)
+      item.classList.toggle('is-inactive', !active)
+    })
+  }
+
+  // 1. 点击时立即切换选中状态（0ms即时反馈）
+  document.addEventListener('click', (e) => {
+    const target = (e.target as HTMLElement).closest<HTMLAnchorElement>('[data-nav-item]')
+    if (target) {
+      const href = target.getAttribute('data-href') || target.getAttribute('href') || ''
+      syncActiveNav(href)
+      return
+    }
+
+    // 如果点击了首页Logo，也将导航高亮切到“文章/首页”
+    const logoTarget = (e.target as HTMLElement).closest<HTMLAnchorElement>('[data-nav-logo]')
+    if (logoTarget) {
+      syncActiveNav('/')
+    }
+  })
+
+  // 2. 监听 Swup 与浏览器历史事件，确保路由切换完成后高亮 100% 同步准确
+  document.addEventListener('astro:page-load', () => syncActiveNav())
+  document.addEventListener('astro:after-swap', () => syncActiveNav())
+  window.addEventListener('popstate', () => syncActiveNav())
+  document.addEventListener('DOMContentLoaded', () => syncActiveNav())
+  syncActiveNav()
+</script>

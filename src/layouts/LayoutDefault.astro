@@ -7,7 +7,6 @@ import SiteSeo from '~/components/SiteSeo.astro'
 import LaTeX from '~/components/LaTeX.astro'
 import Analytics from '~/components/Analytics.astro'
 import ThemeScript from '~/components/ThemeScript.astro'
-import SearchPalette from '~/components/SearchPalette.astro'
 import '~/styles/global.css'
 
 const lang = themeConfig.appearance.locale ?? 'en-us'
@@ -28,16 +27,12 @@ const dark = themeConfig.appearance.theme === 'dark'
     />
   </head>
 
-  <body class="min-h-100vh w-full max-w-[740px] mx-auto px-4 sm:px-6 py-5 sm:py-10 flex flex-col">
+  <body class="min-h-100vh w-full max-w-[880px] mx-auto px-4 sm:px-6 py-5 sm:py-10 flex flex-col">
     <!-- 极简现代顶栏 -->
     <header
       class="transition-swup-header w-full pb-5 sm:pb-6 mb-8 sm:mb-12 border-b border-black/[0.06] dark:border-white/[0.08] flex items-center justify-between gap-1 sm:gap-4"
     >
-      <a
-        href="/"
-        class="not-underline-hover inline-flex items-center transition-transform duration-200 hover:-translate-y-0.5 shrink-0"
-        title="Teclado - 首页"
-      >
+      <a href="/" class="not-underline-hover inline-flex items-center shrink-0" title="Teclado - 首页" data-nav-logo>
         <Signature />
       </a>
 
@@ -54,8 +49,6 @@ const dark = themeConfig.appearance.theme === 'dark'
     >
       <SiteFooter />
     </footer>
-
-    <SearchPalette />
 
     <script>
       document.addEventListener('animationend', removeAnimation, false)

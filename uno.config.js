@@ -70,8 +70,11 @@ export default defineConfig({
     presetTheme ({
       theme: {
         dark: {
-          colors: { ...colorsDark, shadow: '#FFFFFF0A' },
+          colors: { ...colorsDark, shadow: '#FFFFFF14' },
           // TODO 需要配置代码块颜色
+        },
+        light: {
+          colors: { ...colorsLight, shadow: '#00000014' },
         },
       },
     }),

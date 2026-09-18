@@ -47,6 +47,7 @@ export default defineConfig({
       smoothScrolling: true,
       updateHead: true,
       updateBodyClass: true,
+      globalInstance: true,
       ignore: [
         '/files/',
         /\.(yaml|yml|env|zip|pdf|tar|gz)$/i,
