@@ -6,19 +6,25 @@ const { navLinks, socialLinks } = themeConfig.site
 const { translate: t } = Astro.locals
 ---
 
-<nav class="text-center font-bold" flex="~ col gap-4">
-  <ul lg="flex-col items-start text-4" class="text-3.5" flex="~ row wrap gap-2 justify-center">
+<nav class="site-nav flex flex-wrap items-center gap-x-5 gap-y-2 text-3.75 font-medium">
+  <ul class="flex flex-wrap items-center gap-4 m-0 p-0 list-none">
     {
       navLinks.map((nav) => (
         <li>
-          <a class="" href={nav.href}>
+          <a
+            class="nav-link not-underline-hover opacity-70 hover:opacity-100 hover:text-primary transition-opacity py-1"
+            href={nav.href}
+          >
             {t(nav.name)}
           </a>
         </li>
       ))
     }
   </ul>
-  <ul flex="~ row gap-2 justify-center items-center">
+
+  <span class="nav-divider opacity-20 hidden sm:inline-block select-none">|</span>
+
+  <ul class="flex items-center gap-3 m-0 p-0 list-none">
     {
       socialLinks.map(({ href, name }) => (
         <li>
@@ -27,12 +33,18 @@ const { translate: t } = Astro.locals
             target="_blank"
             rel="noopener noreferrer"
             title={name}
-            class="not-underline-hover inline-flex items-center justify-center"
+            class="social-icon-link not-underline-hover opacity-60 hover:opacity-100 hover:text-primary transition-opacity inline-flex items-center justify-center p-1"
           >
-            <span class:list={[getSocialIconClass(name), 'w-6 h-6 shrink-0']} aria-hidden="true" />
+            <span class:list={[getSocialIconClass(name), 'w-4.5 h-4.5 shrink-0']} aria-hidden="true" />
           </a>
         </li>
       ))
     }
   </ul>
 </nav>
+
+<style>
+  .nav-link {
+    letter-spacing: 0.02em;
+  }
+</style>
