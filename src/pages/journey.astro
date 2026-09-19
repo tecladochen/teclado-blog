@@ -1,5 +1,7 @@
 ---
 import { getCollection } from 'astro:content'
+import type { ImageMetadata } from 'astro'
+import { Image } from 'astro:assets'
 import SiteSeo from '~/components/SiteSeo.astro'
 import LayoutDefault from '~/layouts/LayoutDefault.astro'
 import { formatDate } from '~/utils'
@@ -10,6 +12,7 @@ interface TimelineEvent {
   date: Date
   kind: 'life' | 'project' | 'learning' | 'blog'
   summary: string
+  images: { src: ImageMetadata; alt: string }[]
   links: { label: string; url: string }[]
   featured: boolean
 }
@@ -23,12 +26,18 @@ const events: TimelineEvent[] = (await getCollection('journey'))
     date: entry.data.date,
     kind: entry.data.kind,
     summary: entry.data.summary,
+    images:
+      entry.data.images?.map((image, index) => ({
+        src: image,
+        alt: entry.data.imageAlts?.[index] || entry.data.imageAlt || entry.data.title,
+      })) ?? (entry.data.image ? [{ src: entry.data.image, alt: entry.data.imageAlt || entry.data.title }] : []),
     links: entry.data.links,
     featured: entry.data.featured,
   }))
   .sort(compareEvents)
 
 const yearGroups = Map.groupBy(events, (event) => event.date.getUTCFullYear())
+const sortedYearGroups = [...yearGroups.entries()].sort(([a], [b]) => b - a)
 const filters = ['all', 'life', 'project', 'learning', 'blog'] as const
 
 function compareEvents(a: TimelineEvent, b: TimelineEvent) {
@@ -43,76 +52,103 @@ function compareEvents(a: TimelineEvent, b: TimelineEvent) {
 ---
 
 <LayoutDefault>
-  <SiteSeo slot="seo" title={`${t('Journey')} · 孤独终洁`} desc={t('journey_intro')} />
+  <SiteSeo slot="seo" title={`${t('Journey')} · Teclado`} desc={t('journey_intro')} />
 
   <section class="journey-page" data-journey-page>
-    <header class="journey-header">
-      <h2 class="post-title">{t('Journey')}</h2>
+    <header class="journey-toolbar">
+      <h1 class="journey-title">{t('Journey')}</h1>
+      <div class="journey-filters" aria-label={t('Journey')}>
+        {
+          filters.map((filter, index) => (
+            <button type="button" data-journey-filter={filter} aria-pressed={index === 0 ? 'true' : 'false'}>
+              <span>{t(`journey_filter_${filter}`)}</span>
+              <span class="journey-filter-count">
+                {filter === 'all' ? events.length : events.filter((event) => event.kind === filter).length}
+              </span>
+            </button>
+          ))
+        }
+      </div>
     </header>
-
-    <p class="journey-intro">{t('journey_intro')}</p>
-
-    <div class="journey-filters" aria-label={t('Journey')}>
-      {
-        filters.map((filter, index) => (
-          <button type="button" data-journey-filter={filter} aria-pressed={index === 0 ? 'true' : 'false'}>
-            {t(`journey_filter_${filter}`)}
-          </button>
-        ))
-      }
-    </div>
 
     <div class="journey-years" aria-live="polite">
       {
         events.length === 0 ? (
           <p class="journey-empty">{t('journey_empty')}</p>
         ) : (
-          [...yearGroups.entries()]
-            .sort(([a], [b]) => b - a)
-            .map(([year, yearEvents]) => (
-              <section class="journey-year" data-journey-year>
+          sortedYearGroups.map(([year, yearEvents]) => (
+            <section class="journey-year" data-journey-year>
+              <header class="journey-year-heading">
                 <h2>{year}</h2>
-                <ol>
-                  {yearEvents.map((event) => (
-                    <li data-journey-event data-kind={event.kind}>
-                      <div class:list={['journey-marker', { 'is-featured': event.featured }]} aria-hidden="true" />
-                      <article>
-                        <header>
-                          <div>
-                            <span class="journey-kind">{t(`journey_filter_${event.kind}`)}</span>
-                            <h3>{event.title}</h3>
-                          </div>
-                          <time datetime={event.date.toISOString()}>{formatDate(event.date, 'MM-DD')}</time>
-                        </header>
-                        <p>{event.summary}</p>
-                        {event.links.length > 0 && (
-                          <ul class="journey-links">
-                            {event.links.map((link) => (
-                              <li>
-                                <a href={link.url}>
-                                  {link.label} <span aria-hidden="true">↗</span>
-                                </a>
-                              </li>
-                            ))}
-                          </ul>
-                        )}
-                      </article>
-                    </li>
-                  ))}
-                </ol>
-              </section>
-            ))
+                <span aria-hidden="true">年</span>
+              </header>
+              <ol>
+                {yearEvents.map((event) => (
+                  <li
+                    class:list={{
+                      'is-featured': event.featured,
+                      'has-image': event.images.length > 0,
+                      'has-multiple-media': event.images.length > 1,
+                    }}
+                    data-journey-event
+                    data-kind={event.kind}
+                  >
+                    <div class="journey-event-meta">
+                      <time datetime={event.date.toISOString()}>{formatDate(event.date, 'MM-DD')}</time>
+                      <span class="journey-kind">{t(`journey_filter_${event.kind}`)}</span>
+                    </div>
+                    <article>
+                      <h3>{event.title}</h3>
+                      <p>{event.summary}</p>
+                      {event.links.length > 0 && (
+                        <ul class="journey-links">
+                          {event.links.map((link) => (
+                            <li>
+                              <a href={link.url}>
+                                {link.label} <span aria-hidden="true">↗</span>
+                              </a>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </article>
+                    {event.images.length > 0 && (
+                      <div class="journey-media" data-media-count={event.images.length}>
+                        {event.images.map((image) => (
+                          <figure>
+                            <Image
+                              src={image.src}
+                              alt={image.alt}
+                              loading="lazy"
+                              widths={[320, 640]}
+                              sizes={
+                                event.images.length > 1
+                                  ? '(max-width: 680px) calc((100vw - 110px) / 2), 300px'
+                                  : '(max-width: 680px) calc(100vw - 102px), 544px'
+                              }
+                            />
+                          </figure>
+                        ))}
+                      </div>
+                    )}
+                  </li>
+                ))}
+              </ol>
+            </section>
+          ))
         )
       }
     </div>
 
-    {/*
+    {
+      /*
       Keep this script inside <main> with is:inline.
       Astro otherwise hoists the module outside </html>, and Swup only swaps
       <main>, so soft-nav to /journey never attaches filter click handlers.
-    */}
+    */
+    }
     <script is:inline>
-      (() => {
+      ;(() => {
         const page = document.querySelector('[data-journey-page]')
         if (!page || page.dataset.ready === 'true') {
           return
@@ -123,16 +159,66 @@ function compareEvents(a: TimelineEvent, b: TimelineEvent) {
         const events = Array.from(page.querySelectorAll('[data-journey-event]'))
         const years = Array.from(page.querySelectorAll('[data-journey-year]'))
 
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
+        const play = async (element, keyframes, options) => {
+          const animation = element.animate(keyframes, options)
+          await animation.finished.catch(() => undefined)
+          animation.cancel()
+        }
+
         buttons.forEach((button) => {
-          button.addEventListener('click', () => {
+          button.addEventListener('click', async () => {
+            if (button.getAttribute('aria-pressed') === 'true' || page.dataset.filtering === 'true') {
+              return
+            }
+
             const filter = button.dataset.journeyFilter || 'all'
             buttons.forEach((item) => item.setAttribute('aria-pressed', String(item === button)))
+            const visibleEvents = events.filter((event) => !event.hidden)
+
+            if (!prefersReducedMotion.matches) {
+              page.dataset.filtering = 'true'
+              await Promise.all(
+                visibleEvents.map((event) =>
+                  play(
+                    event,
+                    [
+                      { opacity: 1, transform: 'translateY(0)' },
+                      { opacity: 0, transform: 'translateY(-6px)' },
+                    ],
+                    { duration: 140, easing: 'cubic-bezier(0.4, 0, 1, 1)', fill: 'forwards' },
+                  ),
+                ),
+              )
+            }
+
             events.forEach((event) => {
               event.hidden = filter !== 'all' && event.dataset.kind !== filter
             })
             years.forEach((year) => {
               year.hidden = !year.querySelector('[data-journey-event]:not([hidden])')
             })
+
+            if (!prefersReducedMotion.matches) {
+              const revealedEvents = events.filter((event) => !event.hidden)
+              await Promise.all(
+                revealedEvents.map((event, index) =>
+                  play(
+                    event,
+                    [
+                      { opacity: 0, transform: 'translateY(10px)' },
+                      { opacity: 1, transform: 'translateY(0)' },
+                    ],
+                    {
+                      duration: 280,
+                      delay: Math.min(index * 28, 84),
+                      easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
+                    },
+                  ),
+                ),
+              )
+              delete page.dataset.filtering
+            }
           })
         })
       })()
@@ -142,78 +228,127 @@ function compareEvents(a: TimelineEvent, b: TimelineEvent) {
 
 <style>
   .journey-page {
+    --journey-accent: #8b5147;
+    --journey-serif: 'Noto Serif SC', 'Songti SC', Georgia, serif;
+    margin-top: clamp(-3rem, -5vw, -1.75rem);
+  }
+
+  :global(.dark) .journey-page {
+    --journey-accent: #d0a49a;
+  }
+
+  .journey-title {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+    margin: -1px;
+  }
+
+  .journey-toolbar {
     display: flex;
-    flex-direction: column;
-    gap: 1.55rem;
-  }
-
-  .journey-header {
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    gap: 1rem;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid var(--uno-colors-shadow);
-  }
-
-  .journey-intro {
-    max-width: 40rem;
-    margin: 0;
-    font-size: 1.02rem;
-    line-height: 1.8;
-  }
-
-  .journey-empty {
-    margin: 0;
-    font-size: 0.9rem;
-    line-height: 1.7;
-    opacity: 0.68;
+    align-items: center;
+    min-height: 2.75rem;
+    padding: 0 0 0.55rem;
+    border-bottom: 1px solid var(--uno-colors-primary);
   }
 
   .journey-filters {
     display: flex;
-    flex-wrap: wrap;
-    gap: 0.45rem;
+    align-items: center;
+    gap: 1.4rem;
   }
 
   .journey-filters button {
-    padding: 0.3rem 0.55rem;
-    border: 1px solid var(--uno-colors-shadow);
-    color: inherit;
+    position: relative;
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.32rem;
+    padding: 0.45rem 0 0.55rem;
+    border: 0;
+    color: var(--theme-muted);
     background: transparent;
-    font: inherit;
-    font-size: 0.72rem;
+    font-size: 11px;
+    line-height: 1;
     cursor: pointer;
+    transition:
+      color 160ms ease,
+      transform 280ms cubic-bezier(0.22, 1, 0.36, 1);
   }
 
-  .journey-filters button[aria-pressed='true'],
+  .journey-filters button::after {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    height: 1px;
+    background: currentColor;
+    content: '';
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 280ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
   .journey-filters button:hover,
   .journey-filters button:focus-visible {
-    color: var(--uno-colors-background);
-    background: var(--uno-colors-primary);
-    outline: none;
+    color: var(--uno-colors-primary);
+    transform: translateY(-1px);
+  }
+
+  .journey-filters button[aria-pressed='true'] {
+    color: var(--uno-colors-primary);
+  }
+
+  .journey-filters button[aria-pressed='true']::after,
+  .journey-filters button:hover::after,
+  .journey-filters button:focus-visible::after {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+
+  .journey-filter-count {
+    color: var(--theme-muted);
+    font:
+      7px/1 'JetBrains Mono',
+      monospace;
+    transform: translateY(-0.35em);
   }
 
   .journey-years {
     display: flex;
     flex-direction: column;
-    gap: 2.2rem;
+    gap: clamp(2.75rem, 6vw, 4.5rem);
+    padding-top: clamp(1.35rem, 3vw, 2rem);
   }
 
   .journey-year {
-    display: grid;
-    grid-template-columns: 4.5rem minmax(0, 1fr);
-    gap: 1.2rem;
+    display: block;
   }
 
-  .journey-year > h2 {
-    position: sticky;
-    top: 1rem;
-    align-self: start;
+  .journey-year-heading {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--theme-border);
+  }
+
+  .journey-year-heading h2 {
     margin: 0;
-    font-size: 1rem;
+    font:
+      500 1rem/1 'JetBrains Mono',
+      monospace;
     font-variant-numeric: tabular-nums;
-    letter-spacing: 0.08em;
+    letter-spacing: -0.04em;
+  }
+
+  .journey-year-heading span {
+    color: var(--theme-muted);
+    font-size: 9px;
   }
 
   .journey-year > ol {
@@ -225,79 +360,76 @@ function compareEvents(a: TimelineEvent, b: TimelineEvent) {
   .journey-year > ol > li {
     position: relative;
     display: grid;
-    grid-template-columns: 1rem minmax(0, 1fr);
-    gap: 0.75rem;
-    padding: 0 0 1.4rem;
+    grid-template-columns: 68px minmax(0, 1fr);
+    column-gap: clamp(1.2rem, 3vw, 2.25rem);
+    row-gap: 0;
+    padding: 1.3rem 0 1.45rem;
+    border-bottom: 1px solid var(--theme-border-subtle);
+    isolation: isolate;
   }
 
   .journey-year > ol > li::before {
     position: absolute;
-    top: 0.6rem;
-    bottom: -0.6rem;
-    left: 0.24rem;
-    width: 1px;
-    background: var(--uno-colors-shadow);
+    bottom: -1px;
+    left: 0;
+    width: 0;
+    height: 1px;
+    background: var(--journey-accent);
     content: '';
+    transition: width 420ms cubic-bezier(0.22, 1, 0.36, 1);
   }
 
-  .journey-year > ol > li:last-child::before {
-    display: none;
+  .journey-year > ol > li:is(:hover, :focus-within)::before {
+    width: 68px;
   }
 
-  .journey-marker {
-    z-index: 1;
-    width: 0.48rem;
-    height: 0.48rem;
-    margin-top: 0.38rem;
-    border: 1px solid currentColor;
-    border-radius: 999px;
-    background: var(--uno-colors-background);
+  .journey-year > ol > li.is-featured::before {
+    width: 24px;
   }
 
-  .journey-marker.is-featured {
-    background: currentColor;
-  }
-
-  .journey-year article {
-    min-width: 0;
-    padding-bottom: 1.15rem;
-    border-bottom: 1px solid var(--uno-colors-shadow);
-  }
-
-  .journey-year article > header {
+  .journey-event-meta {
     display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 1rem;
+    flex-direction: column;
+    gap: 0.45rem;
+    padding-top: 0.25rem;
+  }
+
+  .journey-event-meta time {
+    color: var(--theme-sub);
+    font:
+      10px/1 'JetBrains Mono',
+      monospace;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.04em;
   }
 
   .journey-kind {
-    display: block;
-    margin-bottom: 0.2rem;
-    font-size: 0.6rem;
-    letter-spacing: 0.1em;
-    opacity: 0.48;
+    color: var(--theme-muted);
+    font-size: 8px;
+    letter-spacing: 0.08em;
   }
 
-  .journey-year h3 {
+  .journey-year article {
+    grid-column: 2;
+    min-width: 0;
+  }
+
+  .journey-year article h3 {
     margin: 0;
-    font-size: 1rem;
+    font-family: var(--journey-serif);
+    font-size: 1.05rem;
+    font-weight: 600;
     line-height: 1.55;
-  }
-
-  .journey-year time {
-    padding-top: 0.1rem;
-    font-size: 0.72rem;
-    font-variant-numeric: tabular-nums;
-    white-space: nowrap;
-    opacity: 0.52;
+    text-wrap: pretty;
   }
 
   .journey-year article > p {
-    margin: 0.35rem 0 0;
-    font-size: 0.87rem;
-    line-height: 1.7;
-    opacity: 0.74;
+    max-width: 34rem;
+    margin: 0.4rem 0 0;
+    color: var(--theme-sub);
+    font-size: 0.82rem;
+    line-height: 1.75;
+    text-wrap: pretty;
   }
 
   .journey-links {
@@ -306,31 +438,144 @@ function compareEvents(a: TimelineEvent, b: TimelineEvent) {
     gap: 0.45rem 1rem;
     margin: 0.7rem 0 0;
     padding: 0;
-    font-size: 0.78rem;
-    font-weight: 700;
+    font-size: 0.72rem;
+    font-weight: 600;
     list-style: none;
+  }
+
+  .journey-links a {
+    color: var(--journey-accent);
+  }
+
+  .journey-media {
+    grid-column: 2;
+    display: grid;
+    grid-template-columns: repeat(var(--media-columns, 1), minmax(0, 1fr));
+    gap: 0.45rem;
+    width: min(100%, 34rem);
+    margin-top: 0.65rem;
+  }
+
+  .journey-media figure {
+    position: relative;
+    margin: 0;
+    overflow: hidden;
+    border: 1px solid var(--theme-border);
+    background: var(--theme-border-subtle);
+    aspect-ratio: 16 / 9;
+  }
+
+  .journey-media[data-media-count='2'] {
+    --media-columns: 2;
+  }
+
+  .journey-media[data-media-count='3'] {
+    --media-columns: 3;
+  }
+
+  .journey-media[data-media-count='4'] {
+    --media-columns: 4;
+  }
+
+  .journey-media :global(img) {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .journey-empty {
+    margin: 3rem 0 0;
+    font-size: 0.9rem;
+    line-height: 1.7;
+    opacity: 0.68;
   }
 
   [hidden] {
     display: none !important;
   }
 
-  @media (max-width: 560px) {
-    .journey-header {
-      align-items: flex-start;
-      flex-direction: column;
-      gap: 0.6rem;
+  @media (max-width: 680px) {
+    .journey-toolbar {
+      min-height: 2.4rem;
+      padding-bottom: 0.35rem;
     }
 
-    .journey-year {
-      grid-template-columns: 1fr;
-      gap: 0.85rem;
+    .journey-filters {
+      width: 100%;
+      gap: 0.75rem;
+      overflow-x: auto;
+      scrollbar-width: none;
     }
 
-    .journey-year > h2 {
-      position: static;
-      padding-bottom: 0.5rem;
-      border-bottom: 1px solid currentColor;
+    .journey-filters::-webkit-scrollbar {
+      display: none;
+    }
+
+    .journey-filters button {
+      padding-right: 0.2rem;
+      padding-left: 0.2rem;
+    }
+
+    .journey-filters button::after {
+      right: 0.2rem;
+      left: 0.2rem;
+    }
+
+    .journey-year > ol > li {
+      grid-template-columns: 48px minmax(0, 1fr);
+      column-gap: 0.9rem;
+      row-gap: 0;
+      padding: 1.05rem 0 1.2rem;
+    }
+
+    .journey-event-meta {
+      gap: 0.4rem;
+    }
+
+    .journey-event-meta time {
+      font-size: 9px;
+    }
+
+    .journey-year article h3 {
+      font-size: 0.98rem;
+    }
+
+    .journey-year article > p {
+      font-size: 0.8rem;
+      line-height: 1.75;
+    }
+
+    .journey-media {
+      grid-column: 2;
+      width: 100%;
+      margin-top: 0.75rem;
+    }
+
+    .journey-media[data-media-count='2'],
+    .journey-media[data-media-count='3'],
+    .journey-media[data-media-count='4'] {
+      grid-auto-columns: min(78%, 17rem);
+      grid-auto-flow: column;
+      grid-template-columns: none;
+      padding-bottom: 0.35rem;
+      overflow-x: auto;
+      scroll-snap-type: x proximity;
+      scrollbar-width: thin;
+    }
+
+    .journey-media[data-media-count='2'] figure,
+    .journey-media[data-media-count='3'] figure,
+    .journey-media[data-media-count='4'] figure {
+      scroll-snap-align: start;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .journey-filters button,
+    .journey-filters button::after,
+    .journey-year > ol > li::before {
+      transition: none;
     }
   }
 </style>

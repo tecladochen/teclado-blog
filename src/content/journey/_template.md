@@ -7,6 +7,11 @@ title: 在这里填写事件标题
 date: 2026-01-01
 kind: learning
 summary: 一个完整的句子，补上 title 说不出的那层。
+# image: ./photo.jpg
+# imageAlt: 简短说明画面内容
+# 多图改用 images 与 imageAlts，最多 4 张；不要和 image 同时填写。
+# images: [./photo-1.jpg, ./photo-2.jpg]
+# imageAlts: [第一张画面说明, 第二张画面说明]
 links: []
 featured: false
 draft: true

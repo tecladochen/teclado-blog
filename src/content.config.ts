@@ -39,18 +39,23 @@ const spec = defineCollection({
 
 const journey = defineCollection({
   loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/journey' }),
-  schema: z.object({
-    title: z.string(),
-    date: z.coerce.date(),
-    kind: z.enum(['life', 'project', 'learning', 'blog']),
-    summary: z.string(),
-    links: z.array(z.object({
-      label: z.string(),
-      url: z.string(),
-    })).default([]),
-    featured: z.boolean().default(false),
-    draft: z.boolean().default(false),
-  }),
+  schema: ({ image }) =>
+    z.object({
+      title: z.string(),
+      date: z.coerce.date(),
+      kind: z.enum(['life', 'project', 'learning', 'blog']),
+      summary: z.string(),
+      image: image().optional(),
+      imageAlt: z.string().optional(),
+      images: z.array(image()).max(4).optional(),
+      imageAlts: z.array(z.string()).max(4).optional(),
+      links: z.array(z.object({
+        label: z.string(),
+        url: z.string(),
+      })).default([]),
+      featured: z.boolean().default(false),
+      draft: z.boolean().default(false),
+    }),
 })
 
 export const collections = {

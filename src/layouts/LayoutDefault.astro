@@ -17,12 +17,12 @@ const dark = themeConfig.appearance.theme === 'dark'
   <head>
     <script is:inline>
       ;(() => {
-        const storageKey = 'teclado-signature-intro-played'
-        const clearIntro = () => delete document.documentElement.dataset.signatureIntro
+        const root = document.documentElement
+        const clearIntro = () => delete root.dataset.signatureIntro
 
-        if (!sessionStorage.getItem(storageKey)) {
-          document.documentElement.dataset.signatureIntro = 'play'
-          sessionStorage.setItem(storageKey, '1')
+        if (root.dataset.signatureIntroRun !== 'true') {
+          root.dataset.signatureIntroRun = 'true'
+          root.dataset.signatureIntro = 'play'
           window.setTimeout(clearIntro, 2800)
           document.addEventListener('astro:before-swap', clearIntro, { once: true })
         }
