@@ -8,7 +8,7 @@ export const LANGUAGES = {
     Archive: '归档',
     Tags: '标签',
     About: '关于',
-    Links: '链接',
+    Links: '友链',
 
     posted_at: '发布于',
     updated_at: '更新于',
@@ -118,7 +118,7 @@ export const LANGUAGES = {
     Archive: '歸檔',
     Tags: '標籤',
     About: '關於',
-    Links: '鏈接',
+    Links: '友鏈',
 
     posted_at: '發佈於',
     updated_at: '更新於',

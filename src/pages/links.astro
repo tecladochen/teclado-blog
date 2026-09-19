@@ -2,432 +2,754 @@
 import { friendLinks, myBlogInfo, themeConfig } from '~/.config'
 import SiteSeo from '~/components/SiteSeo.astro'
 import LayoutDefault from '~/layouts/LayoutDefault.astro'
-import type { FriendLink } from '~/types'
 
-const { translate: t } = Astro.locals
-
-// 保持既定顺序的分类列表
-const categories = Array.from(new Set(friendLinks.map((item) => item.category).filter(Boolean))) as string[]
-
-const linksByCategory = new Map<string, FriendLink[]>()
-for (const cat of categories) {
-  linksByCategory.set(
-    cat,
-    friendLinks.filter((item) => item.category === cat),
-  )
-}
-const uncategorized = friendLinks.filter((item) => !item.category)
-if (uncategorized.length > 0) {
-  linksByCategory.set('其他', uncategorized)
-}
+const friendLinkProfile = [
+  `名称：${myBlogInfo.name}`,
+  `描述：${myBlogInfo.desc}`,
+  `网址：${myBlogInfo.url}`,
+  myBlogInfo.feed ? `订阅：${myBlogInfo.feed}` : '',
+]
+  .filter(Boolean)
+  .join('\n')
 ---
 
 <LayoutDefault>
-  <SiteSeo slot="seo" title={`${t('Links')} · ${themeConfig.site.title}`} desc="个人独立博客友链与优质站点储备" />
+  <SiteSeo slot="seo" title={`友链 · ${themeConfig.site.title}`} desc="常去的个人站点与独立博客" />
 
-  <section class="links-page">
-    <header class="links-header">
-      <h2 class="post-title">{t('Links')}</h2>
-      <p class="links-count">{friendLinks.length} 个站点</p>
-    </header>
-
-    <div class="links-intro">
-      <p>
-        独行疾，众行远。这里整理了各具风格、值得深度研读学习的独立博客与同行者。后续将逐步汲取各家在排版、交互与思考上的亮点，持续打磨本站。
-      </p>
-    </div>
-
-    <!-- 本站信息 / 交换指南基础框架 -->
-    <details class="site-info-box">
-      <summary class="site-info-summary">
-        <span>交换友链 / 本站信息</span>
-        <span class="site-info-hint">点击展开</span>
-      </summary>
-      <div class="site-info-content">
-        <dl class="site-info-list">
-          <div class="info-row">
-            <dt>名称：</dt>
-            <dd><code>{myBlogInfo.name}</code></dd>
-          </div>
-          <div class="info-row">
-            <dt>链接：</dt>
-            <dd>
-              <a href={myBlogInfo.url} target="_blank" rel="noopener noreferrer"><code>{myBlogInfo.url}</code></a>
-            </dd>
-          </div>
-          <div class="info-row">
-            <dt>描述：</dt>
-            <dd>{myBlogInfo.desc}</dd>
-          </div>
-          {
-            myBlogInfo.feed && (
-              <div class="info-row">
-                <dt>RSS：</dt>
+  <section class="links-page" data-links-page>
+    <h1 class="visually-hidden">友链</h1>
+    <section class="site-info-box" data-site-info>
+      <button class="site-info-summary" type="button" aria-expanded="false" aria-controls="site-info-panel">
+        <span class="directory-count">{String(friendLinks.length).padStart(2, '0')} SITES</span>
+        <span class="exchange-label">交换友链 <span aria-hidden="true">＋</span></span>
+      </button>
+      <div class="site-info-panel" id="site-info-panel" data-site-info-panel aria-hidden="true" inert>
+        <div class="site-info-content">
+          <div class="site-info-sheet">
+            <div class="site-info-tools">
+              <span>TECLADO.INFO</span>
+              <button
+                type="button"
+                class="copy-button"
+                data-copy-value={friendLinkProfile}
+                aria-label="复制全部友链资料"
+              >
+                <span class="copy-icon" aria-hidden="true">
+                  <span class="copy-icon-default i-tabler-copy w-3.5 h-3.5"></span>
+                  <span class="copy-icon-success i-tabler-check w-3.5 h-3.5"></span>
+                </span>
+                <span data-copy-label aria-live="polite">复制全部</span>
+              </button>
+            </div>
+            <dl class="site-info-list">
+              <div class="info-row info-name">
+                <dt>名称</dt>
                 <dd>
-                  <a href={myBlogInfo.feed} target="_blank" rel="noopener noreferrer">
-                    <code>{myBlogInfo.feed}</code>
+                  <span class="info-value">{myBlogInfo.name}</span>
+                </dd>
+              </div>
+              <div class="info-row info-description">
+                <dt>描述</dt>
+                <dd>
+                  <span class="info-value">{myBlogInfo.desc}</span>
+                </dd>
+              </div>
+              <div class="info-row info-address">
+                <dt>网址</dt>
+                <dd>
+                  <a class="info-value" href={myBlogInfo.url} target="_blank" rel="noopener noreferrer">
+                    <code>{myBlogInfo.url}</code>
                   </a>
                 </dd>
               </div>
-            )
-          }
-        </dl>
-      </div>
-    </details>
-
-    <!-- 友链分组列表 -->
-    <div class="links-groups">
-      {
-        Array.from(linksByCategory.entries()).map(([category, links]) => (
-          <section class="links-group">
-            <header class="group-header">
-              <h3 class="group-title">
-                <span class="group-hash">#</span>
-                <span>{category}</span>
-              </h3>
-              <span class="group-count">{links.length}</span>
-            </header>
-
-            <div class="links-grid">
-              {links.map((link) => (
-                <article class="link-card">
-                  <header class="card-header">
-                    {link.avatar ? (
-                      <img
-                        src={link.avatar}
-                        alt=""
-                        width="32"
-                        height="32"
-                        loading="lazy"
-                        class="card-avatar"
-                        onerror="this.style.display='none'"
-                      />
-                    ) : (
-                      <div class="card-avatar-placeholder" aria-hidden="true">
-                        {link.name.slice(0, 1)}
-                      </div>
-                    )}
-                    <div class="card-title-wrap">
-                      <h4 class="card-name">
-                        <a href={link.url} target="_blank" rel="noopener noreferrer">
-                          {link.name}
-                        </a>
-                      </h4>
-                      {link.author && <span class="card-author">@{link.author}</span>}
-                    </div>
-                  </header>
-
-                  <p class="card-desc">{link.desc}</p>
-
-                  {link.notes && (
-                    <div class="card-notes">
-                      <span class="notes-tag">学习参考</span>
-                      <span class="notes-body">{link.notes}</span>
-                    </div>
-                  )}
-
-                  <footer class="card-footer">
-                    {link.tags && link.tags.length > 0 && (
-                      <div class="card-tags">
-                        {link.tags.map((tag) => (
-                          <span class="card-tag">#{tag}</span>
-                        ))}
-                      </div>
-                    )}
-
-                    {link.feed && (
-                      <a
-                        href={link.feed}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        class="card-feed not-underline-hover"
-                        title="RSS 订阅"
-                        aria-label={`${link.name} RSS 订阅`}
-                      >
-                        <span class="i-tabler-rss w-3.5 h-3.5 shrink-0" aria-hidden="true" />
-                        <span>RSS</span>
+              {
+                myBlogInfo.feed && (
+                  <div class="info-row info-feed">
+                    <dt>订阅</dt>
+                    <dd>
+                      <a class="info-value" href={myBlogInfo.feed} target="_blank" rel="noopener noreferrer">
+                        <code>{myBlogInfo.feed}</code>
                       </a>
-                    )}
-                  </footer>
-                </article>
+                    </dd>
+                  </div>
+                )
+              }
+            </dl>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <ol class="links-list">
+      {
+        friendLinks.map((link) => (
+          <li class="friend-row" data-friend-row>
+            <div class="friend-avatar-wrap">
+              <div class="friend-avatar-placeholder" aria-hidden="true">
+                {link.name.slice(0, 1)}
+              </div>
+              {link.avatar && (
+                <img
+                  src={link.avatar}
+                  alt=""
+                  width="44"
+                  height="44"
+                  loading="lazy"
+                  class="friend-avatar"
+                  onerror="this.style.display='none'"
+                />
+              )}
+            </div>
+            <div class="friend-identity">
+              <h2>
+                <a href={link.url} target="_blank" rel="noopener noreferrer">
+                  {link.name}
+                </a>
+              </h2>
+              {link.author && <span class="friend-author">{link.author}</span>}
+            </div>
+            <p class="friend-description">{link.desc}</p>
+            <div class="friend-tags" aria-label="标签">
+              {link.tags?.slice(0, 3).map((tag) => (
+                <span>{tag}</span>
               ))}
             </div>
-          </section>
+            <div class="friend-actions">
+              {link.feed && (
+                <a
+                  href={link.feed}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="friend-feed not-underline-hover"
+                  title="RSS 订阅"
+                  aria-label={`${link.name} RSS 订阅`}
+                >
+                  <span class="i-tabler-rss w-3.5 h-3.5" aria-hidden="true" />
+                </a>
+              )}
+              <span class="friend-arrow" aria-hidden="true">
+                ↗
+              </span>
+            </div>
+          </li>
         ))
       }
-    </div>
+    </ol>
+
+    <script is:inline>
+      ;(() => {
+        const page = document.querySelector('[data-links-page]')
+        if (!page || page.dataset.ready === 'true') {
+          return
+        }
+        page.dataset.ready = 'true'
+
+        const rows = Array.from(page.querySelectorAll('[data-friend-row]'))
+        const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+        const siteInfo = page.querySelector('[data-site-info]')
+        const siteInfoButton = siteInfo?.querySelector('button')
+        const siteInfoPanel = siteInfo?.querySelector('[data-site-info-panel]')
+        const copyButtons = Array.from(page.querySelectorAll('[data-copy-value]'))
+
+        siteInfoButton?.addEventListener('click', () => {
+          const isOpen = siteInfoButton.getAttribute('aria-expanded') === 'true'
+          siteInfoButton.setAttribute('aria-expanded', String(!isOpen))
+          siteInfoPanel?.setAttribute('aria-hidden', String(isOpen))
+          if (siteInfoPanel) {
+            siteInfoPanel.inert = isOpen
+          }
+          siteInfo?.classList.toggle('is-open', !isOpen)
+        })
+
+        copyButtons.forEach((button) => {
+          button.addEventListener('click', async () => {
+            const value = button.dataset.copyValue || ''
+            const label = button.querySelector('[data-copy-label]')
+            await navigator.clipboard.writeText(value)
+            if (label) {
+              label.textContent = '已复制'
+            }
+            button.classList.add('is-copied')
+            window.setTimeout(() => {
+              if (label) {
+                label.textContent = '复制全部'
+              }
+              button.classList.remove('is-copied')
+            }, 1400)
+          })
+        })
+
+        if (reducedMotion || !('IntersectionObserver' in window)) {
+          rows.forEach((row) => row.classList.add('is-visible'))
+          return
+        }
+
+        page.dataset.motionReady = 'true'
+        const observer = new IntersectionObserver(
+          (entries) => {
+            const visibleEntries = entries
+              .filter((entry) => entry.isIntersecting)
+              .sort((a, b) => rows.indexOf(a.target) - rows.indexOf(b.target))
+
+            visibleEntries.forEach((entry, index) => {
+              window.setTimeout(() => entry.target.classList.add('is-visible'), Math.min(index * 54, 216))
+              observer.unobserve(entry.target)
+            })
+          },
+          { rootMargin: '0px 0px -7% 0px', threshold: 0.08 },
+        )
+
+        rows.forEach((row) => observer.observe(row))
+      })()
+    </script>
   </section>
 </LayoutDefault>
 
 <style>
   .links-page {
-    display: flex;
-    flex-direction: column;
-    gap: 1.75rem;
+    --friends-ink: #2e5946;
+    --friends-wash: rgba(46, 89, 70, 0.075);
+    --friends-line: rgba(46, 89, 70, 0.34);
+    --friends-serif: 'Noto Serif SC', 'Songti SC', Georgia, serif;
+    margin-top: clamp(-1.5rem, -2.6vw, -0.8rem);
   }
 
-  .links-header {
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    gap: 1rem;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid var(--uno-colors-shadow);
+  :global(.dark) .links-page {
+    --friends-ink: #9ab8a8;
+    --friends-wash: rgba(112, 151, 130, 0.12);
+    --friends-line: rgba(154, 184, 168, 0.4);
   }
 
-  .links-count {
-    margin: 0;
-    font-size: 0.875rem;
-    opacity: 0.72;
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
     white-space: nowrap;
+    border: 0;
   }
 
-  .links-intro p {
-    margin: 0;
-    font-size: 0.95rem;
-    line-height: 1.7;
-    opacity: 0.85;
-  }
-
-  /* 本站信息框 */
   .site-info-box {
-    padding: 0.85rem 1rem;
-    border: 1px dashed var(--uno-colors-shadow);
-    border-radius: 4px;
-    font-size: 0.875rem;
+    border: 0;
   }
 
   .site-info-summary {
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    min-height: 2.85rem;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
     cursor: pointer;
-    font-weight: 600;
-    user-select: none;
+    border-bottom: 1px solid var(--theme-border);
   }
 
-  .site-info-hint {
-    font-size: 0.75rem;
-    opacity: 0.6;
-    font-weight: normal;
+  .directory-count {
+    color: var(--theme-muted);
+    font:
+      9px/1 'JetBrains Mono',
+      monospace;
+    letter-spacing: 0.14em;
+  }
+
+  .exchange-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.65rem;
+    color: var(--theme-sub);
+    font-size: 0.72rem;
+    letter-spacing: 0.04em;
+    transition:
+      color 200ms ease,
+      transform 360ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .site-info-summary:hover .exchange-label {
+    color: var(--friends-ink);
+    transform: translateX(-3px);
+  }
+
+  .exchange-label span {
+    display: inline-block;
+    font-size: 0.9rem;
+    transform-origin: center;
+    transition: transform 480ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .site-info-box.is-open .exchange-label span {
+    transform: rotate(45deg);
+  }
+
+  .site-info-panel {
+    display: grid;
+    grid-template-rows: 0fr;
+    opacity: 0;
+    will-change: grid-template-rows, opacity;
+    transition:
+      grid-template-rows 520ms cubic-bezier(0.16, 1, 0.3, 1),
+      opacity 180ms ease;
+  }
+
+  .site-info-box.is-open .site-info-panel {
+    grid-template-rows: 1fr;
+    opacity: 1;
   }
 
   .site-info-content {
-    margin-top: 0.85rem;
-    padding-top: 0.75rem;
-    border-top: 1px dashed var(--uno-colors-shadow);
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .site-info-sheet {
+    position: relative;
+    margin: 0.75rem 0 1rem;
+    padding: 0.9rem 1rem 0.95rem 1.15rem;
+    border-left: 2px solid var(--friends-line);
+    background: linear-gradient(105deg, var(--friends-wash), rgba(46, 89, 70, 0.015) 72%, transparent);
+    opacity: 1;
+    transform: translateY(-7px);
+    transform-origin: top center;
+    will-change: transform;
+    transition: transform 520ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .site-info-box.is-open .site-info-sheet {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .site-info-tools {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.7rem;
+    opacity: 0;
+    transform: translateY(-4px);
+    transition:
+      opacity 260ms ease,
+      transform 440ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .site-info-box.is-open .site-info-tools {
+    opacity: 1;
+    transform: translateY(0);
+    transition-delay: 35ms;
+  }
+
+  .site-info-tools > span {
+    color: var(--theme-muted);
+    font:
+      8px/1 'JetBrains Mono',
+      monospace;
+    letter-spacing: 0.13em;
   }
 
   .site-info-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
     margin: 0;
+    padding: 0;
   }
 
   .info-row {
-    display: flex;
-    flex-direction: column;
-    gap: 0.2rem;
+    display: grid;
+    grid-template-columns: 3.2rem minmax(0, 1fr);
+    align-items: center;
+    min-height: 1.85rem;
+    opacity: 0;
+    transform: translateX(-7px);
+    transition:
+      opacity 260ms ease,
+      transform 460ms cubic-bezier(0.16, 1, 0.3, 1);
   }
 
-  @media (min-width: 640px) {
-    .info-row {
-      flex-direction: row;
-      align-items: baseline;
-    }
+  .site-info-box.is-open .info-row {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  .site-info-box.is-open .info-row:nth-child(1) {
+    transition-delay: 45ms;
+  }
+
+  .site-info-box.is-open .info-row:nth-child(2) {
+    transition-delay: 70ms;
+  }
+
+  .site-info-box.is-open .info-row:nth-child(3) {
+    transition-delay: 95ms;
+  }
+
+  .site-info-box.is-open .info-row:nth-child(4) {
+    transition-delay: 120ms;
   }
 
   .info-row dt {
-    font-weight: 600;
-    min-width: 4rem;
-    opacity: 0.8;
+    color: var(--theme-muted);
+    font:
+      8px/1 'JetBrains Mono',
+      monospace;
+    letter-spacing: 0.13em;
+    transition: color 220ms ease;
   }
 
   .info-row dd {
-    margin: 0;
-    line-height: 1.5;
-  }
-
-  /* 友链分组 */
-  .links-groups {
-    display: flex;
-    flex-direction: column;
-    gap: 2.25rem;
-  }
-
-  .links-group {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-  }
-
-  .group-header {
-    display: flex;
-    align-items: baseline;
-    gap: 0.5rem;
-    padding-bottom: 0.4rem;
-    border-bottom: 1px solid var(--uno-colors-shadow);
-  }
-
-  .group-title {
-    margin: 0;
-    font-size: 1.15rem;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    gap: 0.35rem;
-  }
-
-  .group-hash {
-    opacity: 0.5;
-    font-weight: normal;
-  }
-
-  .group-count {
-    font-size: 0.8rem;
-    opacity: 0.55;
-  }
-
-  /* 友链卡片网格 */
-  .links-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
-
-  @media (min-width: 640px) {
-    .links-grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-  }
-
-  .link-card {
-    display: flex;
-    flex-direction: column;
-    gap: 0.65rem;
-    padding: 0.9rem;
-    border: 1px solid var(--uno-colors-shadow);
-    border-radius: 4px;
-    background: transparent;
-  }
-
-  .card-header {
-    display: flex;
-    align-items: center;
-    gap: 0.65rem;
-  }
-
-  .card-avatar {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    object-fit: cover;
-    flex-shrink: 0;
-    border: 1px solid var(--uno-colors-shadow);
-  }
-
-  .card-avatar-placeholder {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-    font-size: 0.9rem;
-    flex-shrink: 0;
-    border: 1px solid var(--uno-colors-shadow);
-    opacity: 0.7;
-  }
-
-  .card-title-wrap {
-    display: flex;
-    flex-direction: column;
     min-width: 0;
+    margin: 0;
+    color: var(--theme-sub);
+    font-size: 0.74rem;
+    line-height: 1.65;
+    overflow-wrap: anywhere;
   }
 
-  .card-name {
-    margin: 0;
-    font-size: 1rem;
-    font-weight: 700;
-    line-height: 1.4;
+  .info-description dd {
+    color: var(--uno-colors-primary);
+    font-family: var(--friends-serif);
+    font-size: 0.76rem;
+  }
+
+  .info-name dd {
+    color: var(--uno-colors-primary);
+    font-size: 0.78rem;
+    font-weight: 650;
+  }
+
+  .info-value {
+    display: inline-block;
+    min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
 
-  .card-author {
-    font-size: 0.75rem;
-    opacity: 0.6;
-    line-height: 1.2;
+  .info-row code {
+    padding: 0;
+    background: transparent;
+    font-size: 0.68rem;
   }
 
-  .card-desc {
-    margin: 0;
-    font-size: 0.85rem;
-    line-height: 1.5;
-    opacity: 0.85;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
+  .copy-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.35rem;
+    min-width: 4.6rem;
+    padding: 0.24rem 0;
+    border: 0;
+    background: transparent;
+    color: var(--theme-muted);
+    font-size: 0.62rem;
+    line-height: 1;
+    cursor: pointer;
+    transition:
+      border-color 180ms ease,
+      background-color 180ms ease,
+      color 180ms ease,
+      transform 240ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .copy-icon {
+    position: relative;
+    width: 0.875rem;
+    height: 0.875rem;
     overflow: hidden;
   }
 
-  .card-notes {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-    padding: 0.45rem 0.6rem;
-    background-color: var(--uno-colors-shadow);
-    border-radius: 3px;
-    font-size: 0.75rem;
-    line-height: 1.45;
+  .copy-icon-default,
+  .copy-icon-success {
+    position: absolute;
+    inset: 0;
+    transition:
+      opacity 220ms ease,
+      transform 320ms cubic-bezier(0.22, 1, 0.36, 1);
   }
 
-  .notes-tag {
-    font-weight: 600;
-    opacity: 0.7;
-    font-size: 0.7rem;
+  .copy-icon-success {
+    opacity: 0;
+    transform: translateY(5px);
   }
 
-  .notes-body {
-    opacity: 0.85;
+  .copy-button:hover {
+    color: var(--friends-ink);
+    transform: translateX(-2px);
   }
 
-  .card-footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.5rem;
-    margin-top: auto;
-    padding-top: 0.35rem;
+  .copy-button.is-copied {
+    color: var(--friends-ink);
+    transform: none;
   }
 
-  .card-tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.35rem;
+  .copy-button.is-copied .copy-icon-default {
+    opacity: 0;
+    transform: translateY(-5px);
   }
 
-  .card-tag {
-    font-size: 0.7rem;
-    opacity: 0.6;
-  }
-
-  .card-feed {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.2rem;
-    font-size: 0.72rem;
-    opacity: 0.65;
-    margin-left: auto;
-    padding: 0.15rem 0.35rem;
-    border: 1px solid var(--uno-colors-shadow);
-    border-radius: 3px;
-  }
-
-  .card-feed:hover {
+  .copy-button.is-copied .copy-icon-success {
     opacity: 1;
+    transform: translateY(0);
+  }
+
+  .copy-button:active {
+    transform: translateY(1px);
+  }
+
+  .links-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.65rem;
+    margin: clamp(1.6rem, 4vw, 2.6rem) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .friend-row {
+    position: relative;
+    display: grid;
+    grid-template-columns: 40px minmax(0, 1fr) auto;
+    grid-template-rows: repeat(3, auto);
+    align-items: center;
+    gap: 0 0.8rem;
+    min-height: 140px;
+    padding: 0.82rem 0.9rem;
+    overflow: hidden;
+    border: 1px solid var(--theme-border);
+    isolation: isolate;
+    transition:
+      border-color 300ms ease,
+      box-shadow 400ms ease;
+  }
+
+  .friend-row::before {
+    position: absolute;
+    z-index: 0;
+    inset: 0;
+    background: var(--friends-wash);
+    clip-path: circle(0 at 93% 8%);
+    content: '';
+    transition: clip-path 620ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .friend-row:is(:hover, :focus-within) {
+    border-color: var(--friends-line);
+    box-shadow: 0 9px 24px rgba(25, 45, 35, 0.045);
+  }
+
+  .friend-row:is(:hover, :focus-within)::before {
+    clip-path: circle(145% at 93% 8%);
+  }
+
+  .friend-row > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  .links-page[data-motion-ready='true'] .friend-row:not(.is-visible) {
+    opacity: 0;
+  }
+
+  .links-page[data-motion-ready='true'] .friend-row:nth-child(odd):not(.is-visible) {
+    transform: translate3d(-18px, 10px, 0) rotate(-0.45deg);
+  }
+
+  .links-page[data-motion-ready='true'] .friend-row:nth-child(even):not(.is-visible) {
+    transform: translate3d(18px, 10px, 0) rotate(0.45deg);
+  }
+
+  .friend-row.is-visible {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) rotate(0);
+    transition:
+      opacity 500ms ease,
+      transform 680ms cubic-bezier(0.16, 1, 0.3, 1),
+      border-color 300ms ease,
+      box-shadow 400ms ease;
+  }
+
+  .friend-avatar-wrap {
+    position: relative;
+    width: 40px;
+    height: 40px;
+  }
+
+  .friend-avatar,
+  .friend-avatar-placeholder {
+    width: 40px;
+    height: 40px;
+    border: 1px solid var(--theme-border);
+    border-radius: 3px;
+  }
+
+  .friend-avatar {
+    position: absolute;
+    inset: 0;
+    display: block;
+    object-fit: cover;
+    filter: grayscale(0.3) contrast(0.96);
+    transition:
+      filter 260ms ease,
+      transform 520ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .friend-avatar-placeholder {
+    display: grid;
+    place-items: center;
+    color: var(--theme-sub);
+    font-family: var(--friends-serif);
+    font-size: 0.9rem;
+  }
+
+  .friend-row:is(:hover, :focus-within) .friend-avatar {
+    filter: grayscale(0);
+    transform: rotate(-4deg) scale(1.07);
+  }
+
+  .friend-identity {
+    min-width: 0;
+  }
+
+  .friend-identity h2 {
+    margin: 0;
+    overflow: hidden;
+    font-family: var(--friends-serif);
+    font-size: 0.98rem;
+    font-weight: 650;
+    line-height: 1.4;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    transition: transform 420ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .friend-identity h2 a::after {
+    position: absolute;
+    z-index: 1;
+    inset: 0;
+    content: '';
+  }
+
+  .friend-row:is(:hover, :focus-within) .friend-identity h2 {
+    transform: translateX(4px);
+  }
+
+  .friend-author {
+    display: block;
+    margin-top: 0.16rem;
+    overflow: hidden;
+    color: var(--theme-muted);
+    font-size: 0.61rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .friend-description {
+    display: -webkit-box;
+    grid-column: 1 / -1;
+    align-self: start;
+    margin: 0.62rem 0 0;
+    overflow: hidden;
+    color: var(--theme-sub);
+    font-size: 0.76rem;
+    line-height: 1.55;
+    text-wrap: pretty;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .friend-tags {
+    display: flex;
+    grid-column: 1 / 3;
+    align-self: end;
+    flex-wrap: wrap;
+    gap: 0.25rem 0.7rem;
+    margin-top: 0.5rem;
+  }
+
+  .friend-tags span {
+    color: var(--theme-muted);
+    font-size: 0.59rem;
+    white-space: nowrap;
+  }
+
+  .friend-tags span::before {
+    margin-right: 0.25rem;
+    color: var(--friends-ink);
+    content: '·';
+  }
+
+  .friend-actions {
+    z-index: 2;
+    display: flex;
+    grid-column: 3;
+    grid-row: 1;
+    align-items: center;
+    gap: 0.55rem;
+  }
+
+  .friend-feed {
+    display: inline-flex;
+    padding: 0.3rem;
+    color: var(--theme-muted);
+    transition: color 180ms ease;
+  }
+
+  .friend-feed:hover {
+    color: var(--friends-ink);
+  }
+
+  .friend-arrow {
+    color: var(--theme-muted);
+    font-size: 0.85rem;
+    transition:
+      color 180ms ease,
+      transform 480ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .friend-row:is(:hover, :focus-within) .friend-arrow {
+    color: var(--friends-ink);
+    transform: translate(4px, -4px);
+  }
+
+  @media (max-width: 640px) {
+    .info-row {
+      grid-template-columns: 2.8rem minmax(0, 1fr);
+    }
+
+    .links-list {
+      grid-template-columns: 1fr;
+      gap: 0.65rem;
+      margin-top: 1.25rem;
+    }
+
+    .friend-row {
+      min-height: 136px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .exchange-label,
+    .exchange-label span,
+    .site-info-panel,
+    .site-info-sheet,
+    .site-info-tools,
+    .info-row,
+    .copy-button,
+    .copy-icon-default,
+    .copy-icon-success,
+    .friend-row,
+    .friend-row::before,
+    .friend-avatar,
+    .friend-identity h2,
+    .friend-arrow {
+      transition: none;
+    }
+
+    .links-page[data-motion-ready='true'] .friend-row:not(.is-visible) {
+      opacity: 1;
+      transform: none;
+    }
   }
 </style>

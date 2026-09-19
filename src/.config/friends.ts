@@ -4,9 +4,9 @@ import type { FriendLink, MyBlogInfo } from '~/types'
  * 友链交换信息 / 本站基础信息
  */
 export const myBlogInfo: MyBlogInfo = {
-  name: '孤独终洁',
+  name: 'Teclado',
   url: 'https://blog.teclado.cn',
-  desc: '写文字、记生活，在网络的角落里留下成长与经历的痕迹——不再只是孤独，而是与自己对话。',
+  desc: '写字，记生活，也记录一路成长。',
   author: 'Teclado',
   avatar: 'https://blog.teclado.cn/favicon.svg',
   feed: 'https://blog.teclado.cn/atom.xml',
