@@ -13,10 +13,85 @@ function parseFooter(str: string) {
 }
 ---
 
-{footer.length && footer.map((str) => <p set:html={parseFooter(str)} />)}
+{
+  footer.length && (
+    <div class="footer-colophon">
+      <p class="footer-owner" set:html={parseFooter(footer[0])} />
+      {footer.slice(1).map((str) => (
+        <p class="footer-record" set:html={parseFooter(str)} />
+      ))}
+    </div>
+  )
+}
 
 <style>
-  p {
-    --at-apply: 'font-bold text-3';
+  .footer-colophon {
+    --footer-hover: #294f3d;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    padding: 17px 0 2px;
+    border-top: 1px solid var(--theme-border);
+    color: var(--theme-muted);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .footer-owner,
+  .footer-record {
+    margin: 0;
+    font-size: 9px;
+    line-height: 1.5;
+    letter-spacing: 0.025em;
+  }
+  .footer-owner {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    white-space: nowrap;
+  }
+  .footer-owner :global(a),
+  .footer-record :global(a) {
+    color: var(--uno-colors-primary);
+    transition: color 180ms ease;
+  }
+  .footer-owner :global(a) {
+    font-family: 'Inter', 'PingFang SC', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+  }
+  .footer-record {
+    text-align: right;
+    white-space: nowrap;
+  }
+  .footer-record :global(a) {
+    color: inherit;
+  }
+  .footer-owner :global(a:hover),
+  .footer-owner :global(a:focus-visible),
+  .footer-record :global(a:hover),
+  .footer-record :global(a:focus-visible) {
+    color: var(--footer-hover);
+  }
+  :global(.dark) .footer-colophon {
+    --footer-hover: #a8c5b3;
+  }
+  @media (max-width: 639px) {
+    .footer-colophon {
+      align-items: flex-start;
+      flex-direction: column;
+      gap: 6px;
+      padding-top: 14px;
+    }
+    .footer-record {
+      text-align: left;
+      white-space: normal;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .footer-owner :global(a),
+    .footer-record :global(a) {
+      transition: none;
+    }
   }
 </style>
