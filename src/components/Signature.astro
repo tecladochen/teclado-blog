@@ -65,7 +65,6 @@ const centerlines = {
     width: auto;
   }
 
-  /* 手写渐进揭示动画 - 只播放一次 */
   @keyframes write-t {
     0% {
       stroke-dashoffset: 1000;
@@ -86,7 +85,6 @@ const centerlines = {
     }
   }
 
-  /* 墨迹落笔翡翠小圆点轻快弹跳 */
   @keyframes dot-pop {
     0% {
       opacity: 0;
@@ -104,24 +102,37 @@ const centerlines = {
 
   .mask-path-t {
     stroke-dasharray: 1000 1500;
+    stroke-dashoffset: 0;
+  }
+
+  .mask-path-eclado {
+    opacity: 1;
+    stroke-dasharray: 1000 1500;
+    stroke-dashoffset: 0;
+  }
+
+  .signature-dot {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  :global(html[data-signature-intro='play']) .mask-path-t {
     stroke-dashoffset: 1000;
     animation: write-t 0.75s cubic-bezier(0.4, 0, 0.2, 1) 0.15s forwards;
   }
 
-  .mask-path-eclado {
+  :global(html[data-signature-intro='play']) .mask-path-eclado {
     opacity: 0;
-    stroke-dasharray: 1000 1500;
     stroke-dashoffset: 1000;
     animation: write-eclado 1.55s cubic-bezier(0.25, 1, 0.5, 1) 0.7s forwards;
   }
 
-  .signature-dot {
+  :global(html[data-signature-intro='play']) .signature-dot {
     opacity: 0;
     transform: scale(0);
     animation: dot-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 2.25s forwards;
   }
 
-  /* 适应系统减弱动效偏好 */
   @media (prefers-reduced-motion: reduce) {
     .mask-path-t,
     .mask-path-eclado {

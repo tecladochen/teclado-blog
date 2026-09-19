@@ -1,6 +1,6 @@
 # AGENTS.md
 
-个人博客「孤独终洁」，Astro 5 + UnoCSS + TypeScript，包管理用 pnpm。
+个人博客「teclado」，Astro 5 + UnoCSS + TypeScript，包管理用 pnpm。
 
 这份文件是所有 AI 编码工具的共同入口（Codex、Cursor、Claude Code 等）。工具特定的
 配置只做薄封装，规则本身一律写在 `docs/blog-ops/`，改规则改那里。

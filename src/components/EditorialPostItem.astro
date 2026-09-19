@@ -1,7 +1,6 @@
 ---
 import type { Post } from '~/types'
-import { themeConfig } from '~/.config'
-import { formatDate, getPathFromCategory, getWordCountAndReadTime } from '~/utils'
+import { formatDate, getWordCountAndReadTime } from '~/utils'
 
 interface Props {
   post: Post
@@ -9,89 +8,210 @@ interface Props {
 }
 
 const { post, description } = Astro.props
-
-const displayDate = post.data.modDate ?? post.data.pubDate
-const dateStr = formatDate(displayDate, 'YYYY-MM-DD')
-const categoryList = post.data.categories ?? []
-const { count, minutes } = getWordCountAndReadTime(post.body)
-
-// 分类个性化色彩：随笔/读书等
-const isReading = categoryList.some((c) => c.includes('读') || c.includes('书'))
-
-function getCategoryUrl(category: string) {
-  return `/categories/${getPathFromCategory(category, themeConfig.site.categoryMap)}/`
-}
+const dateYear = formatDate(post.data.pubDate, 'YYYY')
+const dateMonthDay = formatDate(post.data.pubDate, 'MM.DD')
+const { minutes } = getWordCountAndReadTime(post.body)
 ---
 
-<article
-  class="post-card-stationery cotton-paper rounded-2xl p-6 sm:p-7 flex flex-col gap-3.5 transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_16px_36px_-6px_rgba(75,55,35,0.12)] dark:hover:shadow-[0_16px_36px_-6px_rgba(0,0,0,0.5)] group relative overflow-hidden"
->
-  <!-- 顶部信息栏：分类药丸 + 日期 + 字数与阅读耗时 -->
-  <div class="flex items-center justify-between gap-2 text-xs font-mono tabular z-1 relative">
-    <div class="flex items-center gap-2">
-      {
-        categoryList.map((cat) => (
-          <a
-            href={getCategoryUrl(cat)}
-            class:list={[
-              'not-underline-hover px-2.5 py-0.5 rounded-full font-medium text-[11px] tracking-wide border transition-colors',
-              isReading
-                ? 'bg-[#1b4332]/[0.06] dark:bg-[#10b981]/15 text-[#1b4332] dark:text-[#34d399] border-[#1b4332]/15 dark:border-[#34d399]/20'
-                : 'bg-[#5c4033]/[0.06] dark:bg-[#d4a373]/15 text-[#5c4033] dark:text-[#e0c3a2] border-[#5c4033]/15 dark:border-[#e0c3a2]/20',
-            ]}
-          >
-            {cat}
-          </a>
-        ))
-      }
-      <span class="text-neutral-300 dark:text-neutral-600">·</span>
-      <time datetime={dateStr} class="text-neutral-500 dark:text-neutral-400 font-medium">
-        {dateStr}
+<article class="editorial-item">
+  <a href={`/posts/${post.id}/`} class="editorial-link not-underline-hover">
+    <div class="editorial-date">
+      <time datetime={post.data.pubDate.toISOString()}>
+        <span class="date-year">{dateYear}</span>
+        <span class="date-month-day">{dateMonthDay}</span>
       </time>
+      {post.data.pin && <span class="editorial-pin">置顶</span>}
     </div>
-
-    <div class="text-[11.5px] text-neutral-400 dark:text-neutral-500 hidden sm:flex items-center gap-1.5">
-      <span>约 {count.toLocaleString()} 字</span>
-      <span>·</span>
-      <span>需 {minutes} 分钟漫读</span>
+    <div class="editorial-main">
+      <h2 class="editorial-title">{post.data.title}</h2>
+      <span class="editorial-duration">{minutes} 分钟阅读</span>
     </div>
-  </div>
-
-  <!-- 标题 -->
-  <h2
-    class="serif-text text-lg sm:text-[21px] font-bold tracking-tight text-[#2c241c] dark:text-[#ede4d8] leading-[1.4] m-0 group-hover:text-[#0f4c3a] dark:group-hover:text-[#34d399] transition-colors z-1 relative"
-  >
-    <a href={`/posts/${post.id}/`} class="not-underline-hover block">
-      {post.data.title}
-    </a>
-  </h2>
-
-  <!-- 摘要 -->
-  {
-    description && (
-      <p class="text-[14px] text-[#5c5245] dark:text-[#a89f92] leading-[1.8] line-clamp-3 m-0 z-1 relative">
-        {description}
-      </p>
-    )
-  }
-
-  <!-- 底栏：字数移动端补全 + 展卷阅读交互 -->
-  <div
-    class="flex items-center justify-between pt-3.5 mt-1 border-t border-[#dfd7ca]/60 dark:border-white/[0.06] text-xs z-1 relative"
-  >
-    <div class="text-neutral-400 dark:text-neutral-500 font-mono text-[11px] flex sm:hidden items-center gap-1">
-      <span>{count} 字</span>
-      <span>·</span>
-      <span>{minutes} min</span>
+    <div class="editorial-content">
+      {description && <p class="editorial-description line-clamp-3">{description}</p>}
     </div>
-    <div class="hidden sm:block text-neutral-400 dark:text-neutral-500 font-mono text-[11px]">孤独终洁 · 手札</div>
-
-    <a
-      href={`/posts/${post.id}/`}
-      class="not-underline-hover inline-flex items-center gap-1.5 font-medium text-[#4a3f35] dark:text-[#c4bbb0] group-hover:text-[#0f4c3a] dark:group-hover:text-[#34d399] transition-colors ml-auto text-xs"
-    >
-      <span>展卷阅读</span>
-      <span class="text-xs transition-transform duration-200 group-hover:translate-x-1">→</span>
-    </a>
-  </div>
+    <span class="editorial-arrow" aria-hidden="true">
+      <svg viewBox="0 0 48 16" width="48" height="16" fill="none" stroke="currentColor" stroke-width="1.25">
+        <path d="M1 8h43M37 2l7 6-7 6"></path>
+      </svg>
+    </span>
+  </a>
 </article>
+
+<style>
+  .editorial-item {
+    min-width: 0;
+    position: relative;
+    counter-increment: article-index;
+  }
+  .editorial-link {
+    position: relative;
+    display: grid;
+    grid-template-columns: 96px minmax(0, 1.15fr) minmax(16rem, 0.85fr);
+    column-gap: 32px;
+    min-height: 184px;
+    padding: 30px 56px 30px 0;
+    border-top: 1px solid var(--reading-rule);
+    align-items: center;
+    isolation: isolate;
+  }
+  .editorial-link::before {
+    content: '';
+    position: absolute;
+    inset: 0 -12px 0 95px;
+    z-index: -1;
+    background: linear-gradient(90deg, var(--reading-wash), color-mix(in srgb, var(--reading-wash) 15%, transparent));
+    clip-path: inset(0 100% 0 0);
+    transition: clip-path 560ms var(--reading-ease);
+  }
+  .editorial-link::after {
+    content: counter(article-index, decimal-leading-zero);
+    position: absolute;
+    right: 0;
+    top: 25px;
+    color: color-mix(in srgb, var(--reading-muted) 35%, transparent);
+    font:
+      10px/1 'JetBrains Mono',
+      monospace;
+  }
+  .editorial-date {
+    align-self: stretch;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 7px 18px 7px 0;
+    border-right: 1px solid var(--reading-rule);
+    color: var(--reading-muted);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .editorial-date time {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-variant-numeric: tabular-nums;
+  }
+  .date-year {
+    font-size: 10px;
+    letter-spacing: 0.12em;
+  }
+  .date-month-day {
+    color: var(--reading-ink);
+    font-size: 19px;
+    letter-spacing: -0.06em;
+  }
+  .editorial-pin {
+    color: var(--reading-accent);
+    font-size: 10px;
+    letter-spacing: 0.16em;
+  }
+  .editorial-main {
+    min-width: 0;
+    align-self: stretch;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 24px;
+  }
+  .editorial-title {
+    margin: 0;
+    font-family: var(--reading-serif);
+    font-size: clamp(25px, 3.15vw, 34px);
+    font-weight: 700;
+    line-height: 1.46;
+    letter-spacing: -0.04em;
+    text-wrap: pretty;
+    overflow-wrap: anywhere;
+    transition:
+      color 220ms ease,
+      transform 500ms var(--reading-ease);
+  }
+  .editorial-content {
+    align-self: center;
+    padding-left: 24px;
+    border-left: 1px solid var(--reading-rule);
+  }
+  .editorial-description {
+    margin: 0;
+    color: var(--reading-secondary);
+    font-size: 14px;
+    line-height: 1.85;
+  }
+  .editorial-duration {
+    color: var(--reading-muted);
+    font-size: 11px;
+    letter-spacing: 0.04em;
+  }
+  .editorial-arrow {
+    position: absolute;
+    right: 0;
+    bottom: 27px;
+    width: 30px;
+    overflow: hidden;
+    color: var(--reading-accent);
+    transition: width 500ms var(--reading-ease);
+  }
+  .editorial-link:focus-visible {
+    outline-offset: 5px;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .editorial-link:hover::before,
+    .editorial-link:focus-visible::before {
+      clip-path: inset(0);
+    }
+    .editorial-link:is(:hover, :focus-visible) .editorial-title {
+      color: var(--reading-accent);
+      transform: translateX(8px);
+    }
+    .editorial-link:is(:hover, :focus-visible) .editorial-arrow {
+      width: 48px;
+    }
+  }
+  @media (max-width: 767px) {
+    .editorial-link {
+      grid-template-columns: 70px minmax(0, 1fr);
+      gap: 18px 20px;
+      min-height: 0;
+      padding: 24px 38px 28px 0;
+    }
+    .editorial-link::before {
+      left: 69px;
+    }
+    .editorial-link::after {
+      top: 20px;
+    }
+    .editorial-date {
+      grid-row: 1 / span 2;
+      padding-right: 12px;
+    }
+    .date-month-day {
+      font-size: 16px;
+    }
+    .editorial-title {
+      font-size: clamp(23px, 7vw, 28px);
+      line-height: 1.5;
+    }
+    .editorial-main {
+      gap: 14px;
+    }
+    .editorial-content {
+      grid-column: 2;
+      padding: 0;
+      border: 0;
+    }
+    .editorial-description {
+      font-size: 14px;
+      line-height: 1.8;
+    }
+    .editorial-arrow {
+      right: 0;
+      bottom: 29px;
+      width: 24px;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .editorial-link::before,
+    .editorial-title,
+    .editorial-arrow {
+      transition: none;
+    }
+  }
+</style>

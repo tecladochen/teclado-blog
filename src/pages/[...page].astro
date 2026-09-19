@@ -1,8 +1,8 @@
 ---
 import type { GetStaticPaths, InferGetStaticPropsType } from 'astro'
 import { themeConfig } from '~/.config'
+import '~/styles/reading-design.css'
 import Pagination from '~/components/Pagination.astro'
-import HomeHero from '~/components/HomeHero.astro'
 import LayoutDefault from '~/layouts/LayoutDefault.astro'
 import EditorialPostItem from '~/components/EditorialPostItem.astro'
 import { getPosts, getPostDescription } from '~/utils'
@@ -23,39 +23,32 @@ const { page } = Astro.props
 ---
 
 <LayoutDefault>
-  {page.currentPage === 1 && <HomeHero />}
-
-  <!-- 文章区域标头 -->
-  <div
-    class="flex items-center justify-between pb-3.5 mb-6 border-b border-dashed border-[#c8bfae]/60 dark:border-white/[0.08]"
-  >
-    <div class="flex items-center gap-2.5">
-      <span class="w-2 h-2 rounded-full bg-[#0f4c3a] dark:bg-[#34d399]"></span>
-      <span class="text-xs font-mono tracking-wider font-semibold text-neutral-800 dark:text-neutral-200 uppercase">
-        ESSAYS & OBSERVATIONS · 生活文字与散步闲笔
-      </span>
-    </div>
-    <div class="text-xs font-mono text-neutral-400 dark:text-neutral-500 tabular">
-      第 {page.currentPage} / {page.lastPage} 卷 · 共 {page.total} 篇手札
-    </div>
-  </div>
-
-  <!-- 动态文章流 -->
-  <section contain-layout class="flex flex-col gap-5 sm:gap-6">
+  <section class="editorial-index reading-design" aria-label="文章列表">
     {page.data.map((post) => <EditorialPostItem post={post} description={getPostDescription(post)} />)}
   </section>
 
-  <!-- 胶囊翻页组件 -->
-  <div class="pt-4">
+  <div>
     <Pagination
       showLeft={Boolean(page.url.prev)}
-      leftTitle="较新手札"
+      leftTitle="上一页"
       leftUrl={page.url.prev}
       showRight={Boolean(page.url.next)}
-      rightTitle="较旧手札"
+      rightTitle="下一页"
       rightUrl={page.url.next}
       currentPage={page.currentPage}
       totalPage={page.lastPage}
     />
   </div>
 </LayoutDefault>
+
+<style>
+  .editorial-index {
+    counter-reset: article-index;
+    padding: 0 4px;
+  }
+  @media (max-width: 639px) {
+    .editorial-index {
+      padding: 0;
+    }
+  }
+</style>

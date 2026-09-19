@@ -3,11 +3,9 @@ interface Props {
   showLeft?: boolean
   leftTitle?: string
   leftUrl?: string
-
   showRight?: boolean
   rightTitle?: string
   rightUrl?: string
-
   showPageCount?: boolean
   currentPage?: number
   totalPage?: number
@@ -16,8 +14,8 @@ interface Props {
 const {
   showLeft = true,
   showRight = true,
-  leftTitle = '较新手札',
-  rightTitle = '较旧手札',
+  leftTitle = '上一页',
+  rightTitle = '下一页',
   leftUrl,
   rightUrl,
   showPageCount = true,
@@ -27,61 +25,80 @@ const {
 
 const hasPrev = Boolean(showLeft && leftUrl)
 const hasNext = Boolean(showRight && rightUrl)
+
+const activeClass =
+  'not-underline-hover group inline-flex min-h-11 items-center gap-2 px-1 sm:px-2 text-[13px] font-medium text-[#544b41] dark:text-[#c8beaf] transition-colors hover:text-[#0f4c3a] dark:hover:text-[#6ee7b7]'
+const disabledClass =
+  'inline-flex min-h-11 items-center gap-2 px-1 sm:px-2 text-[13px] text-[#b7afa4] dark:text-neutral-600 cursor-default'
 ---
 
-<nav
-  class="pagination-container my-10 flex flex-col sm:flex-row items-center justify-between gap-4 select-none"
-  aria-label="分页导航"
->
-  <!-- 较新手札（上一页） -->
-  <div class="w-full sm:w-auto flex justify-start">
-    {
-      hasPrev ? (
-        <a
-          href={leftUrl}
-          class="not-underline-hover group inline-flex items-center gap-2 px-4 py-2 rounded-full border border-[#d8cfc0] dark:border-white/10 bg-[#fdfbf7] dark:bg-[#1a1917] text-[#4a3f35] dark:text-[#c4bbb0] hover:border-[#0f4c3a]/40 hover:text-[#0f4c3a] dark:hover:text-[#34d399] shadow-[0_2px_8px_rgba(75,55,35,0.04)] hover:shadow-[0_4px_12px_rgba(75,55,35,0.08)] transition-all duration-200 text-xs font-mono"
-        >
-          <span class="transition-transform duration-200 group-hover:-translate-x-1">←</span>
-          <span>{leftTitle}</span>
-        </a>
-      ) : (
-        <span class="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-black/[0.05] dark:border-white/[0.05] bg-black/[0.02] dark:bg-white/[0.02] text-neutral-300 dark:text-neutral-600 text-xs font-mono cursor-not-allowed">
-          <span>←</span>
-          <span>{leftTitle}</span>
-        </span>
-      )
-    }
-  </div>
-
-  <!-- 页码指示药丸 -->
-  {
-    showPageCount && (
-      <div class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#f4eee2]/80 dark:bg-white/[0.05] border border-[#e4dccf] dark:border-white/[0.08] text-xs font-mono tabular">
-        <span class="text-neutral-400 dark:text-neutral-500 uppercase tracking-wider text-[11px]">Folio</span>
-        <span class="font-semibold text-[#2c241c] dark:text-[#ede4d8]">{currentPage}</span>
-        <span class="text-neutral-400 dark:text-neutral-600">/</span>
-        <span class="text-neutral-500 dark:text-neutral-400">{totalPage}</span>
+{
+  totalPage > 1 && (
+    <nav
+      class="mt-9 mb-10 grid grid-cols-[1fr_auto_1fr] items-center border-t border-[#a0876e]/25 pt-4 select-none dark:border-white/[0.08]"
+      aria-label="文章分页"
+    >
+      <div class="flex justify-start">
+        {hasPrev ? (
+          <a rel="prev" href={leftUrl} class={activeClass}>
+            <span aria-hidden="true" class="transition-transform duration-200 group-hover:-translate-x-0.5">
+              ←
+            </span>
+            <span>{leftTitle}</span>
+          </a>
+        ) : (
+          <span class={disabledClass} aria-disabled="true">
+            <span aria-hidden="true">←</span>
+            <span>{leftTitle}</span>
+          </span>
+        )}
       </div>
-    )
-  }
 
-  <!-- 较旧手札（下一页） -->
-  <div class="w-full sm:w-auto flex justify-end">
-    {
-      hasNext ? (
-        <a
-          href={rightUrl}
-          class="not-underline-hover group inline-flex items-center gap-2 px-4 py-2 rounded-full border border-[#d8cfc0] dark:border-white/10 bg-[#fdfbf7] dark:bg-[#1a1917] text-[#4a3f35] dark:text-[#c4bbb0] hover:border-[#0f4c3a]/40 hover:text-[#0f4c3a] dark:hover:text-[#34d399] shadow-[0_2px_8px_rgba(75,55,35,0.04)] hover:shadow-[0_4px_12px_rgba(75,55,35,0.08)] transition-all duration-200 text-xs font-mono"
+      {showPageCount && (
+        <div
+          class="px-3 text-[12px] font-mono tabular tracking-wider text-[#766d61] dark:text-[#9f968a]"
+          aria-label={`第 ${currentPage} 页，共 ${totalPage} 页`}
         >
-          <span>{rightTitle}</span>
-          <span class="transition-transform duration-200 group-hover:translate-x-1">→</span>
-        </a>
-      ) : (
-        <span class="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-black/[0.05] dark:border-white/[0.05] bg-black/[0.02] dark:bg-white/[0.02] text-neutral-300 dark:text-neutral-600 text-xs font-mono cursor-not-allowed">
-          <span>{rightTitle}</span>
-          <span>→</span>
-        </span>
-      )
+          <span class="font-semibold text-[#4a4137] dark:text-neutral-300">{currentPage}</span>
+          <span class="mx-1.5">/</span>
+          <span>{totalPage}</span>
+        </div>
+      )}
+
+      <div class="flex justify-end">
+        {hasNext ? (
+          <a rel="next" href={rightUrl} class={activeClass}>
+            <span>{rightTitle}</span>
+            <span aria-hidden="true" class="transition-transform duration-200 group-hover:translate-x-0.5">
+              →
+            </span>
+          </a>
+        ) : (
+          <span class={disabledClass} aria-disabled="true">
+            <span>{rightTitle}</span>
+            <span aria-hidden="true">→</span>
+          </span>
+        )}
+      </div>
+    </nav>
+  )
+}
+
+<style>
+  nav {
+    font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  }
+  a {
+    border-bottom: 1px solid transparent;
+  }
+  a:hover {
+    border-bottom-color: currentColor;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    a,
+    a span {
+      transition: none;
+      transform: none;
     }
-  </div>
-</nav>
+  }
+</style>

@@ -40,76 +40,34 @@ function getUrl(id?: string) {
     type="article"
   />
 
-  <!-- 导读目录（纯净单栏 + 右下角悬浮呼出抽屉） -->
   <TableOfContents headings={headings} />
 
-  <!-- 文章正文棉纸卡片 -->
   <LayoutPost post={entry}>
     <Content />
-
-    <!-- 篇末落款题跋与朱红微印 -->
-    <div
-      class="mt-14 pt-6 border-t border-dashed border-[#c8bfae]/70 dark:border-white/[0.08] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs font-mono text-neutral-500 not-prose"
-    >
-      <div class="flex items-center gap-2.5">
-        <span
-          class="inline-flex items-center justify-center w-5 h-5 rounded bg-[#991b1b]/10 dark:bg-[#ef4444]/20 text-[#991b1b] dark:text-[#f87171] border border-[#991b1b]/30 text-[11px] font-serif font-bold"
-        >
-          潔
-        </span>
-        <span class="text-neutral-700 dark:text-neutral-300 font-medium">孤独终洁 · 案头棉纸原札</span>
-      </div>
-      <div class="text-neutral-400 dark:text-neutral-500 text-[11.5px]">字里人间 · 且行且记</div>
-    </div>
   </LayoutPost>
 
-  <!-- 前后手札导航双卡片 -->
-  <nav class="my-8 grid grid-cols-1 sm:grid-cols-2 gap-4 select-none" aria-label="前后篇手札">
-    <!-- 较早手札（上一篇） -->
+  <nav class="post-adjacent reading-design" aria-label="上一篇与下一篇文章">
     {
-      older ? (
-        <a
-          href={getUrl(older.id)}
-          class="not-underline-hover group cotton-paper rounded-2xl p-4 sm:p-5 flex flex-col gap-1.5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_20px_rgba(75,55,35,0.08)]"
-        >
-          <div class="flex items-center gap-1 text-[11px] font-mono text-neutral-400 dark:text-neutral-500">
-            <span class="transition-transform duration-200 group-hover:-translate-x-1">←</span>
-            <span>较早手札</span>
-            <span>·</span>
-            <span>{formatDate(older.data.modDate ?? older.data.pubDate, 'YYYY-MM-DD')}</span>
+      [older, newer].map((post, index) =>
+        post ? (
+          <a
+            href={getUrl(post.id)}
+            class:list={['post-neighbor not-underline-hover', { 'post-neighbor-next': index === 1 }]}
+          >
+            <span class="neighbor-label">{index === 0 ? '上一篇' : '下一篇'}</span>
+            <span class="neighbor-title">{post.data.title}</span>
+            <span class="neighbor-bottom">
+              <time datetime={post.data.pubDate.toISOString()}>{formatDate(post.data.pubDate, 'YYYY.MM.DD')}</time>
+              <span class="neighbor-arrow" aria-hidden="true">
+                {index === 0 ? '←' : '→'}
+              </span>
+            </span>
+          </a>
+        ) : (
+          <div class:list={['post-neighbor neighbor-empty', { 'post-neighbor-next': index === 1 }]}>
+            {index === 0 ? '没有更早的文章了' : '已经是最新文章了'}
           </div>
-          <div class="serif-text font-bold text-sm sm:text-[15px] text-[#2c241c] dark:text-[#ede4d8] group-hover:text-[#0f4c3a] dark:group-hover:text-[#34d399] transition-colors line-clamp-1">
-            {older.data.title}
-          </div>
-        </a>
-      ) : (
-        <div class="rounded-2xl p-4 sm:p-5 border border-dashed border-[#dfd7ca]/60 dark:border-white/[0.04] flex items-center justify-center text-xs font-mono text-neutral-400">
-          已是卷首第一篇手札
-        </div>
-      )
-    }
-
-    <!-- 较新手札（下一篇） -->
-    {
-      newer ? (
-        <a
-          href={getUrl(newer.id)}
-          class="not-underline-hover group cotton-paper rounded-2xl p-4 sm:p-5 flex flex-col gap-1.5 items-end text-right transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_20px_rgba(75,55,35,0.08)]"
-        >
-          <div class="flex items-center gap-1 text-[11px] font-mono text-neutral-400 dark:text-neutral-500">
-            <span>{formatDate(newer.data.modDate ?? newer.data.pubDate, 'YYYY-MM-DD')}</span>
-            <span>·</span>
-            <span>较新手札</span>
-            <span class="transition-transform duration-200 group-hover:translate-x-1">→</span>
-          </div>
-          <div class="serif-text font-bold text-sm sm:text-[15px] text-[#2c241c] dark:text-[#ede4d8] group-hover:text-[#0f4c3a] dark:group-hover:text-[#34d399] transition-colors line-clamp-1">
-            {newer.data.title}
-          </div>
-        </a>
-      ) : (
-        <div class="rounded-2xl p-4 sm:p-5 border border-dashed border-[#dfd7ca]/60 dark:border-white/[0.04] flex items-center justify-center text-xs font-mono text-neutral-400">
-          已是案头最新一篇手札
-        </div>
+        ),
       )
     }
   </nav>
@@ -155,6 +113,7 @@ function getUrl(id?: string) {
 
       const copyButton = document.createElement('clipboard-copy')
       const code = codeBlock.querySelector('code')
+      copyButton.setAttribute('aria-label', '复制代码')
       copyButton.value = code?.textContent ?? ''
       copyButton.className = 'clipboard-copy'
       copyButton.innerHTML = icon
@@ -170,6 +129,124 @@ function getUrl(id?: string) {
 </script>
 
 <style is:global>
+  .post-adjacent {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin-top: 32px;
+    border-block: 1px solid var(--reading-rule);
+  }
+  .post-neighbor {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 12px;
+    overflow: hidden;
+    padding: 28px 24px;
+  }
+  .post-neighbor::before {
+    content: '';
+    position: absolute;
+    top: -1px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: var(--reading-accent);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 480ms var(--reading-ease);
+  }
+  .post-neighbor:first-child {
+    border-right: 1px solid var(--reading-rule);
+  }
+  .post-neighbor-next {
+    text-align: right;
+  }
+  .post-neighbor-next::before {
+    transform-origin: right;
+  }
+  .neighbor-label,
+  .neighbor-bottom,
+  .neighbor-empty {
+    font-size: 12px;
+    color: var(--reading-muted);
+  }
+  .neighbor-title {
+    align-self: flex-start;
+    font-family: var(--reading-serif);
+    font-size: 20px;
+    font-weight: 500;
+    line-height: 1.6;
+    text-wrap: pretty;
+    overflow-wrap: anywhere;
+    background-image: linear-gradient(var(--reading-accent), var(--reading-accent));
+    background-repeat: no-repeat;
+    background-position: left bottom;
+    background-size: 0 1px;
+    transition:
+      color 180ms ease,
+      background-size 480ms var(--reading-ease);
+  }
+  .post-neighbor-next .neighbor-title {
+    align-self: flex-end;
+    background-position: right bottom;
+  }
+  .neighbor-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .neighbor-bottom time {
+    font:
+      11px 'JetBrains Mono',
+      monospace;
+  }
+  .post-neighbor-next .neighbor-bottom {
+    flex-direction: row-reverse;
+  }
+  .neighbor-arrow {
+    font-size: 22px;
+    color: var(--reading-accent);
+    transition: transform 460ms var(--reading-ease);
+  }
+  a.post-neighbor:is(:hover, :focus-visible) {
+    color: var(--reading-ink);
+  }
+  a.post-neighbor:is(:hover, :focus-visible)::before {
+    transform: scaleX(1);
+  }
+  a.post-neighbor:is(:hover, :focus-visible) .neighbor-title {
+    color: var(--reading-accent);
+    background-size: 100% 1px;
+  }
+  a.post-neighbor:is(:hover, :focus-visible) .neighbor-arrow {
+    transform: translateX(-8px);
+  }
+  a.post-neighbor-next:is(:hover, :focus-visible) .neighbor-arrow {
+    transform: translateX(8px);
+  }
+  @media (max-width: 639px) {
+    .post-adjacent {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .post-neighbor:first-child {
+      border-right: 0;
+      border-bottom: 1px solid var(--reading-rule);
+    }
+    .post-neighbor {
+      padding: 22px 24px;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .post-adjacent a,
+    .post-neighbor::before,
+    .post-adjacent .neighbor-title,
+    .post-adjacent .neighbor-arrow {
+      transition: none;
+      transform: none !important;
+    }
+  }
   .code-container {
     position: relative;
   }
@@ -177,8 +254,8 @@ function getUrl(id?: string) {
     position: absolute;
     top: 0.5rem;
     right: 0.5rem;
-    width: 1.75rem;
-    height: 1.75rem;
+    width: 2.75rem;
+    height: 2.75rem;
     display: flex;
     justify-content: center;
     align-items: center;

@@ -1,0 +1,24 @@
+/* Content-only visual language; the fixed site header and background are untouched. */
+.reading-design {
+  --reading-ink: #2b2e2a;
+  --reading-muted: #78716d;
+  --reading-secondary: #5d5753;
+  --reading-surface: #fcfcf9;
+  --reading-wash: rgba(235, 226, 222, 0.78);
+  --reading-rule: rgba(106, 98, 93, 0.21);
+  --reading-accent: #7a5148;
+  --reading-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --reading-serif: 'Noto Serif SC', 'Songti SC', Georgia, serif;
+  --reading-sans: 'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  color: var(--reading-ink);
+  font-family: var(--reading-sans);
+}
+.dark .reading-design {
+  --reading-ink: #e6e8e3;
+  --reading-muted: #aaa39f;
+  --reading-secondary: #c3bbb7;
+  --reading-surface: #1d1b1a;
+  --reading-wash: rgba(88, 60, 54, 0.55);
+  --reading-rule: rgba(203, 185, 179, 0.18);
+  --reading-accent: #d0a49a;
+}

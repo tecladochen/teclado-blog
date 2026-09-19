@@ -1,4 +1,5 @@
 ---
+import '~/styles/reading-design.css'
 import PostMeta from '~/components/PostMeta.astro'
 import type { Post } from '~/types'
 
@@ -9,129 +10,229 @@ interface Props {
 const { post } = Astro.props
 ---
 
-<article class="cotton-paper rounded-3xl p-6 sm:p-12 mb-10 overflow-hidden relative">
+<article class="article-sheet reading-design">
   <PostMeta post={post} />
-
-  <!-- 文章正文区域 -->
-  <div class="post-prose-content prose serif-text z-1 relative">
-    <slot />
+  <div class="post-reading-surface">
+    <div class="post-prose-content prose mx-auto w-full max-w-[39rem]">
+      <slot />
+    </div>
   </div>
 </article>
 
 <style is:global>
-  /* 正文排版与棉纸质感深度融合 */
+  .article-sheet {
+    background: transparent;
+  }
+  .post-reading-surface {
+    position: relative;
+    padding: 72px 36px 84px 132px;
+    background: linear-gradient(
+      90deg,
+      transparent 0,
+      color-mix(in srgb, var(--reading-surface) 86%, transparent) 17%,
+      color-mix(in srgb, var(--reading-surface) 96%, transparent) 88%,
+      transparent 100%
+    );
+    border-top: 1px solid var(--reading-ink);
+    border-bottom: 1px solid var(--reading-rule);
+  }
+  .post-reading-surface::before {
+    content: '';
+    position: absolute;
+    top: 48px;
+    bottom: 48px;
+    left: 95px;
+    width: 1px;
+    background: var(--reading-rule);
+  }
   .post-prose-content {
-    counter-reset: post-section;
-    color: #2c241c;
-    font-size: 16px;
-    line-height: 2;
-    letter-spacing: 0.012em;
+    max-width: 38rem;
+    margin-inline: auto 24px;
+    font-family: var(--reading-sans);
+    color: var(--reading-ink);
+    font-size: 17px;
+    line-height: 2.05;
+    letter-spacing: 0.006em;
   }
   .dark .post-prose-content {
-    color: #ded6ca;
+    color: var(--reading-ink);
   }
 
-  /* 标题样式：小节标尺与书本排版 */
   .post-prose-content h2 {
-    font-family: 'Noto Serif SC', 'Songti SC', Georgia, serif;
-    font-size: 1.35rem;
+    position: relative;
+    width: calc(100% + 72px);
+    margin-top: 5rem;
+    margin-bottom: 1.55rem;
+    margin-left: -72px;
+    color: var(--reading-ink);
+    font-family: var(--reading-serif);
+    font-size: 1.65rem;
     font-weight: 700;
-    color: #171513;
-    margin-top: 3.2rem;
-    margin-bottom: 1.2rem;
-    padding-bottom: 0.6rem;
-    border-bottom: 1px dashed rgba(160, 135, 110, 0.3);
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
+    line-height: 1.55;
+    letter-spacing: -0.035em;
     scroll-margin-top: 5rem;
   }
   .dark .post-prose-content h2 {
-    color: #ede4d8;
-    border-bottom-color: rgba(255, 255, 255, 0.08);
+    color: var(--reading-ink);
   }
 
   .post-prose-content h2::before {
-    counter-increment: post-section;
-    content: counter(post-section, decimal-leading-zero);
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.78rem;
-    font-weight: 600;
-    color: #047857;
-    background: rgba(16, 185, 129, 0.12);
-    padding: 0.12rem 0.5rem;
-    border-radius: 4px;
-    border: 1px solid rgba(16, 185, 129, 0.28);
-    flex-shrink: 0;
+    content: '';
+    position: absolute;
+    top: 0.82em;
+    left: -60px;
+    width: 40px;
+    height: 1px;
+    background: var(--reading-accent);
+    transform-origin: right;
+    transition: transform 450ms var(--reading-ease);
   }
-  .dark .post-prose-content h2::before {
-    color: #34d399;
-    background: rgba(16, 185, 129, 0.15);
-    border-color: rgba(52, 211, 153, 0.3);
+
+  .post-prose-content > h2:first-child {
+    margin-top: 0;
   }
 
   .post-prose-content h3 {
-    font-family: 'Noto Serif SC', 'Songti SC', Georgia, serif;
-    font-size: 1.15rem;
+    margin-top: 3rem;
+    margin-bottom: 0.9rem;
+    color: var(--reading-ink);
+    font-family: var(--reading-sans);
+    font-size: 1.14rem;
     font-weight: 600;
-    color: #2c241c;
-    margin-top: 2rem;
-    margin-bottom: 0.85rem;
+    line-height: 1.6;
   }
   .dark .post-prose-content h3 {
-    color: #ded6ca;
+    color: var(--reading-ink);
   }
 
   .post-prose-content p {
     margin-top: 1.35rem;
     margin-bottom: 1.35rem;
-    text-align: justify;
-    text-justify: inter-ideograph;
+    text-align: start;
+  }
+
+  .post-prose-content :where(ul, ol) {
+    margin-top: 1.2rem;
+    margin-bottom: 1.2rem;
+  }
+
+  .post-prose-content li {
+    margin-top: 0.45rem;
+    margin-bottom: 0.45rem;
   }
 
   .post-prose-content blockquote {
-    margin: 2rem 0;
-    padding: 1rem 1.25rem;
-    border-left: 3px solid #0f4c3a;
-    background: rgba(245, 239, 227, 0.65);
-    border-radius: 0 0.75rem 0.75rem 0;
-    font-style: italic;
-    color: #4a3f33;
+    margin: 2.4rem 0 2.4rem -32px;
+    padding: 1.25rem 0 1.25rem 31px;
+    border-left: 2px solid var(--reading-accent);
+    color: var(--reading-secondary);
+    font-size: 0.95em;
+    font-style: normal;
   }
-  .dark .post-prose-content blockquote {
-    border-left-color: #34d399;
-    background: rgba(255, 255, 255, 0.03);
-    color: #c4bbb0;
-  }
-
   .post-prose-content blockquote p {
-    margin: 0;
+    margin: 0.6rem 0;
   }
-
   .post-prose-content a {
-    color: #0f4c3a;
+    color: var(--reading-accent);
     text-decoration-line: underline;
-    text-underline-offset: 3px;
-    text-decoration-color: rgba(15, 76, 58, 0.35);
-    transition:
-      color 0.15s ease,
-      text-decoration-color 0.15s ease;
-  }
-  .dark .post-prose-content a {
-    color: #34d399;
-    text-decoration-color: rgba(52, 211, 153, 0.35);
+    text-underline-offset: 4px;
+    text-decoration-color: var(--reading-rule);
+    transition: text-decoration-color 180ms ease;
   }
   .post-prose-content a:hover {
-    color: #1b4332;
     text-decoration-color: currentColor;
   }
-  .dark .post-prose-content a:hover {
-    color: #6ee7b7;
+  .post-prose-content strong {
+    font-weight: 600;
+    color: var(--reading-ink);
+  }
+  .post-prose-content hr {
+    border-color: var(--reading-rule);
+    margin-block: 2.5rem;
   }
 
   .post-prose-content img {
-    border-radius: 0.75rem;
-    border: 1px solid rgba(160, 135, 110, 0.2);
-    margin: 2rem auto;
+    width: calc(100% + 64px);
+    max-width: calc(100% + 64px);
+    margin: 2.75rem 0 2.75rem -32px;
+    border: 1px solid rgba(160, 135, 110, 0.18);
+    border-radius: 0.5rem;
+  }
+
+  .post-prose-content :where(h2, h3, h4) {
+    text-wrap: pretty;
+    scroll-margin-top: 2rem;
+  }
+  .post-prose-content :where(pre, table) {
+    max-width: 100%;
+    overflow-x: auto;
+    font-size: 0.85em;
+  }
+  .post-prose-content table {
+    display: block;
+  }
+  .post-prose-content pre {
+    padding: 1.5rem;
+    border: 1px solid var(--theme-border-subtle);
+    border-radius: 4px;
+    line-height: 1.7;
+  }
+  .post-prose-content > :first-child {
+    margin-top: 0;
+  }
+  .post-prose-content > :last-child {
+    margin-bottom: 0;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .post-prose-content h2:target {
+      animation: chapter-arrive 900ms ease-out;
+    }
+    @keyframes chapter-arrive {
+      from {
+        color: var(--reading-accent);
+        transform: translateX(10px);
+      }
+      to {
+        color: var(--reading-ink);
+        transform: translateX(0);
+      }
+    }
+  }
+  @media (max-width: 767px) {
+    .post-reading-surface {
+      padding: 46px 18px 58px 42px;
+      background: color-mix(in srgb, var(--reading-surface) 90%, transparent);
+    }
+    .post-reading-surface::before {
+      top: 30px;
+      bottom: 30px;
+      left: 16px;
+    }
+    .post-prose-content {
+      margin: 0;
+      font-size: 16px;
+      line-height: 2;
+    }
+    .post-prose-content h2 {
+      width: calc(100% + 16px);
+      margin-top: 4rem;
+      margin-left: -16px;
+      font-size: 1.55rem;
+    }
+    .post-prose-content h2::before {
+      top: 0.82em;
+      left: -27px;
+      width: 18px;
+    }
+    .post-prose-content blockquote {
+      margin-left: -16px;
+      padding-left: 16px;
+    }
+    .post-prose-content img {
+      width: calc(100% + 16px);
+      max-width: calc(100% + 16px);
+      margin-left: -16px;
+    }
   }
 </style>

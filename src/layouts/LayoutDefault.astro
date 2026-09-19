@@ -15,6 +15,19 @@ const dark = themeConfig.appearance.theme === 'dark'
 
 <html lang={lang} class:list={['animation-prepared', { dark }]}>
   <head>
+    <script is:inline>
+      ;(() => {
+        const storageKey = 'teclado-signature-intro-played'
+        const clearIntro = () => delete document.documentElement.dataset.signatureIntro
+
+        if (!sessionStorage.getItem(storageKey)) {
+          document.documentElement.dataset.signatureIntro = 'play'
+          sessionStorage.setItem(storageKey, '1')
+          window.setTimeout(clearIntro, 2800)
+          document.addEventListener('astro:before-swap', clearIntro, { once: true })
+        }
+      })()
+    </script>
     <slot name="seo"> <SiteSeo /> </slot>
     <LaTeX />
     <Analytics />

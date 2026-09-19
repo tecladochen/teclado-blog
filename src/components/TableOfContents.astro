@@ -15,105 +15,76 @@ const showTableOfContents = sections.length >= 2
 
 {
   showTableOfContents && (
-    <aside id="toc-container" class="not-prose select-none">
-      {/* 1. 页面右下角常驻悬浮微胶囊 */}
-      <div class="fixed bottom-4 right-4 sm:bottom-8 sm:right-8 z-40 flex items-center gap-2">
+    <aside id="toc-container" class="reading-design not-prose select-none">
+      <div class="toc-launcher">
         <button
           id="toc-toggle-btn"
           type="button"
-          aria-label="打开导读目录"
+          aria-label="打开文章目录"
           aria-expanded="false"
-          class="group flex h-11 w-11 sm:h-auto sm:w-auto items-center justify-center gap-2 sm:px-3.5 sm:py-2 rounded-full border border-[#d8cfc0] dark:border-white/10 bg-[#fdfbf7]/90 dark:bg-[#1c1a17]/90 backdrop-blur-md shadow-[0_8px_24px_rgba(75,55,35,0.12)] dark:shadow-[0_8px_24px_rgba(0,0,0,0.5)] text-xs font-mono text-[#3a3127] dark:text-[#ede4d8] hover:border-[#0f4c3a]/50 hover:text-[#0f4c3a] dark:hover:text-[#34d399] transition-all cursor-pointer"
+          aria-controls="toc-drawer"
+          class="toc-toggle"
         >
-          <span class="i-mdi-table-of-contents h-5 w-5 sm:hidden" aria-hidden="true" />
-          <span class="hidden sm:block w-2 h-2 rounded-full bg-[#0f4c3a] dark:bg-[#34d399] animate-pulse" />
-          <span class="hidden sm:inline font-medium tracking-wide">导读目录</span>
-          <span
-            id="toc-progress-badge"
-            class="hidden sm:inline px-1.5 py-0.5 rounded bg-black/[0.04] dark:bg-white/[0.08] text-[10px] tabular text-neutral-500 dark:text-neutral-400"
-          >
-            0%
-          </span>
-          <span class="hidden sm:inline text-[11px] opacity-60 group-hover:translate-y-[-1px] transition-transform">
-            ↑
+          <span class="toc-toggle-label">目录</span>
+          <span id="toc-progress-badge">0%</span>
+          <span class="toc-toggle-rule" aria-hidden="true">
+            <span />
           </span>
         </button>
       </div>
 
-      {/* 2. 全局点击遮罩蒙层 */}
-      <div
-        id="toc-backdrop"
-        class="fixed inset-0 bg-black/25 dark:bg-black/50 backdrop-blur-sm z-50 pointer-events-none opacity-0 transition-opacity duration-200"
-      />
+      <div id="toc-backdrop" class="pointer-events-none opacity-0" />
 
-      {/* 3. 呼出式案头导读抽屉卡片（温润棉纸风格） */}
       <div
         id="toc-drawer"
         role="dialog"
         aria-modal="true"
-        aria-label="手札目录"
+        aria-label="文章目录"
         aria-hidden="true"
-        class="fixed bottom-6 right-6 sm:bottom-8 sm:right-8 w-[calc(100vw-3rem)] sm:w-[360px] max-h-[75vh] z-[60] rounded-2xl cotton-paper p-5 sm:p-6 flex flex-col gap-4 shadow-[0_24px_48px_-8px_rgba(75,55,35,0.2)] dark:shadow-[0_24px_48px_-8px_rgba(0,0,0,0.7)] pointer-events-none opacity-0 translate-y-4 transition-all duration-200 ease-out"
+        inert
+        class="pointer-events-none translate-y-4 opacity-0"
       >
-        {/* 抽屉头部 */}
-        <div class="flex items-center justify-between pb-3 border-b border-[#dfd7ca]/80 dark:border-white/[0.08] z-1 relative">
-          <div class="flex items-center gap-2">
-            <span class="w-1.5 h-1.5 rounded-full bg-[#0f4c3a] dark:bg-[#34d399]" />
-            <span class="serif-text font-bold text-sm tracking-wide text-[#2c241c] dark:text-[#ede4d8]">
-              案头导读 · {sections.length} 节
-            </span>
+        <div class="toc-head">
+          <div>
+            <span class="toc-kicker">目录</span>
+            <span class="toc-count">共 {sections.length} 节</span>
           </div>
 
-          <div class="flex items-center gap-2 font-mono text-[11px] text-neutral-400 dark:text-neutral-500">
-            <span id="toc-drawer-progress">0% READ</span>
-            <span class="text-neutral-300 dark:text-neutral-600">|</span>
-            <button
-              id="toc-close-btn"
-              type="button"
-              aria-label="关闭目录"
-              class="w-6 h-6 rounded-full flex items-center justify-center text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 hover:bg-black/[0.05] dark:hover:bg-white/[0.08] transition-colors cursor-pointer text-sm font-bold"
-            >
-              ✕
-            </button>
-          </div>
+          <button id="toc-close-btn" type="button" aria-label="关闭目录" class="toc-close">
+            <span class="i-mdi-close h-5 w-5" aria-hidden="true" />
+          </button>
         </div>
 
-        {/* 目录列表 */}
-        <nav class="overflow-y-auto max-h-[50vh] pr-1 z-1 relative custom-scrollbar">
-          <ol class="flex flex-col gap-1.5 list-none p-0 m-0">
-            {sections.map((heading, index) => (
+        <nav class="toc-navigation custom-scrollbar" aria-label="文章章节">
+          <ol>
+            {sections.map((heading) => (
               <li>
                 <a
                   href={`#${heading.slug}`}
                   data-slug={heading.slug}
                   data-no-swup
-                  class="toc-item-link not-underline-hover flex items-center justify-between gap-2.5 px-3 py-2 rounded-xl text-xs sm:text-[13px] text-[#5c5245] dark:text-[#a89f92] hover:bg-[#0f4c3a]/[0.06] dark:hover:bg-[#34d399]/10 hover:text-[#0f4c3a] dark:hover:text-[#34d399] transition-all"
+                  class="toc-item-link not-underline-hover"
                 >
-                  <div class="flex items-center gap-2 truncate">
-                    <span class="font-mono text-[11px] text-emerald-700 dark:text-emerald-400 font-semibold tabular">
-                      {String(index + 1).padStart(2, '0')}
-                    </span>
-                    <span class="truncate leading-relaxed">{heading.text}</span>
-                  </div>
-                  <span class="toc-current-tag hidden text-[10px] text-emerald-700 dark:text-emerald-400 font-mono shrink-0 bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20">
-                    当前
-                  </span>
+                  <span class="toc-marker" aria-hidden="true" />
+                  <span class="toc-title">{heading.text}</span>
                 </a>
               </li>
             ))}
           </ol>
         </nav>
 
-        {/* 底部快捷回到顶部与字数提示 */}
-        <div class="flex items-center justify-between pt-3 border-t border-[#dfd7ca]/80 dark:border-white/[0.08] text-[11px] font-mono text-neutral-400 dark:text-neutral-500 z-1 relative">
-          <button
-            id="toc-scroll-top-btn"
-            type="button"
-            class="hover:text-[#0f4c3a] dark:hover:text-[#34d399] transition-colors cursor-pointer flex items-center gap-1"
-          >
-            <span>↑ 回到卷首</span>
+        <div class="toc-progress-track" aria-hidden="true">
+          <span id="toc-progress-fill" />
+        </div>
+
+        <div class="toc-foot">
+          <button id="toc-scroll-top-btn" type="button">
+            <span class="i-mdi-arrow-up h-4 w-4" aria-hidden="true" />
+            <span>回到顶部</span>
           </button>
-          <span>手札案头导引</span>
+          <span class="toc-read-progress">
+            阅读进度 <span id="toc-footer-progress">0%</span>
+          </span>
         </div>
       </div>
     </aside>
@@ -132,7 +103,8 @@ const showTableOfContents = sections.length >= 2
     const backdrop = document.getElementById('toc-backdrop')
     const drawer = document.getElementById('toc-drawer')
     const progressBadge = document.getElementById('toc-progress-badge')
-    const drawerProgress = document.getElementById('toc-drawer-progress')
+    const progressFill = document.getElementById('toc-progress-fill')
+    const footerProgress = document.getElementById('toc-footer-progress')
     const scrollTopBtn = document.getElementById('toc-scroll-top-btn')
     const tocLinks = container?.querySelectorAll<HTMLAnchorElement>('.toc-item-link') ?? []
 
@@ -148,6 +120,8 @@ const showTableOfContents = sections.length >= 2
     const d = drawer
     const b = backdrop
 
+    const scrollBehavior = () =>
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches ? ('instant' as const) : ('smooth' as const)
     let isOpen = false
     let returnFocus: HTMLElement | null = null
 
@@ -159,12 +133,13 @@ const showTableOfContents = sections.length >= 2
 
     function openDrawer() {
       isOpen = true
+      d.inert = false
       returnFocus = document.activeElement as HTMLElement
       d.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-4')
       b.classList.remove('opacity-0', 'pointer-events-none')
       d.setAttribute('aria-hidden', 'false')
       btn.setAttribute('aria-expanded', 'true')
-      btn.setAttribute('aria-label', '关闭导读目录')
+      btn.setAttribute('aria-label', '关闭文章目录')
       requestAnimationFrame(() => closeBtn?.focus())
     }
 
@@ -174,9 +149,10 @@ const showTableOfContents = sections.length >= 2
       b.classList.add('opacity-0', 'pointer-events-none')
       d.setAttribute('aria-hidden', 'true')
       btn.setAttribute('aria-expanded', 'false')
-      btn.setAttribute('aria-label', '打开导读目录')
+      btn.setAttribute('aria-label', '打开文章目录')
       returnFocus?.focus()
       returnFocus = null
+      d.inert = true
     }
 
     btn.addEventListener(
@@ -242,7 +218,7 @@ const showTableOfContents = sections.length >= 2
       scrollTopBtn.addEventListener(
         'click',
         () => {
-          window.scrollTo({ top: 0, behavior: 'smooth' })
+          window.scrollTo({ top: 0, behavior: scrollBehavior() })
           closeDrawer()
         },
         { signal },
@@ -260,10 +236,13 @@ const showTableOfContents = sections.length >= 2
             const rawId = href.slice(1)
             const targetId = decodeURIComponent(rawId)
             const target = document.getElementById(targetId) || document.getElementById(rawId)
-            if (target) {
-              target.scrollIntoView({ behavior: 'smooth' })
-            }
             closeDrawer()
+            if (target) {
+              target.tabIndex = -1
+              target.focus({ preventScroll: true })
+              target.scrollIntoView({ behavior: scrollBehavior() })
+              history.replaceState(null, '', href)
+            }
           }
         },
         { signal },
@@ -271,18 +250,27 @@ const showTableOfContents = sections.length >= 2
     })
 
     // 阅读进度与当前小节高亮 (ScrollSpy)
+    const article = document.querySelector('.article-sheet')
     const headings = Array.from(document.querySelectorAll('article.prose h2[id], .post-prose-content h2[id]'))
 
     function updateScrollSpy() {
       const scrollTop = window.scrollY
-      const docHeight = document.documentElement.scrollHeight - window.innerHeight
-      const percent = docHeight > 0 ? Math.min(100, Math.max(0, Math.round((scrollTop / docHeight) * 100))) : 0
+      const articleTop = article ? article.getBoundingClientRect().top + scrollTop : 0
+      const articleEnd = article
+        ? article.getBoundingClientRect().bottom + scrollTop
+        : document.documentElement.scrollHeight
+      const distance = articleEnd - articleTop - window.innerHeight
+      const progress = distance > 0 ? (scrollTop - articleTop) / distance : 1
+      const percent = Math.min(100, Math.max(0, Math.round(progress * 100)))
 
+      if (progressFill) {
+        progressFill.style.transform = `scaleX(${percent / 100})`
+      }
       if (progressBadge) {
         progressBadge.textContent = `${percent}%`
       }
-      if (drawerProgress) {
-        drawerProgress.textContent = `${percent}% READ`
+      if (footerProgress) {
+        footerProgress.textContent = `${percent}%`
       }
 
       // 高亮当前阅读的 h2
@@ -297,37 +285,18 @@ const showTableOfContents = sections.length >= 2
 
       tocLinks.forEach((link) => {
         const slug = link.getAttribute('data-slug')
-        const currentTag = link.querySelector('.toc-current-tag')
         const isCurrent = slug && (slug === currentSlug || decodeURIComponent(slug) === currentSlug)
 
         if (isCurrent) {
-          link.classList.add(
-            'bg-[#0f4c3a]/10',
-            'text-[#0f4c3a]',
-            'dark:bg-[#34d399]/15',
-            'dark:text-[#34d399]',
-            'font-semibold',
-          )
-          if (currentTag) {
-            currentTag.classList.remove('hidden')
-          }
+          link.setAttribute('aria-current', 'location')
           return
         }
-
-        link.classList.remove(
-          'bg-[#0f4c3a]/10',
-          'text-[#0f4c3a]',
-          'dark:bg-[#34d399]/15',
-          'dark:text-[#34d399]',
-          'font-semibold',
-        )
-        if (currentTag) {
-          currentTag.classList.add('hidden')
-        }
+        link.removeAttribute('aria-current')
       })
     }
 
     window.addEventListener('scroll', updateScrollSpy, { passive: true, signal })
+    window.addEventListener('resize', updateScrollSpy, { passive: true, signal })
     updateScrollSpy()
 
     // 支持 URL 参数快捷打开目录或定位（方便预览）
@@ -342,6 +311,438 @@ const showTableOfContents = sections.length >= 2
 </script>
 
 <style>
+  #toc-container {
+    font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  }
+  .toc-launcher {
+    position: fixed;
+    right: 16px;
+    bottom: max(16px, env(safe-area-inset-bottom));
+    z-index: 40;
+  }
+  .toc-toggle {
+    --toc-progress: 0deg;
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 78px;
+    min-height: 52px;
+    padding: 5px 12px 5px 5px;
+    border: 1px solid var(--reading-rule);
+    border-radius: 28px;
+    background: color-mix(in srgb, var(--reading-surface) 93%, transparent);
+    box-shadow: 0 14px 34px -20px rgba(40, 53, 45, 0.48);
+    color: var(--reading-ink);
+    cursor: pointer;
+    backdrop-filter: blur(12px);
+    transition:
+      border-color 180ms ease,
+      box-shadow 180ms ease,
+      transform 260ms var(--reading-ease);
+  }
+  .toc-toggle::before {
+    content: '';
+    position: absolute;
+    inset: 4px auto 4px 4px;
+    width: 42px;
+    border-radius: 50%;
+    background: conic-gradient(var(--reading-accent) var(--toc-progress), var(--reading-rule) 0);
+    -webkit-mask: radial-gradient(circle, transparent 62%, #000 64%);
+    mask: radial-gradient(circle, transparent 62%, #000 64%);
+  }
+  .toc-toggle:hover,
+  .toc-toggle:focus-visible {
+    border-color: color-mix(in srgb, var(--reading-accent) 45%, transparent);
+    box-shadow: 0 16px 38px -18px rgba(40, 70, 54, 0.42);
+    transform: translateY(-2px);
+  }
+  .toc-toggle-icon {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    flex: 0 0 42px;
+    color: var(--reading-accent);
+  }
+  .toc-toggle-copy {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1px;
+    font-size: 12px;
+    line-height: 1.3;
+  }
+  #toc-progress-badge {
+    color: var(--reading-muted);
+    font:
+      9px/1.4 'JetBrains Mono',
+      monospace;
+  }
+  #toc-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    background: rgba(27, 32, 28, 0.3);
+    backdrop-filter: blur(2px);
+    transition: opacity 180ms ease;
+  }
+  #toc-drawer {
+    position: fixed;
+    right: 16px;
+    bottom: max(16px, env(safe-area-inset-bottom));
+    z-index: 60;
+    display: flex;
+    width: min(380px, calc(100vw - 32px));
+    max-height: calc(100dvh - 32px - env(safe-area-inset-bottom));
+    flex-direction: column;
+    gap: 0;
+    overflow: hidden;
+    border: 1px solid var(--reading-rule);
+    border-radius: 18px;
+    background: var(--reading-surface);
+    box-shadow: 0 28px 70px -28px rgba(25, 36, 29, 0.5);
+    transform-origin: right bottom;
+    transition:
+      opacity 180ms ease,
+      transform 260ms var(--reading-ease);
+  }
+  .toc-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 22px 22px 18px;
+    border-bottom: 1px solid var(--reading-rule);
+  }
+  .toc-head > div {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+  }
+  .toc-kicker {
+    color: var(--reading-ink);
+    font-family: var(--reading-serif);
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+  }
+  .toc-count {
+    color: var(--reading-muted);
+    font-size: 10px;
+  }
+  .toc-close {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    margin: -8px -8px -8px 0;
+    border-radius: 50%;
+    color: var(--reading-muted);
+    cursor: pointer;
+    transition:
+      color 180ms ease,
+      background-color 180ms ease,
+      transform 260ms var(--reading-ease);
+  }
+  .toc-close:hover,
+  .toc-close:focus-visible {
+    background: var(--reading-wash);
+    color: var(--reading-accent);
+    transform: rotate(8deg);
+  }
+  .toc-navigation {
+    min-height: 0;
+    padding: 12px 12px 14px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  .toc-navigation ol {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .toc-navigation li + li {
+    border-top: 1px solid color-mix(in srgb, var(--reading-rule) 55%, transparent);
+  }
+  .toc-item-link {
+    position: relative;
+    display: grid;
+    grid-template-columns: 34px minmax(0, 1fr);
+    gap: 10px;
+    min-height: 48px;
+    align-items: center;
+    padding: 9px 10px;
+    color: var(--reading-secondary);
+    font-size: 13px;
+    line-height: 1.65;
+    transition:
+      color 180ms ease,
+      transform 260ms var(--reading-ease);
+  }
+  .toc-item-link::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 3px;
+    height: 0;
+    background: var(--reading-accent);
+    transform: translateY(-50%);
+    transition: height 220ms var(--reading-ease);
+  }
+  .toc-index {
+    color: var(--reading-muted);
+    font:
+      10px/1 'JetBrains Mono',
+      monospace;
+    transition: color 180ms ease;
+  }
+  .toc-item-link:hover,
+  .toc-item-link:focus-visible {
+    color: var(--reading-accent);
+    transform: translateX(3px);
+  }
+  .toc-item-link[aria-current='location'] {
+    color: var(--reading-ink);
+    font-weight: 600;
+  }
+  .toc-item-link[aria-current='location']::after {
+    height: 24px;
+  }
+  .toc-item-link[aria-current='location'] .toc-index {
+    color: var(--reading-accent);
+  }
+  .toc-progress-track {
+    height: 1px;
+    background: var(--reading-rule);
+  }
+  #toc-progress-fill {
+    display: block;
+    height: 100%;
+    background: var(--reading-accent);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 220ms linear;
+  }
+  .toc-foot {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 18px;
+    color: var(--reading-muted);
+    font-size: 10px;
+  }
+  #toc-scroll-top-btn {
+    display: flex;
+    min-height: 40px;
+    align-items: center;
+    gap: 6px;
+    color: inherit;
+    cursor: pointer;
+    transition: color 180ms ease;
+  }
+  #toc-scroll-top-btn:hover,
+  #toc-scroll-top-btn:focus-visible {
+    color: var(--reading-accent);
+  }
+  .toc-read-progress {
+    font-variant-numeric: tabular-nums;
+  }
+  #toc-footer-progress {
+    color: var(--reading-accent);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  #toc-drawer[aria-hidden='true'] {
+    transform: translateY(12px) scale(0.98);
+    transition-duration: 140ms;
+  }
+  #toc-drawer[aria-hidden='false'] {
+    transform: translateY(0) scale(1);
+  }
+  @media (min-width: 640px) {
+    .toc-launcher,
+    #toc-drawer {
+      right: 32px;
+      bottom: max(32px, env(safe-area-inset-bottom));
+    }
+    #toc-drawer {
+      max-height: min(620px, calc(100dvh - 64px));
+    }
+  }
+  @media (max-width: 639px) {
+    .toc-toggle {
+      min-width: 52px;
+      width: 52px;
+      padding: 5px;
+    }
+    .toc-toggle-copy {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+    }
+    #toc-drawer {
+      border-radius: 14px;
+    }
+    .toc-head {
+      padding-inline: 18px;
+    }
+    .toc-navigation {
+      padding-inline: 8px;
+    }
+  }
+  /* Flat editorial treatment: typography and rules carry the hierarchy. */
+  .toc-toggle {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 4px 12px;
+    min-width: 76px;
+    min-height: 48px;
+    padding: 9px 12px 8px;
+    border-radius: 0;
+    border-top: 2px solid var(--reading-ink);
+    background: color-mix(in srgb, var(--reading-surface) 94%, transparent);
+    box-shadow: 0 12px 30px -22px rgba(56, 42, 38, 0.46);
+    backdrop-filter: blur(10px);
+  }
+  .toc-toggle::before {
+    content: none;
+  }
+  .toc-toggle:hover,
+  .toc-toggle:focus-visible {
+    box-shadow: 0 12px 30px -22px rgba(56, 42, 38, 0.46);
+    color: var(--reading-accent);
+    transform: translateY(-1px);
+  }
+  .toc-toggle-label {
+    font-family: var(--reading-serif);
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+  #toc-progress-badge {
+    align-self: center;
+    font-size: 9px;
+    line-height: 1;
+  }
+  .toc-toggle-rule {
+    grid-column: 1 / -1;
+    display: block;
+    height: 1px;
+    background: var(--reading-rule);
+  }
+  .toc-toggle-rule > span {
+    display: block;
+    width: 18px;
+    height: 100%;
+    background: var(--reading-accent);
+    transition: width 360ms var(--reading-ease);
+  }
+  .toc-toggle:hover .toc-toggle-rule > span,
+  .toc-toggle:focus-visible .toc-toggle-rule > span {
+    width: 100%;
+  }
+  #toc-backdrop {
+    background: rgba(35, 31, 29, 0.2);
+    backdrop-filter: blur(1px);
+  }
+  #toc-drawer {
+    width: min(360px, calc(100vw - 32px));
+    border-radius: 0;
+    border-top: 3px solid var(--reading-ink);
+    box-shadow: 0 24px 60px -34px rgba(44, 33, 29, 0.58);
+  }
+  .toc-head {
+    padding: 26px 24px 20px;
+  }
+  .toc-head > div {
+    gap: 12px;
+  }
+  .toc-kicker {
+    font-size: 28px;
+  }
+  .toc-count {
+    letter-spacing: 0.08em;
+  }
+  .toc-close {
+    border-radius: 0;
+    transition:
+      color 180ms ease,
+      background-color 180ms ease;
+  }
+  .toc-close:hover,
+  .toc-close:focus-visible {
+    transform: none;
+  }
+  .toc-navigation {
+    padding: 10px 24px 22px;
+  }
+  .toc-navigation li + li {
+    border-top: 0;
+  }
+  .toc-item-link {
+    grid-template-columns: 22px minmax(0, 1fr);
+    gap: 8px;
+    min-height: 42px;
+    padding: 7px 0;
+    transition: color 180ms ease;
+  }
+  .toc-item-link::after {
+    content: none;
+  }
+  .toc-item-link:hover,
+  .toc-item-link:focus-visible {
+    transform: none;
+  }
+  .toc-marker {
+    display: block;
+    width: 8px;
+    height: 1px;
+    background: var(--reading-rule);
+    transition:
+      width 320ms var(--reading-ease),
+      background-color 180ms ease;
+  }
+  .toc-item-link[aria-current='location'] .toc-marker {
+    width: 18px;
+    background: var(--reading-accent);
+  }
+  .toc-foot {
+    padding: 11px 24px 13px;
+  }
+  @media (max-width: 639px) {
+    .toc-toggle {
+      width: auto;
+      min-width: 72px;
+      padding: 9px 11px 8px;
+    }
+    #toc-drawer {
+      right: 12px;
+      bottom: max(12px, env(safe-area-inset-bottom));
+      width: calc(100vw - 24px);
+    }
+    .toc-head,
+    .toc-navigation {
+      padding-inline: 20px;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    #toc-drawer,
+    #toc-backdrop,
+    .toc-item-link,
+    #toc-progress-fill {
+      transition: none !important;
+    }
+    #toc-drawer[aria-hidden='true'],
+    #toc-drawer[aria-hidden='false'],
+    #toc-drawer .toc-item-link {
+      transform: none;
+    }
+  }
   .custom-scrollbar::-webkit-scrollbar {
     width: 4px;
   }
@@ -349,10 +750,10 @@ const showTableOfContents = sections.length >= 2
     background: transparent;
   }
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: rgba(160, 135, 110, 0.25);
+    background: color-mix(in srgb, var(--reading-rule) 85%, transparent);
     border-radius: 4px;
   }
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: rgba(160, 135, 110, 0.45);
+    background: color-mix(in srgb, var(--reading-accent) 42%, transparent);
   }
 </style>

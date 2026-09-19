@@ -1,7 +1,6 @@
 ---
 import type { Post } from '~/types'
-import { themeConfig } from '~/.config'
-import { formatDate, getPathFromCategory, getWordCountAndReadTime } from '~/utils'
+import { formatDate, getWordCountAndReadTime } from '~/utils'
 
 interface Props {
   post: Post
@@ -9,78 +8,116 @@ interface Props {
 
 const { post } = Astro.props
 
-const categoryList = post.data.categories ?? []
-const displayDate = post.data.modDate ?? post.data.pubDate
-const displayDateText = formatDate(displayDate)
-const { count, minutes } = getWordCountAndReadTime(post.body)
-
-const isReading = categoryList.some((c) => c.includes('读') || c.includes('书'))
-
-function getCategoryUrl(category: string) {
-  return `/categories/${getPathFromCategory(category, themeConfig.site.categoryMap)}/`
-}
+const publishedText = formatDate(post.data.pubDate, 'YYYY-MM-DD')
+const modifiedText = post.data.modDate ? formatDate(post.data.modDate, 'YYYY-MM-DD') : undefined
+const showModifiedDate = modifiedText && modifiedText !== publishedText
+const { minutes } = getWordCountAndReadTime(post.body)
 ---
 
-<header class="post-header not-prose mb-10 flex flex-col gap-6 z-1 relative">
-  <!-- 1. 案头文献归档带 -->
-  <div
-    class="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-[#dfd7ca]/80 dark:border-white/[0.08] text-xs font-mono tabular text-neutral-500 dark:text-neutral-400"
-  >
-    <div class="flex flex-wrap items-center gap-2.5">
-      {
-        categoryList.map((cat) => (
-          <a
-            href={getCategoryUrl(cat)}
-            class:list={[
-              'not-underline-hover inline-flex shrink-0 items-center gap-1.5 px-2.5 py-1 rounded font-medium text-[11px] tracking-wide whitespace-nowrap border shadow-sm transition-colors',
-              isReading
-                ? 'bg-[#1b4332]/[0.08] dark:bg-[#10b981]/15 text-[#1b4332] dark:text-[#34d399] border-[#1b4332]/20 dark:border-[#34d399]/25'
-                : 'bg-[#5c4033]/[0.08] dark:bg-[#d4a373]/15 text-[#5c4033] dark:text-[#e0c3a2] border-[#5c4033]/20 dark:border-[#e0c3a2]/25',
-            ]}
-          >
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400" />
-            <span>{cat}手札</span>
-          </a>
-        ))
-      }
-      <span class="text-neutral-300 dark:text-neutral-600">/</span>
-      <time
-        datetime={displayDate.toISOString()}
-        class="shrink-0 whitespace-nowrap text-neutral-600 dark:text-neutral-300 font-medium"
-      >
-        FOLIO NO. {displayDateText}
-      </time>
-    </div>
-
-    <div
-      class="flex w-full sm:w-auto flex-wrap items-center gap-x-2 gap-y-1 text-[11px] sm:text-[11.5px] text-neutral-400 dark:text-neutral-500"
-    >
-      <span class="whitespace-nowrap">案头闲笔</span>
-      <span aria-hidden="true">·</span>
-      <span class="whitespace-nowrap">约 {count.toLocaleString()} 字</span>
-      <span aria-hidden="true">·</span>
-      <span class="whitespace-nowrap">需 {minutes} 分钟漫读</span>
-    </div>
+<header class="post-header not-prose">
+  <div class="post-dateline" data-reading-reveal>
+    <time datetime={post.data.pubDate.toISOString()}>{publishedText}</time>
+    <span aria-hidden="true">/</span>
+    <span>{minutes} 分钟阅读</span>
+    {showModifiedDate && <span class="post-updated">更新于 {modifiedText}</span>}
   </div>
-
-  <!-- 2. 32px 衬线粗体大标题 -->
-  <h1
-    class="serif-text text-2xl sm:text-[33px] font-bold text-[#181512] dark:text-[#f0e8dc] leading-[1.36] tracking-tight m-0"
-  >
-    {post.data.title}
-  </h1>
-
-  <!-- 3. 题眼 / 案头引语卡片（翡翠绿左侧饰条 + 温润棉纸底） -->
+  <h1 data-reading-reveal>{post.data.title}</h1>
   {
     post.data.description && (
-      <div class="relative p-5 rounded-xl bg-[#f4efe4]/80 dark:bg-white/[0.04] border border-[#dfd7ca]/80 dark:border-white/[0.08] border-l-4 border-l-[#0f4c3a] dark:border-l-[#34d399] shadow-sm">
-        <p class="serif-text text-[14.5px] text-[#3e342a] dark:text-[#ded5c8] leading-[1.85] m-0 italic">
-          “{post.data.description}”
-        </p>
-        <div class="mt-2 text-right text-xs font-mono text-neutral-400 dark:text-neutral-500 not-italic">
-          —— 案头题记 · 孤独终洁
-        </div>
-      </div>
+      <p class="post-dek" data-reading-reveal>
+        {post.data.description}
+      </p>
     )
   }
 </header>
+
+<style>
+  .post-header {
+    display: grid;
+    grid-template-columns: 96px minmax(0, 1fr);
+    column-gap: 40px;
+    padding: 28px 4px 74px;
+    font-family: var(--reading-sans);
+  }
+  .post-dateline {
+    grid-row: 1 / span 2;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 8px 20px 8px 0;
+    border-right: 1px solid var(--reading-rule);
+    color: var(--reading-muted);
+    font-size: 11px;
+    line-height: 1.8;
+    letter-spacing: 0.03em;
+  }
+  .post-dateline time {
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .post-dateline > span[aria-hidden='true'] {
+    width: 22px;
+    height: 1px;
+    overflow: hidden;
+    margin-block: 6px;
+    background: var(--reading-accent);
+    color: transparent;
+  }
+  .post-updated {
+    margin-top: auto;
+    white-space: nowrap;
+  }
+  h1 {
+    max-width: 12em;
+    margin: 0 0 44px;
+    font-family: var(--reading-serif);
+    font-size: clamp(40px, 6.4vw, 62px);
+    font-weight: 700;
+    line-height: 1.3;
+    letter-spacing: -0.05em;
+    text-wrap: pretty;
+    overflow-wrap: anywhere;
+  }
+  .post-dek {
+    max-width: 31rem;
+    margin: 0 0 0 auto;
+    padding-top: 22px;
+    border-top: 1px solid var(--reading-rule);
+    color: var(--reading-secondary);
+    font-size: 15px;
+    line-height: 1.95;
+  }
+  @media (max-width: 639px) {
+    .post-header {
+      grid-template-columns: minmax(0, 1fr);
+      padding: 10px 0 48px;
+    }
+    .post-dateline {
+      grid-row: auto;
+      flex-direction: row;
+      flex-wrap: wrap;
+      align-items: center;
+      padding: 0 0 20px;
+      border-right: 0;
+      border-bottom: 1px solid var(--reading-rule);
+    }
+    .post-dateline > span[aria-hidden='true'] {
+      width: 12px;
+      margin: 0 2px;
+    }
+    h1 {
+      margin: 28px 0 30px;
+      font-size: clamp(34px, 10vw, 44px);
+      line-height: 1.38;
+    }
+    .post-dek {
+      max-width: none;
+      margin: 0 0 0 42px;
+      padding-top: 18px;
+      font-size: 15px;
+    }
+    .post-updated {
+      margin: 0 0 0 auto;
+    }
+  }
+</style>
