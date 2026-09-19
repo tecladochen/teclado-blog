@@ -59,7 +59,7 @@ const { minutes } = getWordCountAndReadTime(post.body)
     position: absolute;
     inset: 0 -12px 0 95px;
     z-index: -1;
-    background: linear-gradient(90deg, var(--reading-wash), color-mix(in srgb, var(--reading-wash) 15%, transparent));
+    background: linear-gradient(90deg, var(--reading-hover), color-mix(in srgb, var(--reading-hover) 12%, transparent));
     clip-path: inset(0 100% 0 0);
     transition: clip-path 560ms var(--reading-ease);
   }
@@ -158,11 +158,12 @@ const { minutes } = getWordCountAndReadTime(post.body)
       clip-path: inset(0);
     }
     .editorial-link:is(:hover, :focus-visible) .editorial-title {
-      color: var(--reading-accent);
+      color: var(--reading-hover-ink);
       transform: translateX(8px);
     }
     .editorial-link:is(:hover, :focus-visible) .editorial-arrow {
       width: 48px;
+      color: var(--reading-hover-ink);
     }
   }
   @media (max-width: 767px) {

@@ -46,7 +46,7 @@ const showTableOfContents = sections.length >= 2
       >
         <div class="toc-head">
           <div>
-            <span class="toc-kicker">目录</span>
+            <span class="toc-kicker">文章目录</span>
             <span class="toc-count">共 {sections.length} 节</span>
           </div>
 
@@ -595,139 +595,260 @@ const showTableOfContents = sections.length >= 2
       padding-inline: 8px;
     }
   }
-  /* Flat editorial treatment: typography and rules carry the hierarchy. */
+  /* A compact print-style index: title, dotted leader, chapter number. */
   .toc-toggle {
     display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 4px 12px;
-    min-width: 76px;
-    min-height: 48px;
-    padding: 9px 12px 8px;
+    grid-template-columns: auto auto;
+    min-width: 74px;
+    min-height: 46px;
+    align-items: center;
+    gap: 2px 12px;
+    padding: 8px 10px 7px;
     border-radius: 0;
-    border-top: 2px solid var(--reading-ink);
-    background: color-mix(in srgb, var(--reading-surface) 94%, transparent);
-    box-shadow: 0 12px 30px -22px rgba(56, 42, 38, 0.46);
-    backdrop-filter: blur(10px);
+    border: 1px solid var(--reading-rule);
+    border-bottom-color: var(--reading-ink);
+    background: color-mix(in srgb, var(--reading-surface) 96%, transparent);
+    box-shadow: 0 12px 28px -22px rgba(44, 33, 29, 0.55);
+    backdrop-filter: blur(8px);
   }
   .toc-toggle::before {
     content: none;
   }
   .toc-toggle:hover,
   .toc-toggle:focus-visible {
-    box-shadow: 0 12px 30px -22px rgba(56, 42, 38, 0.46);
-    color: var(--reading-accent);
+    border-color: var(--reading-hover-ink);
+    box-shadow: 0 12px 28px -22px rgba(44, 33, 29, 0.55);
+    background: color-mix(in srgb, var(--reading-hover) 60%, var(--reading-surface));
+    color: var(--reading-hover-ink);
     transform: translateY(-1px);
   }
   .toc-toggle-label {
     font-family: var(--reading-serif);
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 700;
     line-height: 1.2;
   }
   #toc-progress-badge {
     align-self: center;
-    font-size: 9px;
+    font-size: 8px;
     line-height: 1;
   }
   .toc-toggle-rule {
     grid-column: 1 / -1;
     display: block;
+    width: 100%;
     height: 1px;
     background: var(--reading-rule);
+    transform: none;
   }
   .toc-toggle-rule > span {
     display: block;
-    width: 18px;
+    width: 22%;
     height: 100%;
-    background: var(--reading-accent);
-    transition: width 360ms var(--reading-ease);
+    background: currentColor;
+    transition: width 340ms var(--reading-ease);
   }
   .toc-toggle:hover .toc-toggle-rule > span,
   .toc-toggle:focus-visible .toc-toggle-rule > span {
     width: 100%;
   }
   #toc-backdrop {
-    background: rgba(35, 31, 29, 0.2);
-    backdrop-filter: blur(1px);
+    background: rgba(31, 30, 28, 0.18);
+    backdrop-filter: none;
   }
   #toc-drawer {
-    width: min(360px, calc(100vw - 32px));
+    display: flex;
+    inset: auto 24px max(24px, env(safe-area-inset-bottom)) auto;
+    width: min(410px, calc(100vw - 32px));
+    height: auto;
+    max-height: min(590px, calc(100dvh - 48px));
+    flex-direction: column;
     border-radius: 0;
-    border-top: 3px solid var(--reading-ink);
-    box-shadow: 0 24px 60px -34px rgba(44, 33, 29, 0.58);
+    border: 1px solid var(--reading-rule);
+    border-top-color: var(--reading-ink);
+    background: var(--reading-surface);
+    box-shadow: 0 24px 64px -34px rgba(38, 30, 27, 0.62);
+    transform-origin: right bottom;
+    transition:
+      opacity 180ms ease,
+      clip-path 420ms var(--reading-ease),
+      transform 420ms var(--reading-ease);
   }
   .toc-head {
-    padding: 26px 24px 20px;
+    width: auto;
+    align-items: center;
+    margin: 0;
+    padding: 22px 22px 16px;
+    border-bottom: 3px double var(--reading-rule);
   }
   .toc-head > div {
+    display: flex;
+    align-items: baseline;
     gap: 12px;
+    padding: 0;
   }
   .toc-kicker {
-    font-size: 28px;
+    font-size: 25px;
+    letter-spacing: -0.05em;
+    line-height: 1;
   }
   .toc-count {
+    color: var(--reading-muted);
+    font:
+      10px/1.5 'JetBrains Mono',
+      monospace;
     letter-spacing: 0.08em;
   }
   .toc-close {
+    width: 38px;
+    height: 38px;
+    margin: 0 -7px 0 0;
     border-radius: 0;
+    border: 0;
     transition:
       color 180ms ease,
-      background-color 180ms ease;
+      background-color 180ms ease,
+      border-color 180ms ease;
   }
   .toc-close:hover,
   .toc-close:focus-visible {
+    background: var(--reading-hover);
+    color: var(--reading-hover-ink);
     transform: none;
   }
   .toc-navigation {
-    padding: 10px 24px 22px;
+    width: auto;
+    margin: 0;
+    padding: 10px 18px 14px;
   }
-  .toc-navigation li + li {
+  .toc-navigation ol {
+    display: block;
+    counter-reset: chapter;
+  }
+  .toc-navigation li {
+    counter-increment: chapter;
     border-top: 0;
   }
   .toc-item-link {
-    grid-template-columns: 22px minmax(0, 1fr);
-    gap: 8px;
-    min-height: 42px;
-    padding: 7px 0;
-    transition: color 180ms ease;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 10px;
+    min-height: 52px;
+    align-items: center;
+    padding: 9px 8px;
+    font-family: var(--reading-serif);
+    font-size: 14px;
+    line-height: 1.55;
+    transition:
+      color 180ms ease,
+      background-color 180ms ease,
+      padding 260ms var(--reading-ease);
   }
   .toc-item-link::after {
     content: none;
   }
   .toc-item-link:hover,
   .toc-item-link:focus-visible {
-    transform: none;
+    background: var(--reading-hover);
+    color: var(--reading-hover-ink);
+    padding-inline: 12px 6px;
   }
   .toc-marker {
-    display: block;
-    width: 8px;
-    height: 1px;
-    background: var(--reading-rule);
-    transition:
-      width 320ms var(--reading-ease),
-      background-color 180ms ease;
+    grid-column: 2;
+    grid-row: 1;
+    display: grid;
+    width: 28px;
+    height: 28px;
+    place-items: center end;
+    background: transparent;
+    color: var(--reading-muted);
+    font:
+      11px/1 'JetBrains Mono',
+      monospace;
+  }
+  .toc-marker::before {
+    content: counter(chapter, decimal-leading-zero);
+  }
+  .toc-title {
+    grid-column: 1;
+    grid-row: 1;
+    display: flex;
+    min-width: 0;
+    align-items: baseline;
+    gap: 12px;
+  }
+  .toc-title::after {
+    content: '';
+    min-width: 20px;
+    flex: 1;
+    border-bottom: 1px dotted color-mix(in srgb, var(--reading-rule) 80%, transparent);
   }
   .toc-item-link[aria-current='location'] .toc-marker {
-    width: 18px;
+    width: 28px;
+    place-items: center;
     background: var(--reading-accent);
+    color: var(--reading-surface);
+  }
+  .toc-item-link[aria-current='location'] {
+    color: var(--reading-ink);
+  }
+  .toc-item-link[aria-current='location'] .toc-title::after {
+    border-bottom-style: solid;
+    border-bottom-color: var(--reading-accent);
+  }
+  .toc-progress-track {
+    width: auto;
+    margin: 0 22px;
   }
   .toc-foot {
-    padding: 11px 24px 13px;
+    width: auto;
+    margin: 0;
+    padding: 10px 22px 12px;
+  }
+  #toc-scroll-top-btn:hover,
+  #toc-scroll-top-btn:focus-visible {
+    color: var(--reading-hover-ink);
+  }
+  #toc-drawer[aria-hidden='true'] {
+    clip-path: inset(100% 0 0 0);
+    transform: translateY(10px);
+  }
+  #toc-drawer[aria-hidden='false'] {
+    clip-path: inset(0);
+    transform: none;
   }
   @media (max-width: 639px) {
     .toc-toggle {
       width: auto;
-      min-width: 72px;
-      padding: 9px 11px 8px;
+      min-width: 70px;
+      padding: 8px 9px 7px;
     }
     #toc-drawer {
-      right: 12px;
-      bottom: max(12px, env(safe-area-inset-bottom));
+      inset: auto 12px max(12px, env(safe-area-inset-bottom)) auto;
       width: calc(100vw - 24px);
+      max-height: min(560px, calc(100dvh - 24px));
     }
-    .toc-head,
+    .toc-head {
+      align-items: center;
+      padding: 20px 18px 15px;
+    }
+    .toc-close {
+      width: 40px;
+      height: 40px;
+      margin-right: -8px;
+    }
     .toc-navigation {
-      padding-inline: 20px;
+      padding: 8px 12px 12px;
+    }
+    .toc-item-link {
+      min-height: 48px;
+      padding-block: 8px;
+      font-size: 15px;
+    }
+    .toc-progress-track {
+      margin-inline: 18px;
+    }
+    .toc-foot {
+      padding-inline: 18px;
     }
   }
   @media (prefers-reduced-motion: reduce) {

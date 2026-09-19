@@ -151,7 +151,7 @@ function getUrl(id?: string) {
     left: 0;
     width: 100%;
     height: 2px;
-    background: var(--reading-accent);
+    background: var(--reading-hover-ink);
     transform: scaleX(0);
     transform-origin: left;
     transition: transform 480ms var(--reading-ease);
@@ -179,7 +179,7 @@ function getUrl(id?: string) {
     line-height: 1.6;
     text-wrap: pretty;
     overflow-wrap: anywhere;
-    background-image: linear-gradient(var(--reading-accent), var(--reading-accent));
+    background-image: linear-gradient(var(--reading-hover-ink), var(--reading-hover-ink));
     background-repeat: no-repeat;
     background-position: left bottom;
     background-size: 0 1px;
@@ -217,10 +217,11 @@ function getUrl(id?: string) {
     transform: scaleX(1);
   }
   a.post-neighbor:is(:hover, :focus-visible) .neighbor-title {
-    color: var(--reading-accent);
+    color: var(--reading-hover-ink);
     background-size: 100% 1px;
   }
   a.post-neighbor:is(:hover, :focus-visible) .neighbor-arrow {
+    color: var(--reading-hover-ink);
     transform: translateX(-8px);
   }
   a.post-neighbor-next:is(:hover, :focus-visible) .neighbor-arrow {

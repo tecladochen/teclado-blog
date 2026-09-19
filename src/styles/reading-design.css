@@ -7,9 +7,11 @@
   --reading-wash: rgba(235, 226, 222, 0.78);
   --reading-rule: rgba(106, 98, 93, 0.21);
   --reading-accent: #7a5148;
+  --reading-hover: rgba(37, 72, 55, 0.09);
+  --reading-hover-ink: #294f3d;
   --reading-ease: cubic-bezier(0.22, 1, 0.36, 1);
-  --reading-serif: 'Noto Serif SC', 'Songti SC', Georgia, serif;
-  --reading-sans: 'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --reading-serif: "Noto Serif SC", "Songti SC", Georgia, serif;
+  --reading-sans: "Inter", "PingFang SC", "Microsoft YaHei", sans-serif;
   color: var(--reading-ink);
   font-family: var(--reading-sans);
 }
@@ -21,4 +23,6 @@
   --reading-wash: rgba(88, 60, 54, 0.55);
   --reading-rule: rgba(203, 185, 179, 0.18);
   --reading-accent: #d0a49a;
+  --reading-hover: rgba(116, 153, 132, 0.14);
+  --reading-hover-ink: #a8c5b3;
 }
