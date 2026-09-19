@@ -32,6 +32,7 @@ const spec = defineCollection({
   schema: z.object({
     title: z.string(),
     description: z.string().optional(),
+    labels: z.array(z.string()).max(5).optional(),
     pubDate: z.coerce.date(),
     updatedDate: z.coerce.date().optional(),
   }),

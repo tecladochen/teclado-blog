@@ -1,9 +1,8 @@
 ---
 import { getEntry, render } from 'astro:content'
 import LayoutDefault from '~/layouts/LayoutDefault.astro'
-import { formatDate } from '~/utils'
+import SiteSeo from '~/components/SiteSeo.astro'
 
-const { translate: t } = Astro.locals
 const aboutPost = await getEntry('spec', 'about')
 if (!aboutPost) {
   throw new Error('No about post found')
@@ -12,16 +11,272 @@ const { Content } = await render(aboutPost)
 ---
 
 <LayoutDefault>
-  <header flex="~ col gap-2">
-    <h1 class="post-title">
-      <a class="not-prose">{aboutPost.data.title}</a>
-    </h1>
-    <div class="text-3.5">
-      <span>{t('posted_at')}</span>
-      <time>{formatDate(aboutPost.data.pubDate)}</time>
-    </div>
-  </header>
-  <article class="prose">
-    <Content />
-  </article>
+  <SiteSeo slot="seo" title={`${aboutPost.data.title} · Teclado`} desc="关于 Teclado 与这个博客" />
+
+  <section class="about-page" data-about-page>
+    <header class="about-profile">
+      <h1 class="about-heading">关于 Teclado</h1>
+      <div class="about-titleline">
+        {
+          aboutPost.data.labels && (
+            <ul class="about-labels" aria-label="个人标签">
+              {aboutPost.data.labels.map((label) => (
+                <li>{label}</li>
+              ))}
+            </ul>
+          )
+        }
+      </div>
+      {aboutPost.data.description && <p>{aboutPost.data.description}</p>}
+    </header>
+    <article class="about-content" data-about-content>
+      <Content />
+    </article>
+
+    <script is:inline>
+      ;(() => {
+        const page = document.querySelector('[data-about-page]')
+        if (!page || page.dataset.ready === 'true') {
+          return
+        }
+        page.dataset.ready = 'true'
+
+        const content = page.querySelector('[data-about-content]')
+        const blocks = content ? Array.from(content.children) : []
+        const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+        if (reducedMotion || !('IntersectionObserver' in window)) {
+          blocks.forEach((block) => block.classList.add('is-visible'))
+          return
+        }
+
+        page.dataset.motionReady = 'true'
+        const observer = new IntersectionObserver(
+          (entries) => {
+            const visibleEntries = entries
+              .filter((entry) => entry.isIntersecting)
+              .sort((a, b) => blocks.indexOf(a.target) - blocks.indexOf(b.target))
+
+            visibleEntries.forEach((entry, index) => {
+              window.setTimeout(() => entry.target.classList.add('is-visible'), Math.min(index * 32, 64))
+              observer.unobserve(entry.target)
+            })
+          },
+          { rootMargin: '0px 0px -8% 0px', threshold: 0.08 },
+        )
+
+        blocks.forEach((block) => observer.observe(block))
+      })()
+    </script>
+  </section>
 </LayoutDefault>
+
+<style>
+  .about-page {
+    --about-serif: 'Noto Serif SC', 'Songti SC', Georgia, serif;
+    width: 100%;
+    margin-top: clamp(-1rem, -2vw, -0.5rem);
+  }
+
+  .about-profile {
+    margin-bottom: 1.85rem;
+    padding: 0.25rem 0 1.25rem;
+    border-bottom: 1px solid var(--theme-border);
+  }
+
+  .about-titleline {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 0.4rem 0.8rem;
+  }
+
+  .about-heading {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .about-labels {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.3rem 0.65rem;
+    margin: 0;
+    padding: 0;
+    color: var(--uno-colors-primary);
+    font-family: var(--about-serif);
+    font-size: 0.78rem;
+    letter-spacing: 0.02em;
+    line-height: 1.6;
+    list-style: none;
+  }
+
+  .about-labels li + li::before {
+    content: '·';
+    margin-right: 0.65rem;
+    color: var(--theme-border-strong, var(--theme-muted));
+  }
+
+  .about-profile > p {
+    max-width: 30rem;
+    margin: 0.45rem 0 0;
+    color: var(--theme-sub);
+    font-size: 0.76rem;
+    line-height: 1.7;
+  }
+
+  :global(.about-content > *) {
+    margin: 0;
+  }
+
+  :global(.about-content > p) {
+    margin-bottom: 1.15rem;
+    color: var(--theme-sub);
+    font-family: var(--about-serif);
+    font-size: 0.9rem;
+    line-height: 1.95;
+    text-wrap: pretty;
+  }
+
+  :global(.about-content > p:first-child) {
+    margin-bottom: 1.25rem;
+    color: var(--uno-colors-primary);
+    font-size: 1.02rem;
+    line-height: 2;
+  }
+
+  :global(.about-content strong) {
+    color: var(--uno-colors-primary);
+    font-weight: 650;
+  }
+
+  :global(.about-content > h2) {
+    margin: 2.2rem 0 0.8rem;
+    color: var(--uno-colors-primary);
+    font-family: var(--about-serif);
+    font-size: 0.96rem;
+    font-weight: 700;
+    line-height: 1.6;
+  }
+
+  :global(.about-content > h2::before) {
+    content: '—';
+    margin-right: 0.55rem;
+    color: var(--theme-muted);
+    font-weight: 400;
+  }
+
+  :global(.about-content > h3) {
+    margin: 1.6rem 0 0.65rem;
+    color: var(--uno-colors-primary);
+    font-family: var(--about-serif);
+    font-size: 0.88rem;
+    font-weight: 650;
+  }
+
+  :global(.about-content > ul) {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 2rem;
+  }
+
+  :global(.about-content > ul),
+  :global(.about-content > ol) {
+    margin: 0.15rem 0 1.25rem;
+    padding-left: 1.2rem;
+    color: var(--theme-sub);
+    font-family: var(--about-serif);
+    font-size: 0.86rem;
+    line-height: 1.8;
+  }
+
+  :global(.about-content > ul li),
+  :global(.about-content > ol li) {
+    margin: 0.3rem 0;
+    padding-left: 0.2rem;
+  }
+
+  :global(.about-content > ul li::marker),
+  :global(.about-content > ol li::marker) {
+    color: var(--theme-muted);
+    font-size: 0.9em;
+  }
+
+  :global(.about-content > blockquote) {
+    margin: 1.3rem 0;
+    padding: 0.15rem 0 0.15rem 0.9rem;
+    border-left: 2px solid var(--theme-border);
+    color: var(--theme-muted);
+    font-family: var(--about-serif);
+    font-size: 0.86rem;
+    line-height: 1.85;
+  }
+
+  :global(.about-content > blockquote p) {
+    margin: 0;
+  }
+
+  :global(.about-content > hr) {
+    height: 1px;
+    margin: 2rem 0;
+    border: 0;
+    background: var(--theme-border);
+  }
+
+  :global(.about-content a) {
+    color: var(--uno-colors-primary);
+    text-decoration-color: var(--theme-border);
+    text-decoration-line: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.2em;
+  }
+
+  .about-page[data-motion-ready='true'] :global(.about-content > *:not(.is-visible)) {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  :global(.about-content > *.is-visible) {
+    opacity: 1;
+    transform: translateY(0);
+    transition:
+      opacity 360ms ease,
+      transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  @media (max-width: 620px) {
+    :global(.about-content > p) {
+      font-size: 0.86rem;
+    }
+
+    :global(.about-content > p:first-child) {
+      font-size: 0.98rem;
+    }
+
+    :global(.about-content > h2) {
+      margin-top: 1.9rem;
+    }
+
+    :global(.about-content > ul) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :global(.about-content > *) {
+      transition: none;
+    }
+
+    .about-page[data-motion-ready='true'] :global(.about-content > *:not(.is-visible)) {
+      opacity: 1;
+      transform: none;
+    }
+  }
+</style>
