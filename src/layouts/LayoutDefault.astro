@@ -22,7 +22,7 @@ const dark = themeConfig.appearance.theme === 'dark'
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Noto+Serif+SC:wght@400;600;700&display=swap"
       rel="stylesheet"
     />
   </head>
@@ -89,10 +89,22 @@ const dark = themeConfig.appearance.theme === 'dark'
         transform: translateY(0.75rem);
       }
       .transition-swup-main {
+        transition-property: opacity, transform;
         transition-duration: 0.35s;
         transition-timing-function: ease;
-        transform: translateY(0);
         opacity: 1;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        html.animation-prepared .transition-swup-header,
+        html.animation-prepared .transition-swup-footer,
+        html.animation-prepared .transition-swup-main {
+          animation: none;
+        }
+
+        .transition-swup-main {
+          transition: none;
+        }
       }
     </style>
   </body>

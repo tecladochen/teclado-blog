@@ -1,6 +1,4 @@
 ---
-const { translate: t } = Astro.locals
-
 interface Props {
   showLeft?: boolean
   leftTitle?: string
@@ -18,40 +16,72 @@ interface Props {
 const {
   showLeft = true,
   showRight = true,
-  leftTitle,
-  rightTitle,
+  leftTitle = '较新手札',
+  rightTitle = '较旧手札',
   leftUrl,
   rightUrl,
   showPageCount = true,
-  currentPage,
-  totalPage,
+  currentPage = 1,
+  totalPage = 1,
 } = Astro.props
+
+const hasPrev = Boolean(showLeft && leftUrl)
+const hasNext = Boolean(showRight && rightUrl)
 ---
 
-<footer class="mt-5">
-  {
-    showPageCount && (
-      <div class="mb-2.5">
-        {t('page_number', currentPage)} / {t('page_count', totalPage)}
-      </div>
-    )
-  }
-  <div class="flex items-center gap-2">
+<nav
+  class="pagination-container my-10 flex flex-col sm:flex-row items-center justify-between gap-4 select-none"
+  aria-label="分页导航"
+>
+  <!-- 较新手札（上一页） -->
+  <div class="w-full sm:w-auto flex justify-start">
     {
-      showLeft && (
-        <a title={leftTitle} href={leftUrl}>
-          <span class="inline-block vertical-mid i-mdi-chevron-double-left w-4 h-4" />
-          {leftTitle}
+      hasPrev ? (
+        <a
+          href={leftUrl}
+          class="not-underline-hover group inline-flex items-center gap-2 px-4 py-2 rounded-full border border-[#d8cfc0] dark:border-white/10 bg-[#fdfbf7] dark:bg-[#1a1917] text-[#4a3f35] dark:text-[#c4bbb0] hover:border-[#0f4c3a]/40 hover:text-[#0f4c3a] dark:hover:text-[#34d399] shadow-[0_2px_8px_rgba(75,55,35,0.04)] hover:shadow-[0_4px_12px_rgba(75,55,35,0.08)] transition-all duration-200 text-xs font-mono"
+        >
+          <span class="transition-transform duration-200 group-hover:-translate-x-1">←</span>
+          <span>{leftTitle}</span>
         </a>
-      )
-    }
-    {
-      showRight && (
-        <a title={rightTitle} href={rightUrl}>
-          {rightTitle}
-          <span class="inline-block vertical-mid i-mdi-chevron-double-right w-4 h-4" />
-        </a>
+      ) : (
+        <span class="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-black/[0.05] dark:border-white/[0.05] bg-black/[0.02] dark:bg-white/[0.02] text-neutral-300 dark:text-neutral-600 text-xs font-mono cursor-not-allowed">
+          <span>←</span>
+          <span>{leftTitle}</span>
+        </span>
       )
     }
   </div>
-</footer>
+
+  <!-- 页码指示药丸 -->
+  {
+    showPageCount && (
+      <div class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#f4eee2]/80 dark:bg-white/[0.05] border border-[#e4dccf] dark:border-white/[0.08] text-xs font-mono tabular">
+        <span class="text-neutral-400 dark:text-neutral-500 uppercase tracking-wider text-[11px]">Folio</span>
+        <span class="font-semibold text-[#2c241c] dark:text-[#ede4d8]">{currentPage}</span>
+        <span class="text-neutral-400 dark:text-neutral-600">/</span>
+        <span class="text-neutral-500 dark:text-neutral-400">{totalPage}</span>
+      </div>
+    )
+  }
+
+  <!-- 较旧手札（下一页） -->
+  <div class="w-full sm:w-auto flex justify-end">
+    {
+      hasNext ? (
+        <a
+          href={rightUrl}
+          class="not-underline-hover group inline-flex items-center gap-2 px-4 py-2 rounded-full border border-[#d8cfc0] dark:border-white/10 bg-[#fdfbf7] dark:bg-[#1a1917] text-[#4a3f35] dark:text-[#c4bbb0] hover:border-[#0f4c3a]/40 hover:text-[#0f4c3a] dark:hover:text-[#34d399] shadow-[0_2px_8px_rgba(75,55,35,0.04)] hover:shadow-[0_4px_12px_rgba(75,55,35,0.08)] transition-all duration-200 text-xs font-mono"
+        >
+          <span>{rightTitle}</span>
+          <span class="transition-transform duration-200 group-hover:translate-x-1">→</span>
+        </a>
+      ) : (
+        <span class="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-black/[0.05] dark:border-white/[0.05] bg-black/[0.02] dark:bg-white/[0.02] text-neutral-300 dark:text-neutral-600 text-xs font-mono cursor-not-allowed">
+          <span>{rightTitle}</span>
+          <span>→</span>
+        </span>
+      )
+    }
+  </div>
+</nav>

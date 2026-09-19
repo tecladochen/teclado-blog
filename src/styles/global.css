@@ -3,20 +3,20 @@
   --uno-colors-background: theme('colors.background');
   --uno-fonts-ui: theme('fontFamily.ui');
   --uno-fonts-header: theme('fontFamily.header');
-  --uno-colors-shadow: rgba(0, 0, 0, 0.08);
-  --theme-grid: rgba(0, 0, 0, 0.08);
-  --theme-border: rgba(0, 0, 0, 0.08);
-  --theme-border-subtle: rgba(0, 0, 0, 0.05);
-  --theme-muted: #737373;
-  --theme-sub: #525252;
+  --uno-colors-shadow: rgba(75, 55, 35, 0.08);
+  --theme-grid: rgba(160, 135, 110, 0.16);
+  --theme-border: rgba(160, 135, 110, 0.22);
+  --theme-border-subtle: rgba(160, 135, 110, 0.12);
+  --theme-muted: #786d5f;
+  --theme-sub: #544b41;
 }
 .dark {
-  --uno-colors-shadow: rgba(255, 255, 255, 0.08);
-  --theme-grid: rgba(255, 255, 255, 0.08);
+  --uno-colors-shadow: rgba(0, 0, 0, 0.3);
+  --theme-grid: rgba(255, 255, 255, 0.05);
   --theme-border: rgba(255, 255, 255, 0.1);
   --theme-border-subtle: rgba(255, 255, 255, 0.06);
-  --theme-muted: #a3a3a3;
-  --theme-sub: #d4d4d4;
+  --theme-muted: #9c9285;
+  --theme-sub: #c8beaf;
 }
 html {
   --at-apply: antialiased;
@@ -51,6 +51,48 @@ body {
 .hairline-y {
   border-top: 1px solid var(--theme-border);
   border-bottom: 1px solid var(--theme-border);
+}
+
+/* 温润棉纸手札质感卡片 */
+.cotton-paper {
+  background: linear-gradient(180deg, #fdfbf7 0%, #f7f3ea 100%);
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.02),
+    0 12px 32px -4px rgba(75, 55, 35, 0.07),
+    0 30px 60px -12px rgba(75, 55, 35, 0.09);
+  border: 1px solid rgba(180, 160, 140, 0.28);
+  position: relative;
+}
+.dark .cotton-paper {
+  background: linear-gradient(180deg, #1d1b18 0%, #161513 100%);
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.2),
+    0 12px 32px -4px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.cotton-paper::before {
+  content: '';
+  position: absolute;
+  inset: 6px;
+  border: 1px dashed rgba(160, 135, 110, 0.22);
+  border-radius: 12px;
+  pointer-events: none;
+}
+.dark .cotton-paper::before {
+  border: 1px dashed rgba(255, 255, 255, 0.06);
+}
+
+.serif-text {
+  font-family: 'Noto Serif SC', 'Songti SC', Georgia, serif;
+}
+
+:where(a, button, summary, [tabindex]):focus-visible {
+  outline: 2px solid #0f4c3a;
+  outline-offset: 3px;
+}
+
+.dark :where(a, button, summary, [tabindex]):focus-visible {
+  outline-color: #34d399;
 }
 
 .tabular {

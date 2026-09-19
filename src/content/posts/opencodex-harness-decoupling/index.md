@@ -3,7 +3,7 @@ title: 'OpenCodex：解耦 Harness 与模型'
 pubDate: 2026-08-07
 description: '围绕 OpenCodex 讲清 Agent Harness 与模型解耦：为何不能只改 API 地址、兼容与能力如何区分，以及多模型组合、本地模型与渐进体验路径。'
 categories: ['AI']
-draft: false
+draft: true
 ---
 
 最近一段时间，OpenCodex 在 AI 编程社区里的讨论越来越多。

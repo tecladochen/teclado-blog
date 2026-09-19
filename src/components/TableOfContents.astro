@@ -1,199 +1,358 @@
 ---
-interface Heading {
+type Heading = {
   depth: number
   slug: string
   text: string
 }
 
-interface Props {
+type Props = {
   headings: Heading[]
 }
 
 const sections = Astro.props.headings.filter((heading) => heading.depth === 2)
-const showTableOfContents = sections.length >= 3
+const showTableOfContents = sections.length >= 2
 ---
 
 {
   showTableOfContents && (
-    <>
-      <nav class="post-toc post-toc-desktop not-prose" aria-label="本文目录">
-        <header class="post-toc-header">
-          <span>本文目录</span>
-          <span class="post-toc-count">{sections.length} 节</span>
-        </header>
-
-        <ol class="post-toc-list">
-          {sections.map((heading, index) => (
-            <li>
-              <a class="not-underline-hover" href={`#${heading.slug}`} data-no-swup>
-                <span class="post-toc-index" aria-hidden="true">
-                  {String(index + 1).padStart(2, '0')}
-                </span>
-                <span>{heading.text}</span>
-              </a>
-            </li>
-          ))}
-        </ol>
-      </nav>
-
-      <details class="post-toc post-toc-mobile not-prose">
-        <summary class="post-toc-header">
-          <span>本文目录</span>
-          <span class="post-toc-summary-end">
-            <span class="post-toc-count">{sections.length} 节</span>
-            <span class="post-toc-chevron" aria-hidden="true" />
+    <aside id="toc-container" class="not-prose select-none">
+      {/* 1. 页面右下角常驻悬浮微胶囊 */}
+      <div class="fixed bottom-4 right-4 sm:bottom-8 sm:right-8 z-40 flex items-center gap-2">
+        <button
+          id="toc-toggle-btn"
+          type="button"
+          aria-label="打开导读目录"
+          aria-expanded="false"
+          class="group flex h-11 w-11 sm:h-auto sm:w-auto items-center justify-center gap-2 sm:px-3.5 sm:py-2 rounded-full border border-[#d8cfc0] dark:border-white/10 bg-[#fdfbf7]/90 dark:bg-[#1c1a17]/90 backdrop-blur-md shadow-[0_8px_24px_rgba(75,55,35,0.12)] dark:shadow-[0_8px_24px_rgba(0,0,0,0.5)] text-xs font-mono text-[#3a3127] dark:text-[#ede4d8] hover:border-[#0f4c3a]/50 hover:text-[#0f4c3a] dark:hover:text-[#34d399] transition-all cursor-pointer"
+        >
+          <span class="i-mdi-table-of-contents h-5 w-5 sm:hidden" aria-hidden="true" />
+          <span class="hidden sm:block w-2 h-2 rounded-full bg-[#0f4c3a] dark:bg-[#34d399] animate-pulse" />
+          <span class="hidden sm:inline font-medium tracking-wide">导读目录</span>
+          <span
+            id="toc-progress-badge"
+            class="hidden sm:inline px-1.5 py-0.5 rounded bg-black/[0.04] dark:bg-white/[0.08] text-[10px] tabular text-neutral-500 dark:text-neutral-400"
+          >
+            0%
           </span>
-        </summary>
+          <span class="hidden sm:inline text-[11px] opacity-60 group-hover:translate-y-[-1px] transition-transform">
+            ↑
+          </span>
+        </button>
+      </div>
 
-        <ol class="post-toc-list">
-          {sections.map((heading, index) => (
-            <li>
-              <a class="not-underline-hover" href={`#${heading.slug}`} data-no-swup>
-                <span class="post-toc-index" aria-hidden="true">
-                  {String(index + 1).padStart(2, '0')}
-                </span>
-                <span>{heading.text}</span>
-              </a>
-            </li>
-          ))}
-        </ol>
-      </details>
-    </>
+      {/* 2. 全局点击遮罩蒙层 */}
+      <div
+        id="toc-backdrop"
+        class="fixed inset-0 bg-black/25 dark:bg-black/50 backdrop-blur-sm z-50 pointer-events-none opacity-0 transition-opacity duration-200"
+      />
+
+      {/* 3. 呼出式案头导读抽屉卡片（温润棉纸风格） */}
+      <div
+        id="toc-drawer"
+        role="dialog"
+        aria-modal="true"
+        aria-label="手札目录"
+        aria-hidden="true"
+        class="fixed bottom-6 right-6 sm:bottom-8 sm:right-8 w-[calc(100vw-3rem)] sm:w-[360px] max-h-[75vh] z-[60] rounded-2xl cotton-paper p-5 sm:p-6 flex flex-col gap-4 shadow-[0_24px_48px_-8px_rgba(75,55,35,0.2)] dark:shadow-[0_24px_48px_-8px_rgba(0,0,0,0.7)] pointer-events-none opacity-0 translate-y-4 transition-all duration-200 ease-out"
+      >
+        {/* 抽屉头部 */}
+        <div class="flex items-center justify-between pb-3 border-b border-[#dfd7ca]/80 dark:border-white/[0.08] z-1 relative">
+          <div class="flex items-center gap-2">
+            <span class="w-1.5 h-1.5 rounded-full bg-[#0f4c3a] dark:bg-[#34d399]" />
+            <span class="serif-text font-bold text-sm tracking-wide text-[#2c241c] dark:text-[#ede4d8]">
+              案头导读 · {sections.length} 节
+            </span>
+          </div>
+
+          <div class="flex items-center gap-2 font-mono text-[11px] text-neutral-400 dark:text-neutral-500">
+            <span id="toc-drawer-progress">0% READ</span>
+            <span class="text-neutral-300 dark:text-neutral-600">|</span>
+            <button
+              id="toc-close-btn"
+              type="button"
+              aria-label="关闭目录"
+              class="w-6 h-6 rounded-full flex items-center justify-center text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 hover:bg-black/[0.05] dark:hover:bg-white/[0.08] transition-colors cursor-pointer text-sm font-bold"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+
+        {/* 目录列表 */}
+        <nav class="overflow-y-auto max-h-[50vh] pr-1 z-1 relative custom-scrollbar">
+          <ol class="flex flex-col gap-1.5 list-none p-0 m-0">
+            {sections.map((heading, index) => (
+              <li>
+                <a
+                  href={`#${heading.slug}`}
+                  data-slug={heading.slug}
+                  data-no-swup
+                  class="toc-item-link not-underline-hover flex items-center justify-between gap-2.5 px-3 py-2 rounded-xl text-xs sm:text-[13px] text-[#5c5245] dark:text-[#a89f92] hover:bg-[#0f4c3a]/[0.06] dark:hover:bg-[#34d399]/10 hover:text-[#0f4c3a] dark:hover:text-[#34d399] transition-all"
+                >
+                  <div class="flex items-center gap-2 truncate">
+                    <span class="font-mono text-[11px] text-emerald-700 dark:text-emerald-400 font-semibold tabular">
+                      {String(index + 1).padStart(2, '0')}
+                    </span>
+                    <span class="truncate leading-relaxed">{heading.text}</span>
+                  </div>
+                  <span class="toc-current-tag hidden text-[10px] text-emerald-700 dark:text-emerald-400 font-mono shrink-0 bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20">
+                    当前
+                  </span>
+                </a>
+              </li>
+            ))}
+          </ol>
+        </nav>
+
+        {/* 底部快捷回到顶部与字数提示 */}
+        <div class="flex items-center justify-between pt-3 border-t border-[#dfd7ca]/80 dark:border-white/[0.08] text-[11px] font-mono text-neutral-400 dark:text-neutral-500 z-1 relative">
+          <button
+            id="toc-scroll-top-btn"
+            type="button"
+            class="hover:text-[#0f4c3a] dark:hover:text-[#34d399] transition-colors cursor-pointer flex items-center gap-1"
+          >
+            <span>↑ 回到卷首</span>
+          </button>
+          <span>手札案头导引</span>
+        </div>
+      </div>
+    </aside>
   )
 }
 
+<script>
+  let tableOfContentsController: AbortController | undefined
+
+  function setupTableOfContents() {
+    tableOfContentsController?.abort()
+
+    const container = document.getElementById('toc-container')
+    const toggleBtn = document.getElementById('toc-toggle-btn')
+    const closeBtn = document.getElementById('toc-close-btn')
+    const backdrop = document.getElementById('toc-backdrop')
+    const drawer = document.getElementById('toc-drawer')
+    const progressBadge = document.getElementById('toc-progress-badge')
+    const drawerProgress = document.getElementById('toc-drawer-progress')
+    const scrollTopBtn = document.getElementById('toc-scroll-top-btn')
+    const tocLinks = container?.querySelectorAll<HTMLAnchorElement>('.toc-item-link') ?? []
+
+    if (!container || !toggleBtn || !drawer || !backdrop) {
+      return
+    }
+
+    const controller = new AbortController()
+    const { signal } = controller
+    tableOfContentsController = controller
+
+    const btn = toggleBtn
+    const d = drawer
+    const b = backdrop
+
+    let isOpen = false
+    let returnFocus: HTMLElement | null = null
+
+    function getFocusableElements() {
+      return Array.from(
+        d.querySelectorAll<HTMLElement>('a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'),
+      )
+    }
+
+    function openDrawer() {
+      isOpen = true
+      returnFocus = document.activeElement as HTMLElement
+      d.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-4')
+      b.classList.remove('opacity-0', 'pointer-events-none')
+      d.setAttribute('aria-hidden', 'false')
+      btn.setAttribute('aria-expanded', 'true')
+      btn.setAttribute('aria-label', '关闭导读目录')
+      requestAnimationFrame(() => closeBtn?.focus())
+    }
+
+    function closeDrawer() {
+      isOpen = false
+      d.classList.add('opacity-0', 'pointer-events-none', 'translate-y-4')
+      b.classList.add('opacity-0', 'pointer-events-none')
+      d.setAttribute('aria-hidden', 'true')
+      btn.setAttribute('aria-expanded', 'false')
+      btn.setAttribute('aria-label', '打开导读目录')
+      returnFocus?.focus()
+      returnFocus = null
+    }
+
+    btn.addEventListener(
+      'click',
+      (e) => {
+        e.stopPropagation()
+        if (isOpen) {
+          closeDrawer()
+          return
+        }
+        openDrawer()
+      },
+      { signal },
+    )
+
+    if (closeBtn) {
+      closeBtn.addEventListener(
+        'click',
+        (e) => {
+          e.stopPropagation()
+          closeDrawer()
+        },
+        { signal },
+      )
+    }
+
+    b.addEventListener('click', closeDrawer, { signal })
+
+    window.addEventListener(
+      'keydown',
+      (e) => {
+        if (e.key === 'Escape' && isOpen) {
+          e.preventDefault()
+          closeDrawer()
+        }
+
+        if (e.key !== 'Tab' || !isOpen) {
+          return
+        }
+
+        const focusableElements = getFocusableElements()
+        const first = focusableElements[0]
+        const last = focusableElements.at(-1)
+        if (!first || !last) {
+          return
+        }
+
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault()
+          last.focus()
+          return
+        }
+        if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault()
+          first.focus()
+        }
+      },
+      { signal },
+    )
+
+    // 回到顶部
+    if (scrollTopBtn) {
+      scrollTopBtn.addEventListener(
+        'click',
+        () => {
+          window.scrollTo({ top: 0, behavior: 'smooth' })
+          closeDrawer()
+        },
+        { signal },
+      )
+    }
+
+    // 点击目录链接平滑滚动并关闭
+    tocLinks.forEach((link) => {
+      link.addEventListener(
+        'click',
+        (e) => {
+          const href = link.getAttribute('href')
+          if (href && href.startsWith('#')) {
+            e.preventDefault()
+            const rawId = href.slice(1)
+            const targetId = decodeURIComponent(rawId)
+            const target = document.getElementById(targetId) || document.getElementById(rawId)
+            if (target) {
+              target.scrollIntoView({ behavior: 'smooth' })
+            }
+            closeDrawer()
+          }
+        },
+        { signal },
+      )
+    })
+
+    // 阅读进度与当前小节高亮 (ScrollSpy)
+    const headings = Array.from(document.querySelectorAll('article.prose h2[id], .post-prose-content h2[id]'))
+
+    function updateScrollSpy() {
+      const scrollTop = window.scrollY
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight
+      const percent = docHeight > 0 ? Math.min(100, Math.max(0, Math.round((scrollTop / docHeight) * 100))) : 0
+
+      if (progressBadge) {
+        progressBadge.textContent = `${percent}%`
+      }
+      if (drawerProgress) {
+        drawerProgress.textContent = `${percent}% READ`
+      }
+
+      // 高亮当前阅读的 h2
+      let currentSlug = ''
+      for (const h of headings) {
+        const top = h.getBoundingClientRect().top
+        if (top > 140) {
+          break
+        }
+        currentSlug = h.id
+      }
+
+      tocLinks.forEach((link) => {
+        const slug = link.getAttribute('data-slug')
+        const currentTag = link.querySelector('.toc-current-tag')
+        const isCurrent = slug && (slug === currentSlug || decodeURIComponent(slug) === currentSlug)
+
+        if (isCurrent) {
+          link.classList.add(
+            'bg-[#0f4c3a]/10',
+            'text-[#0f4c3a]',
+            'dark:bg-[#34d399]/15',
+            'dark:text-[#34d399]',
+            'font-semibold',
+          )
+          if (currentTag) {
+            currentTag.classList.remove('hidden')
+          }
+          return
+        }
+
+        link.classList.remove(
+          'bg-[#0f4c3a]/10',
+          'text-[#0f4c3a]',
+          'dark:bg-[#34d399]/15',
+          'dark:text-[#34d399]',
+          'font-semibold',
+        )
+        if (currentTag) {
+          currentTag.classList.add('hidden')
+        }
+      })
+    }
+
+    window.addEventListener('scroll', updateScrollSpy, { passive: true, signal })
+    updateScrollSpy()
+
+    // 支持 URL 参数快捷打开目录或定位（方便预览）
+    if (window.location.search.includes('toc=open') || window.location.hash === '#toc') {
+      openDrawer()
+    }
+  }
+
+  // 兼容所有生命周期
+  setupTableOfContents()
+  document.addEventListener('astro:page-load', setupTableOfContents)
+</script>
+
 <style>
-  .post-toc {
-    margin: 2rem 0 2.25rem;
-    padding: 0.9rem 0;
-    border-block: 1px solid var(--uno-colors-shadow);
-    font-size: 0.9rem;
-    line-height: 1.55;
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
   }
-
-  .post-toc-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    margin: 0;
-    padding: 0 0.25rem 0.75rem;
-    font-weight: 700;
-    letter-spacing: 0.02em;
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
   }
-
-  summary.post-toc-header {
-    padding-bottom: 0;
-    cursor: pointer;
-    list-style: none;
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(160, 135, 110, 0.25);
+    border-radius: 4px;
   }
-
-  summary.post-toc-header::-webkit-details-marker {
-    display: none;
-  }
-
-  summary.post-toc-header:focus-visible {
-    border-radius: 0.2rem;
-    outline: 1px solid currentColor;
-    outline-offset: 3px;
-  }
-
-  .post-toc-count {
-    flex: 0 0 auto;
-    font-size: 0.75rem;
-    font-weight: 400;
-    letter-spacing: 0;
-    opacity: 0.62;
-  }
-
-  .post-toc-summary-end {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.7rem;
-  }
-
-  .post-toc-chevron {
-    width: 0.45rem;
-    height: 0.45rem;
-    border-right: 1.5px solid currentColor;
-    border-bottom: 1.5px solid currentColor;
-    transform: rotate(45deg) translateY(-0.15rem);
-    transition: transform 180ms ease;
-    opacity: 0.7;
-  }
-
-  details[open] .post-toc-chevron {
-    transform: rotate(225deg) translate(-0.1rem, -0.05rem);
-  }
-
-  details[open] .post-toc-header {
-    padding-bottom: 0.75rem;
-  }
-
-  .post-toc-list {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.15rem 1.5rem;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  .post-toc-list li {
-    min-width: 0;
-    margin: 0;
-    padding: 0;
-  }
-
-  .post-toc-list a {
-    display: grid;
-    grid-template-columns: 1.6rem minmax(0, 1fr);
-    gap: 0.4rem;
-    align-items: baseline;
-    padding: 0.35rem 0.25rem;
-    border-radius: 0.2rem;
-    color: inherit;
-    text-decoration: none;
-    transition:
-      background-color 160ms ease,
-      opacity 160ms ease;
-  }
-
-  .post-toc-list a:hover,
-  .post-toc-list a:focus-visible {
-    background: var(--uno-colors-shadow);
-  }
-
-  .post-toc-list a:focus-visible {
-    outline: 1px solid currentColor;
-    outline-offset: 2px;
-  }
-
-  .post-toc-index {
-    font-size: 0.72rem;
-    font-variant-numeric: tabular-nums;
-    opacity: 0.52;
-  }
-
-  .post-toc-mobile {
-    display: none;
-  }
-
-  @media (max-width: 639px) {
-    .post-toc {
-      margin: 1.5rem 0 1.75rem;
-    }
-
-    .post-toc-desktop {
-      display: none;
-    }
-
-    .post-toc-mobile {
-      display: block;
-    }
-
-    .post-toc-list {
-      grid-template-columns: 1fr;
-    }
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(160, 135, 110, 0.45);
   }
 </style>

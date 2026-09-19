@@ -4,7 +4,7 @@ pubDate: 2025-07-04
 modDate: 2026-07-26
 description: '从语义向量的基本概念出发，介绍 embedding 模型的底层原理、在 RAG 中的作用、模型选择维度，以及 Transformers 和 Sentence Transformers 的调用方式。'
 categories: ['AI']
-draft: false
+draft: true
 ---
 
 ## 什么是 embedding

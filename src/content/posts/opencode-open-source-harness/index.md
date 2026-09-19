@@ -3,7 +3,7 @@ title: 'OpenCode 是不是好用的开源 Harness'
 pubDate: 2026-08-11
 description: '把 OpenCode 理解成可插拔的 coding agent harness，对照 Cursor、Claude Code、Codex 看真实差距，并划出适合长期当主力的客观场景与周边项目。'
 categories: ['AI']
-draft: false
+draft: true
 ---
 
 开源圈最近常提到 OpenCode。我先想搞清楚它到底是什么，为什么会出现，解决什么问题。聊着聊着，问题很快收窄到一层更硬的判断上：它干的是不是模型之外的那套智能体工作？换句话说，它是不是一副把模型解耦出去的 harness？如果是，这副 harness 做得怎么样，和 Cursor、Claude Code、Codex 这类商业成品差多大，又适合谁长期当主力。

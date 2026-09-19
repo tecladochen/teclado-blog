@@ -1,8 +1,7 @@
 ---
 import type { Post } from '~/types'
-import { formatDate } from '~/utils'
-import PostCategory from './PostCategory.astro'
-import PostSeriesLink from './PostSeriesLink.astro'
+import { themeConfig } from '~/.config'
+import { formatDate, getPathFromCategory, getWordCountAndReadTime } from '~/utils'
 
 interface Props {
   post: Post
@@ -11,56 +10,77 @@ interface Props {
 const { post } = Astro.props
 
 const categoryList = post.data.categories ?? []
-const series = post.data.series
 const displayDate = post.data.modDate ?? post.data.pubDate
+const displayDateText = formatDate(displayDate)
+const { count, minutes } = getWordCountAndReadTime(post.body)
+
+const isReading = categoryList.some((c) => c.includes('读') || c.includes('书'))
+
+function getCategoryUrl(category: string) {
+  return `/categories/${getPathFromCategory(category, themeConfig.site.categoryMap)}/`
+}
 ---
 
-<header class="post-header flex flex-col gap-1.5 mb-2.5">
-  <h2 class="post-item-title m-0">
-    <a class="not-prose not-underline-hover post-link" href={`/posts/${post.id}/`}>{post.data.title}</a>
-  </h2>
-  <div class="post-meta">
-    <span class="post-meta-date">
-      <time datetime={displayDate.toISOString()}>{formatDate(displayDate)}</time>
-    </span>
-    {categoryList.map((category) => <PostCategory category={category} />)}
-    {series && <PostSeriesLink name={series.name} />}
+<header class="post-header not-prose mb-10 flex flex-col gap-6 z-1 relative">
+  <!-- 1. 案头文献归档带 -->
+  <div
+    class="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-[#dfd7ca]/80 dark:border-white/[0.08] text-xs font-mono tabular text-neutral-500 dark:text-neutral-400"
+  >
+    <div class="flex flex-wrap items-center gap-2.5">
+      {
+        categoryList.map((cat) => (
+          <a
+            href={getCategoryUrl(cat)}
+            class:list={[
+              'not-underline-hover inline-flex shrink-0 items-center gap-1.5 px-2.5 py-1 rounded font-medium text-[11px] tracking-wide whitespace-nowrap border shadow-sm transition-colors',
+              isReading
+                ? 'bg-[#1b4332]/[0.08] dark:bg-[#10b981]/15 text-[#1b4332] dark:text-[#34d399] border-[#1b4332]/20 dark:border-[#34d399]/25'
+                : 'bg-[#5c4033]/[0.08] dark:bg-[#d4a373]/15 text-[#5c4033] dark:text-[#e0c3a2] border-[#5c4033]/20 dark:border-[#e0c3a2]/25',
+            ]}
+          >
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400" />
+            <span>{cat}手札</span>
+          </a>
+        ))
+      }
+      <span class="text-neutral-300 dark:text-neutral-600">/</span>
+      <time
+        datetime={displayDate.toISOString()}
+        class="shrink-0 whitespace-nowrap text-neutral-600 dark:text-neutral-300 font-medium"
+      >
+        FOLIO NO. {displayDateText}
+      </time>
+    </div>
+
+    <div
+      class="flex w-full sm:w-auto flex-wrap items-center gap-x-2 gap-y-1 text-[11px] sm:text-[11.5px] text-neutral-400 dark:text-neutral-500"
+    >
+      <span class="whitespace-nowrap">案头闲笔</span>
+      <span aria-hidden="true">·</span>
+      <span class="whitespace-nowrap">约 {count.toLocaleString()} 字</span>
+      <span aria-hidden="true">·</span>
+      <span class="whitespace-nowrap">需 {minutes} 分钟漫读</span>
+    </div>
   </div>
+
+  <!-- 2. 32px 衬线粗体大标题 -->
+  <h1
+    class="serif-text text-2xl sm:text-[33px] font-bold text-[#181512] dark:text-[#f0e8dc] leading-[1.36] tracking-tight m-0"
+  >
+    {post.data.title}
+  </h1>
+
+  <!-- 3. 题眼 / 案头引语卡片（翡翠绿左侧饰条 + 温润棉纸底） -->
+  {
+    post.data.description && (
+      <div class="relative p-5 rounded-xl bg-[#f4efe4]/80 dark:bg-white/[0.04] border border-[#dfd7ca]/80 dark:border-white/[0.08] border-l-4 border-l-[#0f4c3a] dark:border-l-[#34d399] shadow-sm">
+        <p class="serif-text text-[14.5px] text-[#3e342a] dark:text-[#ded5c8] leading-[1.85] m-0 italic">
+          “{post.data.description}”
+        </p>
+        <div class="mt-2 text-right text-xs font-mono text-neutral-400 dark:text-neutral-500 not-italic">
+          —— 案头题记 · 孤独终洁
+        </div>
+      </div>
+    )
+  }
 </header>
-
-<style>
-  .post-item-title {
-    font-size: 1.22rem;
-    font-weight: 600;
-    line-height: 1.5;
-    letter-spacing: -0.015em;
-  }
-
-  .post-link {
-    color: var(--uno-colors-primary, currentColor);
-    text-decoration: none !important;
-    transition: opacity 0.2s ease, color 0.2s ease;
-  }
-
-  .post-link:hover {
-    opacity: 0.72;
-  }
-
-  .post-meta {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    column-gap: 0.65rem;
-    row-gap: 0.35rem;
-    line-height: 1.5;
-  }
-
-  .post-meta-date {
-    display: inline-flex;
-    align-items: center;
-    font-variant-numeric: tabular-nums;
-    font-size: 0.8rem;
-    opacity: 0.55;
-    letter-spacing: 0.02em;
-  }
-</style>

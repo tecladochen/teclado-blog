@@ -3,7 +3,7 @@ title: venv 使用和原理
 pubDate: 2025-07-16
 description: '解释 Python 虚拟环境为什么存在，演示 venv 的创建、激活与依赖管理，并从目录结构和解释器行为理解它实现环境隔离的原理。'
 categories: ['编程']
-draft: false
+draft: true
 --- 
 
 在学习 uv 的过程中对 uv venv 虚拟环境的使用一直有点困惑，研究后发现 uv venv 底层是基于 python 内置的 venv 模块实现，但是我对 venv 也不了解，而且之前一直把虚拟环境和 Conda 的独立环境混在一起所以这篇是记录一下 python venv 模块原理和使用。

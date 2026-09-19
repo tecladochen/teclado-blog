@@ -3,7 +3,7 @@ title: 'Agent 参与产品开发后，项目该怎么组织？'
 pubDate: 2026-08-14
 description: '多端产品里，人会变成仓库之间的传话员。本文把 Feature 当作 Agent 的工作单位，用产品级工作区沉淀上下文和契约，并说明无法合并仓库时如何迁移。'
 categories: ['AI', '工程实践']
-draft: false
+draft: true
 ---
 
 我最近遇到一个很现实的问题。

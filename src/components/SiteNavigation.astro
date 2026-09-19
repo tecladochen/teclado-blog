@@ -23,7 +23,7 @@ function isNavActive(href: string) {
 }
 ---
 
-<nav class="flex items-center gap-3 sm:gap-5 text-xs font-sans shrink-0" id="site-nav">
+<nav class="flex items-center gap-2 sm:gap-5 text-xs font-sans shrink-0" id="site-nav">
   <ul class="flex items-center gap-1 sm:gap-1.5 m-0 p-0 list-none">
     {
       navLinks.map((nav) => {
@@ -35,7 +35,7 @@ function isNavActive(href: string) {
               data-nav-item
               data-href={nav.href}
               class:list={[
-                'nav-link not-underline-hover px-2.5 sm:px-3 py-1 rounded-md transition-colors duration-150 block text-[13px] sm:text-[14px]',
+                'nav-link not-underline-hover px-1.5 sm:px-3 py-2 sm:py-1 rounded-md transition-colors duration-150 block text-[13px] sm:text-[14px]',
                 active ? 'is-active' : 'is-inactive',
               ]}
               href={nav.href}
@@ -50,7 +50,7 @@ function isNavActive(href: string) {
 
   <div class="hidden sm:block h-3.5 w-[1px] bg-black/10 dark:bg-white/10 mx-1 select-none"></div>
 
-  <ul class="flex items-center gap-1.5 sm:gap-2 m-0 p-0 list-none">
+  <ul class="hidden sm:flex items-center gap-2 m-0 p-0 list-none">
     {
       socialLinks.map(({ href, name }) => (
         <li>

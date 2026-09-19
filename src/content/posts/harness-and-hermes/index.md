@@ -3,7 +3,7 @@ title: 'Harness 和 Hermes：我才发现自己没懂'
 pubDate: 2026-08-11
 description: '分清 harness 与 Hermes：一个是模型外的运行环境，一个是具体产品；再说明记忆偏好、越用越好如何落进 harness，以及更稳的产品形态。'
 categories: ['AI']
-draft: false
+draft: true
 ---
 
 有一阵我以为自己已经懂了 harness，也大概知道 Hermes。两个词分开看，都像能说上几句。后来它们经常被放进同一句话里，我反而说不清彼此是什么关系。那种感觉很具体：不是完全陌生，是半懂半不懂，最容易把自己绕进去。

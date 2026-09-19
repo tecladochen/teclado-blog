@@ -9,7 +9,129 @@ interface Props {
 const { post } = Astro.props
 ---
 
-<article class="prose">
+<article class="cotton-paper rounded-3xl p-6 sm:p-12 mb-10 overflow-hidden relative">
   <PostMeta post={post} />
-  <slot />
+
+  <!-- 文章正文区域 -->
+  <div class="post-prose-content prose serif-text z-1 relative">
+    <slot />
+  </div>
 </article>
+
+<style is:global>
+  /* 正文排版与棉纸质感深度融合 */
+  .post-prose-content {
+    counter-reset: post-section;
+    color: #2c241c;
+    font-size: 16px;
+    line-height: 2;
+    letter-spacing: 0.012em;
+  }
+  .dark .post-prose-content {
+    color: #ded6ca;
+  }
+
+  /* 标题样式：小节标尺与书本排版 */
+  .post-prose-content h2 {
+    font-family: 'Noto Serif SC', 'Songti SC', Georgia, serif;
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: #171513;
+    margin-top: 3.2rem;
+    margin-bottom: 1.2rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 1px dashed rgba(160, 135, 110, 0.3);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    scroll-margin-top: 5rem;
+  }
+  .dark .post-prose-content h2 {
+    color: #ede4d8;
+    border-bottom-color: rgba(255, 255, 255, 0.08);
+  }
+
+  .post-prose-content h2::before {
+    counter-increment: post-section;
+    content: counter(post-section, decimal-leading-zero);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #047857;
+    background: rgba(16, 185, 129, 0.12);
+    padding: 0.12rem 0.5rem;
+    border-radius: 4px;
+    border: 1px solid rgba(16, 185, 129, 0.28);
+    flex-shrink: 0;
+  }
+  .dark .post-prose-content h2::before {
+    color: #34d399;
+    background: rgba(16, 185, 129, 0.15);
+    border-color: rgba(52, 211, 153, 0.3);
+  }
+
+  .post-prose-content h3 {
+    font-family: 'Noto Serif SC', 'Songti SC', Georgia, serif;
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: #2c241c;
+    margin-top: 2rem;
+    margin-bottom: 0.85rem;
+  }
+  .dark .post-prose-content h3 {
+    color: #ded6ca;
+  }
+
+  .post-prose-content p {
+    margin-top: 1.35rem;
+    margin-bottom: 1.35rem;
+    text-align: justify;
+    text-justify: inter-ideograph;
+  }
+
+  .post-prose-content blockquote {
+    margin: 2rem 0;
+    padding: 1rem 1.25rem;
+    border-left: 3px solid #0f4c3a;
+    background: rgba(245, 239, 227, 0.65);
+    border-radius: 0 0.75rem 0.75rem 0;
+    font-style: italic;
+    color: #4a3f33;
+  }
+  .dark .post-prose-content blockquote {
+    border-left-color: #34d399;
+    background: rgba(255, 255, 255, 0.03);
+    color: #c4bbb0;
+  }
+
+  .post-prose-content blockquote p {
+    margin: 0;
+  }
+
+  .post-prose-content a {
+    color: #0f4c3a;
+    text-decoration-line: underline;
+    text-underline-offset: 3px;
+    text-decoration-color: rgba(15, 76, 58, 0.35);
+    transition:
+      color 0.15s ease,
+      text-decoration-color 0.15s ease;
+  }
+  .dark .post-prose-content a {
+    color: #34d399;
+    text-decoration-color: rgba(52, 211, 153, 0.35);
+  }
+  .post-prose-content a:hover {
+    color: #1b4332;
+    text-decoration-color: currentColor;
+  }
+  .dark .post-prose-content a:hover {
+    color: #6ee7b7;
+  }
+
+  .post-prose-content img {
+    border-radius: 0.75rem;
+    border: 1px solid rgba(160, 135, 110, 0.2);
+    margin: 2rem auto;
+  }
+</style>

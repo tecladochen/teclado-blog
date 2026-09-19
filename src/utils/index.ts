@@ -72,11 +72,17 @@ export async function getPosts(isArchivePage = false) {
     return publishedDiff || a.id.localeCompare(b.id)
   })
 
-  if (import.meta.env.PROD) {
-    return posts.filter(post => post.data.draft !== true)
-  }
+  // 始终过滤草稿文章，确保纯净生活随笔与手札体验
+  return posts.filter(post => post.data.draft !== true)
+}
 
-  return posts
+export function getWordCountAndReadTime(body: string = '') {
+  // 去除 markdown 标记与空白字符，统计正文字数
+  const text = body.replace(/[#*`~>[\]()\-+]/g, ' ').replace(/\s+/g, '')
+  const count = Math.max(text.length, 1)
+  // 中文静心阅读约 350-400 字/分钟
+  const minutes = Math.max(1, Math.ceil(count / 380))
+  return { count, minutes }
 }
 
 const parser = new MarkdownIt()

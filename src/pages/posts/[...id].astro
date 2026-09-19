@@ -1,42 +1,33 @@
 ---
 import type { GetStaticPaths, InferGetStaticPropsType } from 'astro'
 import Comments from '~/components/Comments.astro'
-import Pagination from '~/components/Pagination.astro'
 import SiteSeo from '~/components/SiteSeo.astro'
 import TableOfContents from '~/components/TableOfContents.astro'
 import LayoutDefault from '~/layouts/LayoutDefault.astro'
 import LayoutPost from '~/layouts/LayoutPost.astro'
-import { getPosts, sortSeriesPosts } from '~/utils'
+import { getPosts, formatDate } from '~/utils'
 import { render } from 'astro:content'
 
 export const getStaticPaths = (async () => {
   const posts = await getPosts()
   return posts.map((post, idx) => {
-    const prev = posts[idx - 1]
-    const next = posts[idx + 1]
+    // getPosts 是降序排列（最新在前），所以 idx - 1 是较新文章，idx + 1 是较早文章
+    const newer = posts[idx - 1]
+    const older = posts[idx + 1]
     return {
       params: { id: post.id },
-      props: { entry: post, next, prev },
+      props: { entry: post, newer, older },
     }
   })
 }) satisfies GetStaticPaths
 
-// type Params = InferGetStaticParamsType<typeof getStaticPaths>
 type Props = InferGetStaticPropsType<typeof getStaticPaths>
 
-const { entry, prev, next } = Astro.props
+const { entry, newer, older } = Astro.props
 const { Content, headings } = await render(entry)
-const { translate: t } = Astro.locals
-
-const seriesPosts = entry.data.series
-  ? sortSeriesPosts((await getPosts()).filter((post) => post.data.series?.name === entry.data.series?.name))
-  : []
-const seriesIndex = seriesPosts.findIndex((post) => post.id === entry.id)
-const prevSeriesPost = seriesIndex > 0 ? seriesPosts[seriesIndex - 1] : undefined
-const nextSeriesPost = seriesIndex >= 0 ? seriesPosts[seriesIndex + 1] : undefined
 
 function getUrl(id?: string) {
-  return `/posts/${id}`
+  return `/posts/${id}/`
 }
 ---
 
@@ -49,71 +40,133 @@ function getUrl(id?: string) {
     type="article"
   />
 
+  <!-- 导读目录（纯净单栏 + 右下角悬浮呼出抽屉） -->
+  <TableOfContents headings={headings} />
+
+  <!-- 文章正文棉纸卡片 -->
   <LayoutPost post={entry}>
-    <TableOfContents headings={headings} />
     <Content />
+
+    <!-- 篇末落款题跋与朱红微印 -->
+    <div
+      class="mt-14 pt-6 border-t border-dashed border-[#c8bfae]/70 dark:border-white/[0.08] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs font-mono text-neutral-500 not-prose"
+    >
+      <div class="flex items-center gap-2.5">
+        <span
+          class="inline-flex items-center justify-center w-5 h-5 rounded bg-[#991b1b]/10 dark:bg-[#ef4444]/20 text-[#991b1b] dark:text-[#f87171] border border-[#991b1b]/30 text-[11px] font-serif font-bold"
+        >
+          潔
+        </span>
+        <span class="text-neutral-700 dark:text-neutral-300 font-medium">孤独终洁 · 案头棉纸原札</span>
+      </div>
+      <div class="text-neutral-400 dark:text-neutral-500 text-[11.5px]">字里人间 · 且行且记</div>
+    </div>
   </LayoutPost>
 
-  {
-    entry.data.series && (prevSeriesPost || nextSeriesPost) && (
-      <Pagination
-        showLeft={Boolean(prevSeriesPost)}
-        leftTitle={`${t('prev_series_post')}: ${prevSeriesPost?.data.title}`}
-        leftUrl={getUrl(prevSeriesPost?.id)}
-        showRight={Boolean(nextSeriesPost)}
-        rightTitle={`${t('next_series_post')}: ${nextSeriesPost?.data.title}`}
-        rightUrl={getUrl(nextSeriesPost?.id)}
-        showPageCount={false}
-      />
-    )
-  }
+  <!-- 前后手札导航双卡片 -->
+  <nav class="my-8 grid grid-cols-1 sm:grid-cols-2 gap-4 select-none" aria-label="前后篇手札">
+    <!-- 较早手札（上一篇） -->
+    {
+      older ? (
+        <a
+          href={getUrl(older.id)}
+          class="not-underline-hover group cotton-paper rounded-2xl p-4 sm:p-5 flex flex-col gap-1.5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_20px_rgba(75,55,35,0.08)]"
+        >
+          <div class="flex items-center gap-1 text-[11px] font-mono text-neutral-400 dark:text-neutral-500">
+            <span class="transition-transform duration-200 group-hover:-translate-x-1">←</span>
+            <span>较早手札</span>
+            <span>·</span>
+            <span>{formatDate(older.data.modDate ?? older.data.pubDate, 'YYYY-MM-DD')}</span>
+          </div>
+          <div class="serif-text font-bold text-sm sm:text-[15px] text-[#2c241c] dark:text-[#ede4d8] group-hover:text-[#0f4c3a] dark:group-hover:text-[#34d399] transition-colors line-clamp-1">
+            {older.data.title}
+          </div>
+        </a>
+      ) : (
+        <div class="rounded-2xl p-4 sm:p-5 border border-dashed border-[#dfd7ca]/60 dark:border-white/[0.04] flex items-center justify-center text-xs font-mono text-neutral-400">
+          已是卷首第一篇手札
+        </div>
+      )
+    }
 
-  {
-    !entry.data.series && (prev || next) && (
-      <Pagination
-        showLeft={Boolean(prev)}
-        leftTitle={`${t('prev_post')}: ${prev?.data.title}`}
-        leftUrl={getUrl(prev?.id)}
-        showRight={Boolean(next)}
-        rightTitle={`${t('next_post')}: ${next?.data.title}`}
-        rightUrl={getUrl(next?.id)}
-        showPageCount={false}
-      />
-    )
-  }
-  <!-- BUG 这里使用 client:visible 会导致构建失败。ref: https://github.com/withastro/astro/issues/7329 -->
+    <!-- 较新手札（下一篇） -->
+    {
+      newer ? (
+        <a
+          href={getUrl(newer.id)}
+          class="not-underline-hover group cotton-paper rounded-2xl p-4 sm:p-5 flex flex-col gap-1.5 items-end text-right transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_20px_rgba(75,55,35,0.08)]"
+        >
+          <div class="flex items-center gap-1 text-[11px] font-mono text-neutral-400 dark:text-neutral-500">
+            <span>{formatDate(newer.data.modDate ?? newer.data.pubDate, 'YYYY-MM-DD')}</span>
+            <span>·</span>
+            <span>较新手札</span>
+            <span class="transition-transform duration-200 group-hover:translate-x-1">→</span>
+          </div>
+          <div class="serif-text font-bold text-sm sm:text-[15px] text-[#2c241c] dark:text-[#ede4d8] group-hover:text-[#0f4c3a] dark:group-hover:text-[#34d399] transition-colors line-clamp-1">
+            {newer.data.title}
+          </div>
+        </a>
+      ) : (
+        <div class="rounded-2xl p-4 sm:p-5 border border-dashed border-[#dfd7ca]/60 dark:border-white/[0.04] flex items-center justify-center text-xs font-mono text-neutral-400">
+          已是案头最新一篇手札
+        </div>
+      )
+    }
+  </nav>
+
+  <!-- 评论区 -->
   <Comments post={entry} />
 </LayoutDefault>
 
 <script>
   import '@github/clipboard-copy-element'
 
-  document.addEventListener('clipboard-copy', (event) => {
-    const target = event.target as HTMLElement
-    const icon = target.querySelector('.icon') as HTMLElement
-    icon.classList.replace('i-mdi-content-copy', 'i-mdi-check')
-    setTimeout(() => {
-      icon.classList.replace('i-mdi-check', 'i-mdi-content-copy')
-    }, 1500)
-  })
+  let codeCopyController: AbortController | undefined
 
-  const codeBlocks = Array.from(document.querySelectorAll('pre'))
-  const icon = "<div class='i-mdi-content-copy icon text-white'></div>"
-  for (const codeBlock of codeBlocks) {
-    const wrapper = document.createElement('div')
-    wrapper.className = 'code-container'
+  function setupCodeCopy() {
+    codeCopyController?.abort()
+    const controller = new AbortController()
+    const { signal } = controller
+    codeCopyController = controller
 
-    const copyButton = document.createElement('clipboard-copy')
-    const code = codeBlock.querySelector('code')
-    copyButton.value = code?.textContent ?? ''
-    copyButton.className = 'clipboard-copy'
-    copyButton.innerHTML = icon
+    document.addEventListener(
+      'clipboard-copy',
+      (event) => {
+        const target = event.target as HTMLElement
+        const icon = target.querySelector('.icon') as HTMLElement
+        if (icon) {
+          icon.classList.replace('i-mdi-content-copy', 'i-mdi-check')
+          setTimeout(() => {
+            icon.classList.replace('i-mdi-check', 'i-mdi-content-copy')
+          }, 1500)
+        }
+      },
+      { signal },
+    )
 
-    codeBlock.appendChild(copyButton)
+    const codeBlocks = Array.from(document.querySelectorAll('pre'))
+    const icon = "<div class='i-mdi-content-copy icon text-neutral-400'></div>"
+    for (const codeBlock of codeBlocks) {
+      if (codeBlock.parentElement?.classList.contains('code-container')) {
+        continue
+      }
+      const wrapper = document.createElement('div')
+      wrapper.className = 'code-container'
 
-    codeBlock.parentNode?.insertBefore(wrapper, codeBlock)
-    wrapper.appendChild(codeBlock)
+      const copyButton = document.createElement('clipboard-copy')
+      const code = codeBlock.querySelector('code')
+      copyButton.value = code?.textContent ?? ''
+      copyButton.className = 'clipboard-copy'
+      copyButton.innerHTML = icon
+
+      codeBlock.appendChild(copyButton)
+      codeBlock.parentNode?.insertBefore(wrapper, codeBlock)
+      wrapper.appendChild(codeBlock)
+    }
   }
+
+  setupCodeCopy()
+  document.addEventListener('astro:page-load', setupCodeCopy)
 </script>
 
 <style is:global>
@@ -130,9 +183,13 @@ function getUrl(id?: string) {
     justify-content: center;
     align-items: center;
     border-radius: 0.25rem;
+    background: rgba(0, 0, 0, 0.05);
+    transition: background-color 0.15s;
   }
-
+  .dark .clipboard-copy {
+    background: rgba(255, 255, 255, 0.1);
+  }
   .clipboard-copy:hover {
-    background-color: #30363d;
+    background-color: rgba(0, 0, 0, 0.15);
   }
 </style>

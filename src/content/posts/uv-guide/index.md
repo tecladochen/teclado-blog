@@ -3,7 +3,7 @@ title: 'uv 入门使用指南'
 pubDate: 2025-07-23
 description: '一份覆盖安装、Python 版本管理、脚本运行、工具安装与项目管理的 uv 入门指南，帮助用统一工具简化 Python 开发工作流。'
 categories: ['编程']
-draft: false
+draft: true
 ---
 
 Python 生态系统中的包管理一直是开发者关注的焦点。从最初的 pip 到后来的 Poetry、PDM 等工具，每一次演进都试图解决前代工具的痛点。而今天我们要介绍的 UV，作为由 Ruff 团队（Astral）开发的下一代 Python 包管理工具，正以其惊人的速度和创新的设计理念，重新定义 Python 包管理的标准。

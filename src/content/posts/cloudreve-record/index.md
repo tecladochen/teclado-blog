@@ -8,7 +8,7 @@ description: '记录如何利用闲置的阿里云 ECS 与 OSS 搭建 Cloudreve 
 
 categories: ['工程实践']
 
-draft: false
+draft: true
 
 ---
 
