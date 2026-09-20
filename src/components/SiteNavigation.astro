@@ -1,6 +1,7 @@
 ---
 import { themeConfig } from '~/.config'
 import { getSocialIconClass } from '~/utils/socialIcons'
+import AmbientEnvironment from '~/components/AmbientEnvironment.astro'
 
 const { navLinks, socialLinks } = themeConfig.site
 const { translate: t } = Astro.locals
@@ -67,6 +68,8 @@ function isNavActive(href: string) {
       ))
     }
   </ul>
+
+  <AmbientEnvironment />
 </nav>
 
 <style>
