@@ -33,6 +33,31 @@ const { Content } = await render(aboutPost)
       <Content />
     </article>
 
+    <aside class="authorship-note" data-authorship-note aria-labelledby="authorship-title">
+      <div class="authorship-copy">
+        <p class="authorship-kicker">NOT BY AI</p>
+        <h2 id="authorship-title">内容由人创作</h2>
+        <p>
+          本站文章与个人记录均由我独立构思和写作，不使用生成式 AI 生成或代笔。程序开发与视觉实现可能使用
+          AI 工具辅助，内容中的观点、叙述与表达均来自我本人。
+        </p>
+      </div>
+      <a
+        class="authorship-badge"
+        href="https://notbyai.fyi/cn/"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="了解 Not By AI 人工创作声明"
+      >
+        <img
+          src="/badges/authored-by-human-not-by-ai.svg"
+          width="131"
+          height="42"
+          alt="Authored by Human, Not By AI"
+        />
+      </a>
+    </aside>
+
     <script is:inline>
       ;(() => {
         const page = document.querySelector('[data-about-page]')
@@ -42,7 +67,11 @@ const { Content } = await render(aboutPost)
         page.dataset.ready = 'true'
 
         const content = page.querySelector('[data-about-content]')
+        const note = page.querySelector('[data-authorship-note]')
         const blocks = content ? Array.from(content.children) : []
+        if (note) {
+          blocks.push(note)
+        }
         const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
         if (reducedMotion || !('IntersectionObserver' in window)) {
@@ -262,6 +291,59 @@ const { Content } = await render(aboutPost)
     text-underline-offset: 0.2em;
   }
 
+  .authorship-note {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+    gap: clamp(1.5rem, 5vw, 4rem);
+    margin-top: clamp(2.8rem, 7vw, 4.8rem);
+    padding: 1.25rem 0 0.2rem;
+    border-top: 1px solid var(--theme-border);
+  }
+
+  .authorship-copy {
+    max-width: 35rem;
+  }
+
+  .authorship-kicker {
+    margin: 0 0 0.35rem;
+    color: var(--theme-muted);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.56rem;
+    letter-spacing: 0.16em;
+  }
+
+  .authorship-copy h2 {
+    margin: 0;
+    color: var(--uno-colors-primary);
+    font-family: var(--about-serif);
+    font-size: 0.9rem;
+    font-weight: 650;
+    line-height: 1.6;
+  }
+
+  .authorship-copy > p:last-child {
+    margin: 0.48rem 0 0;
+    color: var(--theme-muted);
+    font-family: var(--about-serif);
+    font-size: 0.72rem;
+    line-height: 1.8;
+    text-wrap: pretty;
+  }
+
+  .authorship-badge {
+    display: inline-flex;
+    flex: 0 0 auto;
+    padding: 0.45rem;
+    outline-offset: 4px;
+  }
+
+  .authorship-badge img {
+    display: block;
+    width: 131px;
+    height: 42px;
+  }
+
   .about-page[data-motion-ready='true'] :global(.about-content > *:not(.is-visible)) {
     opacity: 0;
     transform: translateY(6px);
@@ -273,6 +355,19 @@ const { Content } = await render(aboutPost)
     transition:
       opacity 360ms ease,
       transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .authorship-note.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+    transition:
+      opacity 360ms ease,
+      transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .about-page[data-motion-ready='true'] .authorship-note:not(.is-visible) {
+    opacity: 0;
+    transform: translateY(6px);
   }
 
   @media (max-width: 620px) {
@@ -291,6 +386,17 @@ const { Content } = await render(aboutPost)
     :global(.about-content > ul) {
       grid-template-columns: 1fr;
     }
+
+    .authorship-note {
+      grid-template-columns: 1fr;
+      align-items: start;
+      gap: 1rem;
+      margin-top: 2.8rem;
+    }
+
+    .authorship-badge {
+      margin-left: -0.45rem;
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -299,6 +405,16 @@ const { Content } = await render(aboutPost)
     }
 
     .about-page[data-motion-ready='true'] :global(.about-content > *:not(.is-visible)) {
+      opacity: 1;
+      transform: none;
+    }
+
+    .authorship-note,
+    .authorship-badge {
+      transition: none;
+    }
+
+    .about-page[data-motion-ready='true'] .authorship-note:not(.is-visible) {
       opacity: 1;
       transform: none;
     }
