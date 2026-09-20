@@ -1,13 +1,6 @@
 ---
-type Heading = {
-  depth: number
-  slug: string
-  text: string
-}
-
-type Props = {
-  headings: Heading[]
-}
+type Heading = { depth: number; slug: string; text: string }
+type Props = { headings: Heading[] }
 
 const sections = Astro.props.headings.filter((heading) => heading.depth === 2)
 const showTableOfContents = sections.length >= 2
@@ -15,7 +8,7 @@ const showTableOfContents = sections.length >= 2
 
 {
   showTableOfContents && (
-    <aside id="toc-container" class="reading-design not-prose select-none">
+    <aside id="toc-container" class="toc-redesign reading-design not-prose select-none">
       <div class="toc-launcher">
         <button
           id="toc-toggle-btn"
@@ -33,25 +26,16 @@ const showTableOfContents = sections.length >= 2
         </button>
       </div>
 
-      <div id="toc-backdrop" class="pointer-events-none opacity-0" />
+      <div id="toc-backdrop" class="toc-backdrop" />
 
-      <div
-        id="toc-drawer"
-        role="dialog"
-        aria-modal="true"
-        aria-label="文章目录"
-        aria-hidden="true"
-        inert
-        class="pointer-events-none translate-y-4 opacity-0"
-      >
+      <div id="toc-drawer" role="dialog" aria-modal="true" aria-label="文章目录" aria-hidden="true" inert>
         <div class="toc-head">
           <div>
-            <span class="toc-kicker">文章目录</span>
-            <span class="toc-count">共 {sections.length} 节</span>
+            <span class="toc-kicker">目录</span>
+            <span class="toc-count">{sections.length} 节</span>
           </div>
-
           <button id="toc-close-btn" type="button" aria-label="关闭目录" class="toc-close">
-            <span class="i-mdi-close h-5 w-5" aria-hidden="true" />
+            <span aria-hidden="true">×</span>
           </button>
         </div>
 
@@ -76,11 +60,12 @@ const showTableOfContents = sections.length >= 2
         <div class="toc-progress-track" aria-hidden="true">
           <span id="toc-progress-fill" />
         </div>
-
         <div class="toc-foot">
           <button id="toc-scroll-top-btn" type="button">
-            <span class="i-mdi-arrow-up h-4 w-4" aria-hidden="true" />
-            <span>回到顶部</span>
+            <>
+              <span aria-hidden="true">↑</span>
+              <span>回到顶部</span>
+            </>
           </button>
           <span class="toc-read-progress">
             阅读进度 <span id="toc-footer-progress">0%</span>
@@ -115,409 +100,479 @@ const showTableOfContents = sections.length >= 2
     const controller = new AbortController()
     const { signal } = controller
     tableOfContentsController = controller
-
-    const btn = toggleBtn
-    const d = drawer
-    const b = backdrop
-
-    const scrollBehavior = () =>
-      window.matchMedia('(prefers-reduced-motion: reduce)').matches ? ('instant' as const) : ('smooth' as const)
     let isOpen = false
     let returnFocus: HTMLElement | null = null
+    const motion = () =>
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches ? ('instant' as const) : ('smooth' as const)
 
-    function getFocusableElements() {
-      return Array.from(
-        d.querySelectorAll<HTMLElement>('a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'),
-      )
+    function focusable() {
+      return Array.from(drawer!.querySelectorAll<HTMLElement>('a[href], button:not([disabled])'))
     }
 
     function openDrawer() {
       isOpen = true
-      d.inert = false
       returnFocus = document.activeElement as HTMLElement
-      d.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-4')
-      b.classList.remove('opacity-0', 'pointer-events-none')
-      d.setAttribute('aria-hidden', 'false')
-      btn.setAttribute('aria-expanded', 'true')
-      btn.setAttribute('aria-label', '关闭文章目录')
+      drawer!.inert = false
+      drawer!.setAttribute('aria-hidden', 'false')
+      backdrop!.classList.add('is-visible')
+      toggleBtn!.setAttribute('aria-expanded', 'true')
+      toggleBtn!.setAttribute('aria-label', '关闭文章目录')
       requestAnimationFrame(() => closeBtn?.focus())
     }
 
     function closeDrawer() {
       isOpen = false
-      d.classList.add('opacity-0', 'pointer-events-none', 'translate-y-4')
-      b.classList.add('opacity-0', 'pointer-events-none')
-      d.setAttribute('aria-hidden', 'true')
-      btn.setAttribute('aria-expanded', 'false')
-      btn.setAttribute('aria-label', '打开文章目录')
+      drawer!.setAttribute('aria-hidden', 'true')
+      backdrop!.classList.remove('is-visible')
+      toggleBtn!.setAttribute('aria-expanded', 'false')
+      toggleBtn!.setAttribute('aria-label', '打开文章目录')
       returnFocus?.focus()
       returnFocus = null
-      d.inert = true
+      drawer!.inert = true
     }
 
-    btn.addEventListener(
+    toggleBtn.addEventListener(
       'click',
-      (e) => {
-        e.stopPropagation()
-        if (isOpen) {
-          closeDrawer()
-          return
-        }
-        openDrawer()
+      (event) => {
+        event.stopPropagation()
+        isOpen ? closeDrawer() : openDrawer()
       },
       { signal },
     )
-
-    if (closeBtn) {
-      closeBtn.addEventListener(
-        'click',
-        (e) => {
-          e.stopPropagation()
-          closeDrawer()
-        },
-        { signal },
-      )
-    }
-
-    b.addEventListener('click', closeDrawer, { signal })
+    closeBtn?.addEventListener('click', closeDrawer, { signal })
+    backdrop.addEventListener('click', closeDrawer, { signal })
 
     window.addEventListener(
       'keydown',
-      (e) => {
-        if (e.key === 'Escape' && isOpen) {
-          e.preventDefault()
+      (event) => {
+        if (event.key === 'Escape' && isOpen) {
+          event.preventDefault()
           closeDrawer()
         }
-
-        if (e.key !== 'Tab' || !isOpen) {
+        if (event.key !== 'Tab' || !isOpen) {
           return
         }
-
-        const focusableElements = getFocusableElements()
-        const first = focusableElements[0]
-        const last = focusableElements.at(-1)
+        const items = focusable()
+        const first = items[0]
+        const last = items.at(-1)
         if (!first || !last) {
           return
         }
-
-        if (e.shiftKey && document.activeElement === first) {
-          e.preventDefault()
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault()
           last.focus()
           return
         }
-        if (!e.shiftKey && document.activeElement === last) {
-          e.preventDefault()
+        if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault()
           first.focus()
         }
       },
       { signal },
     )
 
-    // 回到顶部
-    if (scrollTopBtn) {
-      scrollTopBtn.addEventListener(
-        'click',
-        () => {
-          window.scrollTo({ top: 0, behavior: scrollBehavior() })
-          closeDrawer()
-        },
-        { signal },
-      )
-    }
+    scrollTopBtn?.addEventListener(
+      'click',
+      () => {
+        window.scrollTo({ top: 0, behavior: motion() })
+        closeDrawer()
+      },
+      { signal },
+    )
 
-    // 点击目录链接平滑滚动并关闭
-    tocLinks.forEach((link) => {
+    tocLinks.forEach((link) =>
       link.addEventListener(
         'click',
-        (e) => {
+        (event) => {
           const href = link.getAttribute('href')
-          if (href && href.startsWith('#')) {
-            e.preventDefault()
-            const rawId = href.slice(1)
-            const targetId = decodeURIComponent(rawId)
-            const target = document.getElementById(targetId) || document.getElementById(rawId)
-            closeDrawer()
-            if (target) {
-              target.tabIndex = -1
-              target.focus({ preventScroll: true })
-              target.scrollIntoView({ behavior: scrollBehavior() })
-              history.replaceState(null, '', href)
-            }
+          if (!href?.startsWith('#')) {
+            return
+          }
+          event.preventDefault()
+          const rawId = href.slice(1)
+          const target = document.getElementById(decodeURIComponent(rawId)) || document.getElementById(rawId)
+          closeDrawer()
+          if (target) {
+            target.tabIndex = -1
+            target.focus({ preventScroll: true })
+            target.scrollIntoView({ behavior: motion() })
+            history.replaceState(null, '', href)
           }
         },
         { signal },
-      )
-    })
+      ),
+    )
 
-    // 阅读进度与当前小节高亮 (ScrollSpy)
     const article = document.querySelector('.article-sheet')
-    const headings = Array.from(document.querySelectorAll('article.prose h2[id], .post-prose-content h2[id]'))
+    const headings = Array.from(document.querySelectorAll<HTMLElement>('.post-prose-content h2[id]'))
 
-    function updateScrollSpy() {
+    function update() {
       const scrollTop = window.scrollY
       const articleTop = article ? article.getBoundingClientRect().top + scrollTop : 0
       const articleEnd = article
         ? article.getBoundingClientRect().bottom + scrollTop
         : document.documentElement.scrollHeight
       const distance = articleEnd - articleTop - window.innerHeight
-      const progress = distance > 0 ? (scrollTop - articleTop) / distance : 1
-      const percent = Math.min(100, Math.max(0, Math.round(progress * 100)))
-
+      const percent = Math.min(
+        100,
+        Math.max(0, Math.round((distance > 0 ? (scrollTop - articleTop) / distance : 1) * 100)),
+      )
       if (progressFill) {
         progressFill.style.transform = `scaleX(${percent / 100})`
       }
       if (progressBadge) {
         progressBadge.textContent = `${percent}%`
       }
+      toggleBtn!.style.setProperty('--toc-progress', `${percent}%`)
       if (footerProgress) {
         footerProgress.textContent = `${percent}%`
       }
 
-      // 高亮当前阅读的 h2
       let currentSlug = ''
-      for (const h of headings) {
-        const top = h.getBoundingClientRect().top
-        if (top > 140) {
+      for (const heading of headings) {
+        if (heading.getBoundingClientRect().top > 140) {
           break
         }
-        currentSlug = h.id
+        currentSlug = heading.id
       }
-
       tocLinks.forEach((link) => {
-        const slug = link.getAttribute('data-slug')
-        const isCurrent = slug && (slug === currentSlug || decodeURIComponent(slug) === currentSlug)
-
-        if (isCurrent) {
-          link.setAttribute('aria-current', 'location')
-          return
-        }
-        link.removeAttribute('aria-current')
+        const slug = link.dataset.slug
+        const current = slug && (slug === currentSlug || decodeURIComponent(slug) === currentSlug)
+        current ? link.setAttribute('aria-current', 'location') : link.removeAttribute('aria-current')
       })
     }
 
-    window.addEventListener('scroll', updateScrollSpy, { passive: true, signal })
-    window.addEventListener('resize', updateScrollSpy, { passive: true, signal })
-    updateScrollSpy()
-
-    // 支持 URL 参数快捷打开目录或定位（方便预览）
+    window.addEventListener('scroll', update, { passive: true, signal })
+    window.addEventListener('resize', update, { passive: true, signal })
+    update()
     if (window.location.search.includes('toc=open') || window.location.hash === '#toc') {
       openDrawer()
     }
   }
 
-  // 兼容所有生命周期
   setupTableOfContents()
   document.addEventListener('astro:page-load', setupTableOfContents)
 </script>
 
 <style>
-  #toc-container {
-    font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  .toc-redesign {
+    color: var(--reading-ink);
+    font-family: var(--reading-sans);
   }
+
   .toc-launcher {
     position: fixed;
-    right: 16px;
-    bottom: max(16px, env(safe-area-inset-bottom));
+    right: 20px;
+    bottom: max(20px, env(safe-area-inset-bottom));
     z-index: 40;
   }
+
   .toc-toggle {
-    --toc-progress: 0deg;
+    --toc-progress: 0%;
     position: relative;
-    display: flex;
+    display: grid;
+    grid-template-columns: auto auto;
+    min-width: 92px;
+    min-height: 42px;
     align-items: center;
-    gap: 10px;
-    min-width: 78px;
-    min-height: 52px;
-    padding: 5px 12px 5px 5px;
+    gap: 3px 12px;
+    padding: 8px 13px 7px;
     border: 1px solid var(--reading-rule);
-    border-radius: 28px;
-    background: color-mix(in srgb, var(--reading-surface) 93%, transparent);
-    box-shadow: 0 14px 34px -20px rgba(40, 53, 45, 0.48);
+    border-radius: 9px;
+    background: color-mix(in srgb, var(--uno-colors-background) 90%, transparent);
+    box-shadow: 0 12px 28px -22px rgba(38, 30, 27, 0.62);
     color: var(--reading-ink);
     cursor: pointer;
     backdrop-filter: blur(12px);
     transition:
+      transform 300ms var(--reading-ease),
+      opacity 180ms ease,
       border-color 180ms ease,
-      box-shadow 180ms ease,
-      transform 260ms var(--reading-ease);
+      background 180ms ease;
   }
-  .toc-toggle::before {
-    content: '';
-    position: absolute;
-    inset: 4px auto 4px 4px;
-    width: 42px;
-    border-radius: 50%;
-    background: conic-gradient(var(--reading-accent) var(--toc-progress), var(--reading-rule) 0);
-    -webkit-mask: radial-gradient(circle, transparent 62%, #000 64%);
-    mask: radial-gradient(circle, transparent 62%, #000 64%);
-  }
+
   .toc-toggle:hover,
   .toc-toggle:focus-visible {
-    border-color: color-mix(in srgb, var(--reading-accent) 45%, transparent);
-    box-shadow: 0 16px 38px -18px rgba(40, 70, 54, 0.42);
+    border-color: color-mix(in srgb, var(--reading-hover-ink) 42%, transparent);
+    background: color-mix(in srgb, var(--uno-colors-background) 82%, var(--reading-hover));
     transform: translateY(-2px);
   }
-  .toc-toggle-icon {
-    position: relative;
-    z-index: 1;
-    display: grid;
-    place-items: center;
-    width: 42px;
-    height: 42px;
-    flex: 0 0 42px;
-    color: var(--reading-accent);
+
+  .toc-toggle[aria-expanded='true'] {
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(4px) scale(0.92);
   }
-  .toc-toggle-copy {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1px;
+
+  .toc-toggle-label {
+    font-family: var(--reading-serif);
     font-size: 12px;
-    line-height: 1.3;
+    font-weight: 700;
+    line-height: 1;
   }
+
   #toc-progress-badge {
     color: var(--reading-muted);
     font:
-      9px/1.4 'JetBrains Mono',
+      8px/1 'JetBrains Mono',
       monospace;
   }
-  #toc-backdrop {
-    position: fixed;
-    inset: 0;
-    z-index: 50;
-    background: rgba(27, 32, 28, 0.3);
-    backdrop-filter: blur(2px);
-    transition: opacity 180ms ease;
+
+  .toc-toggle-rule {
+    grid-column: 1 / -1;
+    width: 100%;
+    height: 1px;
+    overflow: hidden;
+    background: var(--reading-rule);
   }
+
+  .toc-toggle-rule > span {
+    display: block;
+    width: var(--toc-progress);
+    height: 100%;
+    background: var(--reading-accent);
+    transition: width 220ms linear;
+  }
+
+  .toc-backdrop {
+    position: fixed;
+    z-index: 50;
+    inset: 0;
+    pointer-events: none;
+    background: transparent;
+    opacity: 0;
+  }
+
+  .toc-backdrop.is-visible {
+    pointer-events: auto;
+    opacity: 1;
+  }
+
   #toc-drawer {
     position: fixed;
-    right: 16px;
-    bottom: max(16px, env(safe-area-inset-bottom));
+    right: 22px;
+    bottom: max(22px, env(safe-area-inset-bottom));
     z-index: 60;
     display: flex;
-    width: min(380px, calc(100vw - 32px));
-    max-height: calc(100dvh - 32px - env(safe-area-inset-bottom));
+    width: min(300px, calc(100vw - 24px));
+    max-height: min(570px, calc(100dvh - 36px));
     flex-direction: column;
-    gap: 0;
     overflow: hidden;
     border: 1px solid var(--reading-rule);
-    border-radius: 18px;
-    background: var(--reading-surface);
-    box-shadow: 0 28px 70px -28px rgba(25, 36, 29, 0.5);
+    border-radius: 13px;
+    background: color-mix(in srgb, var(--uno-colors-background) 96%, transparent);
+    box-shadow:
+      0 26px 64px -42px rgba(38, 30, 27, 0.58),
+      0 1px 0 color-mix(in srgb, var(--reading-surface) 64%, transparent) inset;
+    backdrop-filter: blur(12px) saturate(0.9);
     transform-origin: right bottom;
     transition:
       opacity 180ms ease,
-      transform 260ms var(--reading-ease);
+      transform 420ms var(--reading-ease),
+      clip-path 460ms var(--reading-ease);
   }
+
+  #toc-drawer[aria-hidden='true'] {
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+    clip-path: inset(82% 0 0 62% round 10px);
+  }
+
+  #toc-drawer[aria-hidden='false'] {
+    pointer-events: auto;
+    opacity: 1;
+    transform: none;
+    clip-path: inset(0 round 13px);
+  }
+
   .toc-head {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 22px 22px 18px;
+    padding: 18px 17px 13px 20px;
     border-bottom: 1px solid var(--reading-rule);
   }
+
   .toc-head > div {
     display: flex;
     align-items: baseline;
-    gap: 10px;
+    gap: 9px;
   }
+
   .toc-kicker {
-    color: var(--reading-ink);
     font-family: var(--reading-serif);
     font-size: 18px;
     font-weight: 700;
-    letter-spacing: -0.03em;
+    letter-spacing: 0.02em;
   }
+
   .toc-count {
     color: var(--reading-muted);
-    font-size: 10px;
+    font:
+      8px/1 'JetBrains Mono',
+      monospace;
+    letter-spacing: 0.08em;
   }
+
   .toc-close {
     display: grid;
+    width: 30px;
+    height: 30px;
     place-items: center;
-    width: 40px;
-    height: 40px;
-    margin: -8px -8px -8px 0;
+    border: 0;
     border-radius: 50%;
+    background: color-mix(in srgb, var(--uno-colors-background) 62%, transparent);
     color: var(--reading-muted);
+    font-size: 18px;
+    line-height: 1;
     cursor: pointer;
     transition:
       color 180ms ease,
-      background-color 180ms ease,
-      transform 260ms var(--reading-ease);
+      background 180ms ease,
+      transform 300ms var(--reading-ease);
   }
+
   .toc-close:hover,
   .toc-close:focus-visible {
-    background: var(--reading-wash);
-    color: var(--reading-accent);
-    transform: rotate(8deg);
+    background: var(--reading-hover);
+    color: var(--reading-hover-ink);
+    transform: rotate(90deg);
   }
+
   .toc-navigation {
     min-height: 0;
-    padding: 12px 12px 14px;
+    padding: 10px 14px 12px;
     overflow-y: auto;
     overscroll-behavior: contain;
   }
+
   .toc-navigation ol {
+    position: relative;
+    display: grid;
+    gap: 2px;
     margin: 0;
     padding: 0;
+    counter-reset: chapter;
     list-style: none;
   }
-  .toc-navigation li + li {
-    border-top: 1px solid color-mix(in srgb, var(--reading-rule) 55%, transparent);
+
+  .toc-navigation ol::before {
+    position: absolute;
+    top: 23px;
+    bottom: 23px;
+    left: 40px;
+    width: 1px;
+    background: var(--reading-rule);
+    content: '';
   }
+
+  .toc-navigation li {
+    counter-increment: chapter;
+  }
+
   .toc-item-link {
     position: relative;
     display: grid;
-    grid-template-columns: 34px minmax(0, 1fr);
+    grid-template-columns: 36px minmax(0, 1fr);
     gap: 10px;
-    min-height: 48px;
+    min-height: 46px;
     align-items: center;
-    padding: 9px 10px;
+    padding: 6px 7px;
     color: var(--reading-secondary);
+    font-family: var(--reading-serif);
     font-size: 13px;
-    line-height: 1.65;
+    line-height: 1.55;
     transition:
       color 180ms ease,
-      transform 260ms var(--reading-ease);
+      transform 320ms var(--reading-ease);
   }
-  .toc-item-link::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 0;
-    width: 3px;
-    height: 0;
-    background: var(--reading-accent);
-    transform: translateY(-50%);
-    transition: height 220ms var(--reading-ease);
-  }
-  .toc-index {
-    color: var(--reading-muted);
-    font:
-      10px/1 'JetBrains Mono',
-      monospace;
-    transition: color 180ms ease;
-  }
+
   .toc-item-link:hover,
   .toc-item-link:focus-visible {
-    color: var(--reading-accent);
+    color: var(--reading-hover-ink);
     transform: translateX(3px);
   }
+
+  .toc-marker {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: 22px 7px;
+    align-items: center;
+    gap: 7px;
+    color: var(--reading-muted);
+    font:
+      8px/1 'JetBrains Mono',
+      monospace;
+  }
+
+  .toc-marker::before {
+    content: counter(chapter, decimal-leading-zero);
+  }
+
+  .toc-marker::after {
+    width: 7px;
+    height: 7px;
+    border: 2px solid var(--uno-colors-background);
+    border-radius: 50%;
+    background: currentColor;
+    content: '';
+    opacity: 0.36;
+    transition:
+      opacity 180ms ease,
+      transform 320ms var(--reading-ease),
+      box-shadow 180ms ease;
+  }
+
+  .toc-title {
+    position: relative;
+    width: fit-content;
+    max-width: 100%;
+  }
+
+  .toc-title::after {
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    width: 0;
+    height: 1px;
+    background: var(--reading-accent);
+    content: '';
+    opacity: 0;
+    transition:
+      width 380ms var(--reading-ease),
+      opacity 180ms ease;
+  }
+
   .toc-item-link[aria-current='location'] {
     color: var(--reading-ink);
-    font-weight: 600;
+    font-weight: 700;
+    transform: translateX(3px);
   }
-  .toc-item-link[aria-current='location']::after {
-    height: 24px;
-  }
-  .toc-item-link[aria-current='location'] .toc-index {
+
+  .toc-item-link[aria-current='location'] .toc-marker {
     color: var(--reading-accent);
   }
+
+  .toc-item-link[aria-current='location'] .toc-marker::after {
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--reading-accent) 10%, transparent);
+    opacity: 1;
+    transform: scale(1.06);
+  }
+
+  .toc-item-link[aria-current='location'] .toc-title::after {
+    width: 24px;
+    opacity: 1;
+  }
+
   .toc-progress-track {
     height: 1px;
+    margin: 0 20px;
+    overflow: hidden;
     background: var(--reading-rule);
   }
+
   #toc-progress-fill {
     display: block;
     height: 100%;
@@ -526,355 +581,98 @@ const showTableOfContents = sections.length >= 2
     transform-origin: left;
     transition: transform 220ms linear;
   }
+
   .toc-foot {
     display: flex;
     flex-shrink: 0;
     align-items: center;
     justify-content: space-between;
-    padding: 12px 18px;
+    padding: 8px 13px 12px 12px;
     color: var(--reading-muted);
     font-size: 10px;
   }
+
   #toc-scroll-top-btn {
     display: flex;
-    min-height: 40px;
+    min-height: 34px;
     align-items: center;
-    gap: 6px;
-    color: inherit;
+    gap: 7px;
+    padding: 0 7px;
     cursor: pointer;
-    transition: color 180ms ease;
+    transition:
+      color 180ms ease,
+      transform 260ms var(--reading-ease);
   }
+
   #toc-scroll-top-btn:hover,
   #toc-scroll-top-btn:focus-visible {
-    color: var(--reading-accent);
+    color: var(--reading-hover-ink);
+    transform: translateY(-2px);
   }
-  .toc-read-progress {
-    font-variant-numeric: tabular-nums;
-  }
+
   #toc-footer-progress {
     color: var(--reading-accent);
     font-family: 'JetBrains Mono', monospace;
   }
-  #toc-drawer[aria-hidden='true'] {
-    transform: translateY(12px) scale(0.98);
-    transition-duration: 140ms;
-  }
-  #toc-drawer[aria-hidden='false'] {
-    transform: translateY(0) scale(1);
-  }
+
   @media (min-width: 640px) {
-    .toc-launcher,
-    #toc-drawer {
-      right: 32px;
-      bottom: max(32px, env(safe-area-inset-bottom));
+    .toc-launcher {
+      right: 16px;
+      bottom: max(20px, env(safe-area-inset-bottom));
     }
+
     #toc-drawer {
-      max-height: min(620px, calc(100dvh - 64px));
+      right: 12px;
+      bottom: max(20px, env(safe-area-inset-bottom));
     }
   }
+
   @media (max-width: 639px) {
-    .toc-toggle {
-      min-width: 52px;
-      width: 52px;
-      padding: 5px;
-    }
-    .toc-toggle-copy {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      overflow: hidden;
-      clip-path: inset(50%);
-    }
     #toc-drawer {
-      border-radius: 14px;
+      right: 10px;
+      bottom: max(10px, env(safe-area-inset-bottom));
+      width: calc(100vw - 20px);
+      max-height: calc(100dvh - 20px);
+      border-radius: 12px;
     }
+
+    #toc-drawer[aria-hidden='false'] {
+      clip-path: inset(0 round 12px);
+    }
+
     .toc-head {
-      padding-inline: 18px;
+      padding: 18px 15px 12px 18px;
     }
+
     .toc-navigation {
-      padding-inline: 8px;
+      padding-inline: 12px;
     }
-  }
-  /* A compact print-style index: title, dotted leader, chapter number. */
-  .toc-toggle {
-    display: grid;
-    grid-template-columns: auto auto;
-    min-width: 74px;
-    min-height: 46px;
-    align-items: center;
-    gap: 2px 12px;
-    padding: 8px 10px 7px;
-    border-radius: 0;
-    border: 1px solid var(--reading-rule);
-    border-bottom-color: var(--reading-ink);
-    background: color-mix(in srgb, var(--reading-surface) 96%, transparent);
-    box-shadow: 0 12px 28px -22px rgba(44, 33, 29, 0.55);
-    backdrop-filter: blur(8px);
-  }
-  .toc-toggle::before {
-    content: none;
-  }
-  .toc-toggle:hover,
-  .toc-toggle:focus-visible {
-    border-color: var(--reading-hover-ink);
-    box-shadow: 0 12px 28px -22px rgba(44, 33, 29, 0.55);
-    background: color-mix(in srgb, var(--reading-hover) 60%, var(--reading-surface));
-    color: var(--reading-hover-ink);
-    transform: translateY(-1px);
-  }
-  .toc-toggle-label {
-    font-family: var(--reading-serif);
-    font-size: 12px;
-    font-weight: 700;
-    line-height: 1.2;
-  }
-  #toc-progress-badge {
-    align-self: center;
-    font-size: 8px;
-    line-height: 1;
-  }
-  .toc-toggle-rule {
-    grid-column: 1 / -1;
-    display: block;
-    width: 100%;
-    height: 1px;
-    background: var(--reading-rule);
-    transform: none;
-  }
-  .toc-toggle-rule > span {
-    display: block;
-    width: 22%;
-    height: 100%;
-    background: currentColor;
-    transition: width 340ms var(--reading-ease);
-  }
-  .toc-toggle:hover .toc-toggle-rule > span,
-  .toc-toggle:focus-visible .toc-toggle-rule > span {
-    width: 100%;
-  }
-  #toc-backdrop {
-    background: rgba(31, 30, 28, 0.18);
-    backdrop-filter: none;
-  }
-  #toc-drawer {
-    display: flex;
-    inset: auto 24px max(24px, env(safe-area-inset-bottom)) auto;
-    width: min(410px, calc(100vw - 32px));
-    height: auto;
-    max-height: min(590px, calc(100dvh - 48px));
-    flex-direction: column;
-    border-radius: 0;
-    border: 1px solid var(--reading-rule);
-    border-top-color: var(--reading-ink);
-    background: var(--reading-surface);
-    box-shadow: 0 24px 64px -34px rgba(38, 30, 27, 0.62);
-    transform-origin: right bottom;
-    transition:
-      opacity 180ms ease,
-      clip-path 420ms var(--reading-ease),
-      transform 420ms var(--reading-ease);
-  }
-  .toc-head {
-    width: auto;
-    align-items: center;
-    margin: 0;
-    padding: 22px 22px 16px;
-    border-bottom: 3px double var(--reading-rule);
-  }
-  .toc-head > div {
-    display: flex;
-    align-items: baseline;
-    gap: 12px;
-    padding: 0;
-  }
-  .toc-kicker {
-    font-size: 25px;
-    letter-spacing: -0.05em;
-    line-height: 1;
-  }
-  .toc-count {
-    color: var(--reading-muted);
-    font:
-      10px/1.5 'JetBrains Mono',
-      monospace;
-    letter-spacing: 0.08em;
-  }
-  .toc-close {
-    width: 38px;
-    height: 38px;
-    margin: 0 -7px 0 0;
-    border-radius: 0;
-    border: 0;
-    transition:
-      color 180ms ease,
-      background-color 180ms ease,
-      border-color 180ms ease;
-  }
-  .toc-close:hover,
-  .toc-close:focus-visible {
-    background: var(--reading-hover);
-    color: var(--reading-hover-ink);
-    transform: none;
-  }
-  .toc-navigation {
-    width: auto;
-    margin: 0;
-    padding: 10px 18px 14px;
-  }
-  .toc-navigation ol {
-    display: block;
-    counter-reset: chapter;
-  }
-  .toc-navigation li {
-    counter-increment: chapter;
-    border-top: 0;
-  }
-  .toc-item-link {
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: 10px;
-    min-height: 52px;
-    align-items: center;
-    padding: 9px 8px;
-    font-family: var(--reading-serif);
-    font-size: 14px;
-    line-height: 1.55;
-    transition:
-      color 180ms ease,
-      background-color 180ms ease,
-      padding 260ms var(--reading-ease);
-  }
-  .toc-item-link::after {
-    content: none;
-  }
-  .toc-item-link:hover,
-  .toc-item-link:focus-visible {
-    background: var(--reading-hover);
-    color: var(--reading-hover-ink);
-    padding-inline: 12px 6px;
-  }
-  .toc-marker {
-    grid-column: 2;
-    grid-row: 1;
-    display: grid;
-    width: 28px;
-    height: 28px;
-    place-items: center end;
-    background: transparent;
-    color: var(--reading-muted);
-    font:
-      11px/1 'JetBrains Mono',
-      monospace;
-  }
-  .toc-marker::before {
-    content: counter(chapter, decimal-leading-zero);
-  }
-  .toc-title {
-    grid-column: 1;
-    grid-row: 1;
-    display: flex;
-    min-width: 0;
-    align-items: baseline;
-    gap: 12px;
-  }
-  .toc-title::after {
-    content: '';
-    min-width: 20px;
-    flex: 1;
-    border-bottom: 1px dotted color-mix(in srgb, var(--reading-rule) 80%, transparent);
-  }
-  .toc-item-link[aria-current='location'] .toc-marker {
-    width: 28px;
-    place-items: center;
-    background: var(--reading-accent);
-    color: var(--reading-surface);
-  }
-  .toc-item-link[aria-current='location'] {
-    color: var(--reading-ink);
-  }
-  .toc-item-link[aria-current='location'] .toc-title::after {
-    border-bottom-style: solid;
-    border-bottom-color: var(--reading-accent);
-  }
-  .toc-progress-track {
-    width: auto;
-    margin: 0 22px;
-  }
-  .toc-foot {
-    width: auto;
-    margin: 0;
-    padding: 10px 22px 12px;
-  }
-  #toc-scroll-top-btn:hover,
-  #toc-scroll-top-btn:focus-visible {
-    color: var(--reading-hover-ink);
-  }
-  #toc-drawer[aria-hidden='true'] {
-    clip-path: inset(100% 0 0 0);
-    transform: translateY(10px);
-  }
-  #toc-drawer[aria-hidden='false'] {
-    clip-path: inset(0);
-    transform: none;
-  }
-  @media (max-width: 639px) {
-    .toc-toggle {
-      width: auto;
-      min-width: 70px;
-      padding: 8px 9px 7px;
-    }
-    #toc-drawer {
-      inset: auto 12px max(12px, env(safe-area-inset-bottom)) auto;
-      width: calc(100vw - 24px);
-      max-height: min(560px, calc(100dvh - 24px));
-    }
-    .toc-head {
-      align-items: center;
-      padding: 20px 18px 15px;
-    }
-    .toc-close {
-      width: 40px;
-      height: 40px;
-      margin-right: -8px;
-    }
-    .toc-navigation {
-      padding: 8px 12px 12px;
-    }
+
     .toc-item-link {
-      min-height: 48px;
-      padding-block: 8px;
-      font-size: 15px;
-    }
-    .toc-progress-track {
-      margin-inline: 18px;
-    }
-    .toc-foot {
-      padding-inline: 18px;
+      font-size: 14px;
     }
   }
+
   @media (prefers-reduced-motion: reduce) {
     #toc-drawer,
-    #toc-backdrop,
     .toc-item-link,
+    .toc-toggle,
+    .toc-title::after,
     #toc-progress-fill {
       transition: none !important;
     }
-    #toc-drawer[aria-hidden='true'],
-    #toc-drawer[aria-hidden='false'],
-    #toc-drawer .toc-item-link {
-      transform: none;
-    }
   }
+
   .custom-scrollbar::-webkit-scrollbar {
     width: 4px;
   }
+
   .custom-scrollbar::-webkit-scrollbar-track {
     background: transparent;
   }
+
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: color-mix(in srgb, var(--reading-rule) 85%, transparent);
     border-radius: 4px;
-  }
-  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: color-mix(in srgb, var(--reading-accent) 42%, transparent);
+    background: color-mix(in srgb, var(--reading-rule) 85%, transparent);
   }
 </style>
