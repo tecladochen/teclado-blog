@@ -8,6 +8,7 @@ const friendLinkProfile = [
   `描述：${myBlogInfo.desc}`,
   `网址：${myBlogInfo.url}`,
   myBlogInfo.feed ? `订阅：${myBlogInfo.feed}` : '',
+  myBlogInfo.avatar ? `Logo：${myBlogInfo.avatar}` : '',
 ]
   .filter(Boolean)
   .join('\n')
@@ -74,6 +75,18 @@ const friendLinkProfile = [
                   </div>
                 )
               }
+              {
+                myBlogInfo.avatar && (
+                  <div class="info-row info-avatar">
+                    <dt>Logo</dt>
+                    <dd>
+                      <a class="info-value" href={myBlogInfo.avatar} target="_blank" rel="noopener noreferrer">
+                        <code>{myBlogInfo.avatar}</code>
+                      </a>
+                    </dd>
+                  </div>
+                )
+              }
             </dl>
           </div>
         </div>
@@ -106,7 +119,12 @@ const friendLinkProfile = [
                   {link.name}
                 </a>
               </h2>
-              {link.author && <span class="friend-author">{link.author}</span>}
+              {link.author && (
+                <span class="friend-author">
+                  <span class="friend-author-prefix">@</span>
+                  <span class="friend-author-name">{link.author}</span>
+                </span>
+              )}
             </div>
             <p class="friend-description">{link.desc}</p>
             <div class="friend-tags" aria-label="标签">
@@ -389,6 +407,10 @@ const friendLinkProfile = [
     transition-delay: 120ms;
   }
 
+  .site-info-box.is-open .info-row:nth-child(5) {
+    transition-delay: 145ms;
+  }
+
   .info-row dt {
     color: var(--theme-muted);
     font:
@@ -636,13 +658,29 @@ const friendLinkProfile = [
   }
 
   .friend-author {
-    display: block;
+    display: flex;
+    align-items: baseline;
+    gap: 0.12rem;
+    max-width: 100%;
     margin-top: 0.16rem;
     overflow: hidden;
     color: var(--theme-muted);
     font-size: 0.61rem;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+
+  .friend-author-prefix {
+    flex: 0 0 auto;
+    color: var(--friends-ink);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.92em;
+  }
+
+  .friend-author-name {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .friend-description {

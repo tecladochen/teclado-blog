@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img" aria-labelledby="title">
+  <title id="title">Teclado</title>
+  <style>
+    .key { fill: #2b2e2a; }
+    .active-key { fill: #7a5148; }
+
+    @media (prefers-color-scheme: dark) {
+      .key { fill: #e6e8e3; }
+      .active-key { fill: #d0a49a; }
+    }
+  </style>
+  <rect class="key" x="13" y="15" width="22" height="22" rx="5" />
+  <rect class="active-key" x="39" y="15" width="22" height="22" rx="5" />
+  <rect class="key" x="65" y="15" width="22" height="22" rx="5" />
+  <rect class="key" x="39" y="41" width="22" height="22" rx="5" />
+  <rect class="key" x="39" y="67" width="22" height="22" rx="5" />
+</svg>

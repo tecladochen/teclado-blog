@@ -24,7 +24,8 @@ const rss = new URL('/atom.xml', siteUrl).toString()
 const optimizedImage = await getOptimizedImageURL()
 
 const seoLinks = [
-  { rel: 'icon', href: '/favicon.png', type: 'image/png' },
+  { rel: 'icon', href: '/favicon.svg', type: 'image/svg+xml' },
+  { rel: 'icon', href: '/favicon.png', type: 'image/png', sizes: '512x512' },
   {
     rel: 'alternate',
     type: 'application/rss+xml',
