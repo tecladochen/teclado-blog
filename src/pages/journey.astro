@@ -2,6 +2,8 @@
 import type { ImageMetadata } from 'astro'
 import { Image } from 'astro:assets'
 import { getCollection } from 'astro:content'
+import MarkdownIt from 'markdown-it'
+import sanitizeHtml from 'sanitize-html'
 import SiteSeo from '~/components/SiteSeo.astro'
 import LayoutDefault from '~/layouts/LayoutDefault.astro'
 import { formatDate } from '~/utils'
@@ -11,13 +13,14 @@ interface TimelineEvent {
   title: string
   date: Date
   kind: 'life' | 'project' | 'learning' | 'blog'
-  summary: string
+  summaryHtml: string
   images: { src: ImageMetadata, alt: string }[]
   links: { label: string, url: string }[]
   featured: boolean
 }
 
 const { translate: t } = Astro.locals
+const inlineMarkdown = new MarkdownIt({ html: false, linkify: false, typographer: false })
 const events: TimelineEvent[] = (await getCollection('journey'))
   .filter(entry => entry.data.draft !== true)
   .map(entry => ({
@@ -25,7 +28,7 @@ const events: TimelineEvent[] = (await getCollection('journey'))
     title: entry.data.title,
     date: entry.data.date,
     kind: entry.data.kind,
-    summary: entry.data.summary,
+    summaryHtml: renderSummary(entry.data.summary),
     images:
       entry.data.images?.map((image, index) => ({
         src: image,
@@ -48,6 +51,25 @@ function compareEvents(a: TimelineEvent, b: TimelineEvent) {
   const aOrder = a.featured ? 0 : 1
   const bOrder = b.featured ? 0 : 1
   return aOrder - bOrder || a.title.localeCompare(b.title)
+}
+
+function renderSummary(summary: string) {
+  return sanitizeHtml(inlineMarkdown.renderInline(summary), {
+    allowedTags: ['a', 'code', 'em', 'strong'],
+    allowedAttributes: {
+      a: ['href', 'title', 'target', 'rel'],
+    },
+    transformTags: {
+      a: (_tagName, attribs) => ({
+        tagName: 'a',
+        attribs: {
+          ...attribs,
+          target: '_blank',
+          rel: 'noopener noreferrer',
+        },
+      }),
+    },
+  })
 }
 ---
 
@@ -98,15 +120,16 @@ function compareEvents(a: TimelineEvent, b: TimelineEvent) {
                     <div class="journey-event-meta">
                       <time datetime={event.date.toISOString()}>{formatDate(event.date, 'MM-DD')}</time>
                       <span class="journey-kind">{t(`journey_filter_${event.kind}`)}</span>
+                      {event.featured && <span class="journey-featured-mark">重点</span>}
                     </div>
                     <article>
                       <h3>{event.title}</h3>
-                      <p>{event.summary}</p>
+                      <p class="journey-summary" set:html={event.summaryHtml} />
                       {event.links.length > 0 && (
                         <ul class="journey-links">
                           {event.links.map(link => (
                             <li>
-                              <a href={link.url}>
+                              <a href={link.url} target="_blank" rel="noopener noreferrer">
                                 {link.label} <span aria-hidden="true">↗</span>
                               </a>
                             </li>
@@ -391,7 +414,16 @@ function compareEvents(a: TimelineEvent, b: TimelineEvent) {
   }
 
   .journey-year > ol > li.is-featured::before {
-    width: 24px;
+    width: 68px;
+  }
+
+  .journey-year > ol > li.is-featured::after {
+    position: absolute;
+    z-index: -1;
+    inset: 5px -10px 5px -12px;
+    background: linear-gradient(90deg, color-mix(in srgb, var(--journey-accent) 7%, transparent), transparent 68%);
+    content: '';
+    pointer-events: none;
   }
 
   .journey-event-meta {
@@ -417,6 +449,14 @@ function compareEvents(a: TimelineEvent, b: TimelineEvent) {
     letter-spacing: 0.08em;
   }
 
+  .journey-featured-mark {
+    width: fit-content;
+    color: var(--journey-accent);
+    font-size: 8px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+  }
+
   .journey-year article {
     grid-column: 2;
     min-width: 0;
@@ -439,6 +479,20 @@ function compareEvents(a: TimelineEvent, b: TimelineEvent) {
     font-weight: 400;
     line-height: 1.75;
     text-wrap: pretty;
+  }
+
+  .journey-summary :global(a) {
+    color: var(--journey-accent);
+    text-decoration-color: color-mix(in srgb, currentColor 42%, transparent);
+    text-decoration-line: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.2em;
+    transition: text-decoration-color 160ms ease;
+  }
+
+  .journey-summary :global(a:hover),
+  .journey-summary :global(a:focus-visible) {
+    text-decoration-color: currentColor;
   }
 
   .journey-links {
@@ -536,6 +590,11 @@ function compareEvents(a: TimelineEvent, b: TimelineEvent) {
       column-gap: 0.9rem;
       row-gap: 0;
       padding: 1.05rem 0 1.2rem;
+    }
+
+    .journey-year > ol > li.is-featured::after {
+      right: -4px;
+      left: -6px;
     }
 
     .journey-event-meta {
