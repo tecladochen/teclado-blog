@@ -233,6 +233,7 @@ function compareEvents(a: TimelineEvent, b: TimelineEvent) {
     --journey-accent: #8b5147;
     --journey-serif: 'Noto Serif SC', 'Songti SC', Georgia, serif;
     margin-top: clamp(-3rem, -5vw, -1.75rem);
+    font-family: var(--uno-fonts-ui);
   }
 
   :global(.dark) .journey-page {
@@ -274,7 +275,9 @@ function compareEvents(a: TimelineEvent, b: TimelineEvent) {
     border: 0;
     color: var(--theme-muted);
     background: transparent;
+    font-family: inherit;
     font-size: 11px;
+    font-weight: 400;
     line-height: 1;
     cursor: pointer;
     transition:
@@ -303,6 +306,7 @@ function compareEvents(a: TimelineEvent, b: TimelineEvent) {
 
   .journey-filters button[aria-pressed='true'] {
     color: var(--uno-colors-primary);
+    font-weight: 500;
   }
 
   .journey-filters button[aria-pressed='true']::after,
@@ -351,6 +355,7 @@ function compareEvents(a: TimelineEvent, b: TimelineEvent) {
   .journey-year-heading span {
     color: var(--theme-muted);
     font-size: 9px;
+    font-weight: 400;
   }
 
   .journey-year > ol {
@@ -408,6 +413,7 @@ function compareEvents(a: TimelineEvent, b: TimelineEvent) {
   .journey-kind {
     color: var(--theme-muted);
     font-size: 8px;
+    font-weight: 400;
     letter-spacing: 0.08em;
   }
 
@@ -430,6 +436,7 @@ function compareEvents(a: TimelineEvent, b: TimelineEvent) {
     margin: 0.4rem 0 0;
     color: var(--theme-sub);
     font-size: 0.82rem;
+    font-weight: 400;
     line-height: 1.75;
     text-wrap: pretty;
   }

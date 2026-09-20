@@ -25,7 +25,7 @@ function isNavActive(href: string) {
 ---
 
 <nav class="flex shrink-0 items-center gap-2 text-xs font-sans sm:gap-5" id="site-nav">
-  <ul class="m-0 flex list-none items-center gap-1 p-0 sm:gap-1.5">
+  <ul class="nav-list relative m-0 flex list-none items-center gap-1 p-0 sm:gap-1.5" data-nav-list>
     {
       navLinks.map((nav) => {
         const label = navLabels[nav.name] ?? t(nav.name)
@@ -36,7 +36,7 @@ function isNavActive(href: string) {
               data-nav-item
               data-href={nav.href}
               class:list={[
-                'nav-link not-underline-hover px-1.5 sm:px-3 py-2 sm:py-1 rounded-md transition-colors duration-150 block text-[13px] sm:text-[14px]',
+                'nav-link not-underline-hover px-1.5 sm:px-3 py-2 sm:py-1 rounded-md block text-[13px] sm:text-[14px]',
                 active ? 'is-active' : 'is-inactive',
               ]}
               href={nav.href}
@@ -73,40 +73,80 @@ function isNavActive(href: string) {
 </nav>
 
 <style>
+  .nav-list::before {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: var(--nav-indicator-width, 0px);
+    border-radius: 0.375rem;
+    background: rgba(0, 0, 0, 0.08);
+    content: '';
+    opacity: var(--nav-indicator-opacity, 0);
+    pointer-events: none;
+    transform: translateX(var(--nav-indicator-x, 0px));
+    transition:
+      width 320ms cubic-bezier(0.22, 1, 0.36, 1),
+      transform 320ms cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 120ms ease;
+  }
+  :global(.dark) .nav-list::before {
+    background: rgba(255, 255, 255, 0.12);
+  }
+  .nav-list > li {
+    position: relative;
+    z-index: 1;
+  }
   .nav-link {
     cursor: pointer;
+    font-weight: 400;
+    transition: color 180ms ease;
     user-select: none;
   }
   .nav-link.is-active {
-    font-weight: 600;
     color: #171717;
-    background-color: rgba(0, 0, 0, 0.08);
   }
   :global(.dark) .nav-link.is-active {
     color: #ededed;
-    background-color: rgba(255, 255, 255, 0.12);
   }
   .nav-link.is-inactive {
-    font-weight: 400;
     color: #737373;
   }
   .nav-link.is-inactive:hover {
     color: #171717;
-    background-color: rgba(0, 0, 0, 0.04);
   }
   :global(.dark) .nav-link.is-inactive {
     color: #a3a3a3;
   }
   :global(.dark) .nav-link.is-inactive:hover {
     color: #ededed;
-    background-color: rgba(255, 255, 255, 0.06);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .nav-list::before,
+    .nav-link {
+      transition: none;
+    }
   }
 </style>
 
 <script>
+  function positionActiveIndicator(activeItem: HTMLAnchorElement | null) {
+    const navList = document.querySelector<HTMLElement>('[data-nav-list]')
+    if (!navList || !activeItem)
+      return
+
+    const listRect = navList.getBoundingClientRect()
+    const itemRect = activeItem.getBoundingClientRect()
+    navList.style.setProperty('--nav-indicator-width', `${itemRect.width}px`)
+    navList.style.setProperty('--nav-indicator-x', `${itemRect.left - listRect.left}px`)
+    navList.style.setProperty('--nav-indicator-opacity', '1')
+  }
+
   function syncActiveNav(targetHref?: string) {
     const navItems = document.querySelectorAll<HTMLAnchorElement>('[data-nav-item]')
     const path = (targetHref !== undefined ? targetHref : window.location.pathname).replace(/\/$/, '') || '/'
+    let activeItem: HTMLAnchorElement | null = null
 
     function checkActive(href: string, targetPath: string) {
       if (href === '/') {
@@ -120,7 +160,11 @@ function isNavActive(href: string) {
       const active = checkActive(itemHref, path)
       item.classList.toggle('is-active', active)
       item.classList.toggle('is-inactive', !active)
+      if (active)
+        activeItem = item
     })
+
+    positionActiveIndicator(activeItem)
   }
 
   // 1. 点击时立即切换选中状态（0ms即时反馈）
@@ -144,5 +188,6 @@ function isNavActive(href: string) {
   document.addEventListener('astro:after-swap', () => syncActiveNav())
   window.addEventListener('popstate', () => syncActiveNav())
   document.addEventListener('DOMContentLoaded', () => syncActiveNav())
+  window.addEventListener('resize', () => syncActiveNav())
   syncActiveNav()
 </script>

@@ -1,8 +1,15 @@
 :root {
-  --uno-colors-primary: theme('colors.primary');
-  --uno-colors-background: theme('colors.background');
-  --uno-fonts-ui: theme('fontFamily.ui');
-  --uno-fonts-header: theme('fontFamily.header');
+  /*
+   * Keep the page shell independent from UnoCSS transformations. Swup keeps
+   * the shell alive between pages, so unresolved theme() values would make the
+   * background and inherited typography fall back after a client navigation.
+   */
+  --uno-colors-primary: #292b28;
+  --uno-colors-background: #f8f8f4;
+  --uno-fonts-ui: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  --uno-fonts-header: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
   --uno-colors-shadow: rgba(62, 56, 52, 0.07);
   --theme-grid: rgba(105, 103, 100, 0.11);
   --theme-border: rgba(105, 100, 96, 0.2);
@@ -11,6 +18,8 @@
   --theme-sub: #54504d;
 }
 .dark {
+  --uno-colors-primary: #ede4d8;
+  --uno-colors-background: #181614;
   --uno-colors-shadow: rgba(0, 0, 0, 0.3);
   --theme-grid: rgba(255, 255, 255, 0.05);
   --theme-border: rgba(255, 255, 255, 0.1);
@@ -19,10 +28,11 @@
   --theme-sub: #c8beaf;
 }
 html {
-  --at-apply: antialiased;
-  --at-apply: 'bg-background c-primary font-ui';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   background-color: var(--uno-colors-background);
   color: var(--uno-colors-primary);
+  font-family: var(--uno-fonts-ui);
   text-rendering: optimizeLegibility;
   overflow-x: hidden;
   background-size: 14px 14px;
