@@ -43,7 +43,7 @@ export const LANGUAGES = {
     select: '选择',
     open: '打开',
     close: '关闭',
-    journey_intro: '把重要的事记在这里，把日子慢慢走成故事。',
+    journey_intro: '记录 Teclado 在生活、项目、学习与博客建设中的重要节点。',
     journey_empty: '还没有记录，稍后补充。',
     journey_filter_all: '全部',
     journey_filter_life: '生活',

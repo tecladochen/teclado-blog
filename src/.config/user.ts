@@ -3,9 +3,9 @@ import type { UserConfig } from '~/types'
 export const userConfig: Partial<UserConfig> = {
   site: {
     title: 'Teclado',
-    subtitle: 'Digital Garden',
+    subtitle: '日常随记',
     author: 'Teclado',
-    description: '写文字、记生活，在网络的角落里留下成长与经历的痕迹——不再只是孤独，而是与自己对话。',
+    description: 'Teclado 的个人博客，用来记录日常生活、阅读感受和偶尔的技术折腾，也分享一路上的经历与想法。',
     website: 'https://blog.teclado.cn',
     pageSize: 5,
     socialLinks: [

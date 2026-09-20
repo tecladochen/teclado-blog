@@ -1,8 +1,6 @@
-# 孤独终洁
+# Teclado
 
-> No More Solitude
->
-> 写文字、记生活，在网络的角落里留下成长与经历的痕迹——不再只是孤独，而是与自己对话。
+> 记录日常生活、阅读感受和偶尔的技术折腾，也分享一路上的经历与想法。
 
 这是我（Teclado）的个人博客，使用 [Astro](https://astro.build/) 构建，主题基于 [astro-theme-typography](https://github.com/moeyua/astro-theme-typography)。
 
@@ -32,8 +30,8 @@ pnpm preview
 ---
 title: 标题
 pubDate: 2026-06-24
-categories: ["essay"]
-description: "描述"
+categories: ['随笔']
+description: '描述'
 ---
 ```
 

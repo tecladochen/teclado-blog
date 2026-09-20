@@ -5,6 +5,7 @@ import '~/styles/reading-design.css'
 import Pagination from '~/components/Pagination.astro'
 import LayoutDefault from '~/layouts/LayoutDefault.astro'
 import EditorialPostItem from '~/components/EditorialPostItem.astro'
+import SiteSeo from '~/components/SiteSeo.astro'
 import { getPosts, getPostDescription } from '~/utils'
 
 export const getStaticPaths = (async ({ paginate }) => {
@@ -20,9 +21,16 @@ export const getStaticPaths = (async ({ paginate }) => {
 type Props = InferGetStaticPropsType<typeof getStaticPaths>
 
 const { page } = Astro.props
+const isFirstPage = page.currentPage === 1
 ---
 
 <LayoutDefault>
+  <SiteSeo
+    slot="seo"
+    title={isFirstPage ? undefined : `文章 · 第 ${page.currentPage} 页`}
+    desc={isFirstPage ? themeConfig.site.description : `Teclado 的个人博客文章列表，第 ${page.currentPage} 页。`}
+  />
+
   <section class="editorial-index reading-design" aria-label="文章列表">
     {page.data.map((post) => <EditorialPostItem post={post} description={getPostDescription(post)} />)}
   </section>

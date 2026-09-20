@@ -38,6 +38,10 @@ function getUrl(id?: string) {
     desc={entry.data.description}
     banner={entry.data.banner}
     type="article"
+    publishedTime={entry.data.pubDate}
+    modifiedTime={entry.data.modDate}
+    author={entry.data.author}
+    categories={entry.data.categories}
   />
 
   <TableOfContents headings={headings} />

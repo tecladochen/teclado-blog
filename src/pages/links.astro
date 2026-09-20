@@ -1,5 +1,5 @@
 ---
-import { friendLinks, myBlogInfo, themeConfig } from '~/.config'
+import { friendLinks, myBlogInfo } from '~/.config'
 import SiteSeo from '~/components/SiteSeo.astro'
 import LayoutDefault from '~/layouts/LayoutDefault.astro'
 
@@ -15,7 +15,7 @@ const friendLinkProfile = [
 ---
 
 <LayoutDefault>
-  <SiteSeo slot="seo" title={`友链 · ${themeConfig.site.title}`} desc="常去的个人站点与独立博客" />
+  <SiteSeo slot="seo" title="友链" desc="Teclado 常访问的个人博客与独立站点。" />
 
   <section class="links-page" data-links-page>
     <h1 class="visually-hidden">友链</h1>
@@ -98,7 +98,7 @@ const friendLinkProfile = [
         friendLinks.map((link) => (
           <li class="friend-row" data-friend-row>
             <div class="friend-avatar-wrap">
-              <div class="friend-avatar-placeholder" aria-hidden="true">
+              <div class:list={['friend-avatar-placeholder', { 'is-hidden': Boolean(link.avatar) }]} aria-hidden="true">
                 {link.name.slice(0, 1)}
               </div>
               {link.avatar && (
@@ -109,7 +109,7 @@ const friendLinkProfile = [
                   height="44"
                   loading="lazy"
                   class="friend-avatar"
-                  onerror="this.style.display='none'"
+                  onerror="this.style.display='none';this.previousElementSibling?.classList.remove('is-hidden')"
                 />
               )}
             </div>
@@ -623,6 +623,10 @@ const friendLinkProfile = [
     color: var(--theme-sub);
     font-family: var(--friends-serif);
     font-size: 0.9rem;
+  }
+
+  .friend-avatar-placeholder.is-hidden {
+    display: none;
   }
 
   .friend-row:is(:hover, :focus-within) .friend-avatar {

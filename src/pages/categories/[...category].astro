@@ -1,6 +1,7 @@
 ---
 import { themeConfig } from '~/.config'
 import LayoutDefault from '~/layouts/LayoutDefault.astro'
+import SiteSeo from '~/components/SiteSeo.astro'
 import type { Post } from '~/types'
 import { formatDate, getCategories, getPathFromCategory } from '~/utils'
 
@@ -30,6 +31,8 @@ function getListItems(posts: Post[]) {
 ---
 
 <LayoutDefault>
+  <SiteSeo slot="seo" title={`${name}分类`} desc={`Teclado 的「${name}」分类文章，共 ${posts.length} 篇。`} />
+
   <section class="category-detail-page">
     <header class="category-detail-header">
       <h2 class="post-title"># {name}</h2>
