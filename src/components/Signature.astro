@@ -24,7 +24,7 @@ const centerlines = {
 <div class:list={['signature-wrapper inline-flex items-center gap-1.5 shrink-0', className]}>
   <svg
     viewBox={signature.viewBox}
-    class="signature-svg fill-current text-primary h-[1.75rem] sm:h-[2.35rem]"
+    class="signature-svg h-[1.75rem] fill-current text-primary sm:h-[2.35rem]"
     style={height ? `height: ${height};` : undefined}
     aria-label="Teclado 手写签名"
     role="img"
@@ -41,7 +41,8 @@ const centerlines = {
           stroke="white"
           stroke-width="16"
           stroke-linecap="round"
-          stroke-linejoin="round"></path>
+          stroke-linejoin="round"
+        ></path>
         <!-- 笔顺 2: 连笔流淌书写 eclado -->
         <path
           class="mask-path-eclado"
@@ -51,12 +52,13 @@ const centerlines = {
           stroke="white"
           stroke-width="16"
           stroke-linecap="round"
-          stroke-linejoin="round"></path>
+          stroke-linejoin="round"
+        ></path>
       </mask>
     </defs>
     <path d={signature.d} mask="url(#teclado-writing-mask)"></path>
   </svg>
-  {dot && <span class="signature-dot w-1.5 h-1.5 rounded-full bg-emerald-500 mt-2 sm:mt-2.5 shrink-0" />}
+  {dot && <span class="signature-dot mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500 sm:mt-2.5" />}
 </div>
 
 <style>

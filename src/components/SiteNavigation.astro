@@ -1,7 +1,7 @@
 ---
 import { themeConfig } from '~/.config'
-import { getSocialIconClass } from '~/utils/socialIcons'
 import AmbientEnvironment from '~/components/AmbientEnvironment.astro'
+import { getSocialIconClass } from '~/utils/socialIcons'
 
 const { navLinks, socialLinks } = themeConfig.site
 const { translate: t } = Astro.locals
@@ -24,8 +24,8 @@ function isNavActive(href: string) {
 }
 ---
 
-<nav class="flex items-center gap-2 sm:gap-5 text-xs font-sans shrink-0" id="site-nav">
-  <ul class="flex items-center gap-1 sm:gap-1.5 m-0 p-0 list-none">
+<nav class="flex shrink-0 items-center gap-2 text-xs font-sans sm:gap-5" id="site-nav">
+  <ul class="m-0 flex list-none items-center gap-1 p-0 sm:gap-1.5">
     {
       navLinks.map((nav) => {
         const label = navLabels[nav.name] ?? t(nav.name)
@@ -49,9 +49,9 @@ function isNavActive(href: string) {
     }
   </ul>
 
-  <div class="hidden sm:block h-3.5 w-[1px] bg-black/10 dark:bg-white/10 mx-1 select-none"></div>
+  <div class="mx-1 hidden h-3.5 w-[1px] select-none bg-black/10 sm:block dark:bg-white/10"></div>
 
-  <ul class="hidden sm:flex items-center gap-2 m-0 p-0 list-none">
+  <ul class="m-0 hidden list-none items-center gap-2 p-0 sm:flex">
     {
       socialLinks.map(({ href, name }) => (
         <li>
@@ -60,7 +60,7 @@ function isNavActive(href: string) {
             target="_blank"
             rel="noopener noreferrer"
             title={name}
-            class="text-neutral-400 hover:text-neutral-800 dark:text-neutral-500 dark:hover:text-neutral-200 transition-colors p-1.5 inline-flex items-center justify-center rounded not-underline-hover hover:bg-black/[0.04] dark:hover:bg-white/[0.06]"
+            class="not-underline-hover inline-flex items-center justify-center rounded p-1.5 text-neutral-400 transition-colors hover:bg-black/[0.04] dark:text-neutral-500 hover:text-neutral-800 dark:hover:bg-white/[0.06] dark:hover:text-neutral-200"
           >
             <span class:list={[getSocialIconClass(name), 'w-4 h-4 sm:w-4.5 sm:h-4.5']} aria-hidden="true" />
           </a>

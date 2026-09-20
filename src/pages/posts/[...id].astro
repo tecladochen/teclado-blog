@@ -1,12 +1,12 @@
 ---
 import type { GetStaticPaths, InferGetStaticPropsType } from 'astro'
+import { render } from 'astro:content'
 import Comments from '~/components/Comments.astro'
 import SiteSeo from '~/components/SiteSeo.astro'
 import TableOfContents from '~/components/TableOfContents.astro'
 import LayoutDefault from '~/layouts/LayoutDefault.astro'
 import LayoutPost from '~/layouts/LayoutPost.astro'
-import { getPosts, formatDate } from '~/utils'
-import { render } from 'astro:content'
+import { formatDate, getPosts } from '~/utils'
 
 export const getStaticPaths = (async () => {
   const posts = await getPosts()
@@ -53,7 +53,8 @@ function getUrl(id?: string) {
   <nav class="post-adjacent reading-design" aria-label="上一篇与下一篇文章">
     {
       [older, newer].map((post, index) =>
-        post ? (
+        post
+? (
           <a
             href={getUrl(post.id)}
             class:list={['post-neighbor not-underline-hover', { 'post-neighbor-next': index === 1 }]}
@@ -67,7 +68,8 @@ function getUrl(id?: string) {
               </span>
             </span>
           </a>
-        ) : (
+        )
+: (
           <div class:list={['post-neighbor neighbor-empty', { 'post-neighbor-next': index === 1 }]}>
             {index === 0 ? '没有更早的文章了' : '已经是最新文章了'}
           </div>
@@ -107,7 +109,7 @@ function getUrl(id?: string) {
     )
 
     const codeBlocks = Array.from(document.querySelectorAll('pre'))
-    const icon = "<div class='i-mdi-content-copy icon text-neutral-400'></div>"
+    const icon = '<div class=\'i-mdi-content-copy icon text-neutral-400\'></div>'
     for (const codeBlock of codeBlocks) {
       if (codeBlock.parentElement?.classList.contains('code-container')) {
         continue

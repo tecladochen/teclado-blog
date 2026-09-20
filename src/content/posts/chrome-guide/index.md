@@ -110,18 +110,18 @@ print(results)
 结果参考：
 
 ```python
-{ 
+{
  'documents': [[
-     'This is a document about oranges', 
+     'This is a document about oranges',
      'This is a document about pineapple'
- ]], 
- 'ids': [['id2', 'id1']], 
+ ]],
+ 'ids': [['id2', 'id1']],
  'distances': [[1.1462137699127197, 1.3015384674072266]]
- 'included': ['metadatas', 'documents', 'distances'], 
- 'uris': None, 
- 'data': None, 
- 'metadatas': [[None, None]], 
- 'embeddings': None, 
+ 'included': ['metadatas', 'documents', 'distances'],
+ 'uris': None,
+ 'data': None,
+ 'metadatas': [[None, None]],
+ 'embeddings': None,
  }
 ```
 
@@ -237,7 +237,7 @@ client = chromadb.PersistentClient(path="/path/to/save/to")
 客户端对象有一些有用的方法：
 
 - **heartbeat**： 返回纳秒级的心跳，用于确保客户端保持连接。
-- **reset**：  清空并完全重置数据库，这是**破坏性的，不可逆转的**。
+- **reset**： 清空并完全重置数据库，这是**破坏性的，不可逆转的**。
 
 ```python
 client.heartbeat()
@@ -329,7 +329,7 @@ collection = client.create_collection(
     metadata={
         "description": "my first Chroma collection",
         "created": str(datetime.now())
-    }  
+    }
 )
 ```
 
@@ -370,7 +370,7 @@ collections_subset = client.list_collections(limit=20, offset=50)
 新版本的 Chroma 会将你用于创建集合的嵌入函数存储在服务器上，以便客户端可以在后续的“获取”操作中解析该函数。如果你运行的是旧版本的 Chroma 客户端或服务器（<1.1.13），则需要在使用 get_collection 函数时提供和创建集合时相同的嵌入函数。
 
 ```python
-collection = client.get_collection( 
+collection = client.get_collection(
     name='my-collection',
     embedding_function=ef
 )
@@ -383,7 +383,7 @@ collection = client.get_collection(
 ```python
 collection.modify(
    name="new-name",
-   metadata={"description": "new description"} 
+   metadata={"description": "new description"}
 )
 ```
 
@@ -504,8 +504,8 @@ cohere_collection = client.get_or_create_collection(
     name="my_cohere_collection",
     configuration={
         "embedding_function": OpenAIEmbeddingFunction(
-        model_name="text-embedding-3-small"
-    	),
+            model_name="text-embedding-3-small"
+        ),
         "hnsw": {"space": "cosine"}
     }
 )
@@ -593,7 +593,7 @@ delete 方法还支持 where 过滤器，如果没有提供 id，它将删除集
 ```python
 collection.delete(
     ids=["id1", "id2", "id3",...],
-	where={"chapter": "20"}
+    where={"chapter": "20"}
 )
 ```
 
@@ -654,7 +654,7 @@ query 和 get 都有用于元数据过滤的 where 参数和用于全文搜索�
 collection.query(
     query_embeddings=[[11.1, 12.1, 13.1],[1.1, 2.3, 3.2], ...],
     n_results=5,
-    where={"page": 10}, 
+    where={"page": 10},
     where_document={"$contains": "search string"}
 )
 ```
@@ -702,7 +702,7 @@ collection.query(
 
 ### 元数据过滤
 
-get 和 query 中的 where 参数用于根据元数据过滤记录，例如，在这个查询操作中，Chroma 只查询元数据字段  page 值为 10 的记录：
+get 和 query 中的 where 参数用于根据元数据过滤记录，例如，在这个查询操作中，Chroma 只查询元数据字段 page 值为 10 的记录：
 
 ```python
 collection.query(

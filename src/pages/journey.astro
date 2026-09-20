@@ -1,7 +1,7 @@
 ---
-import { getCollection } from 'astro:content'
 import type { ImageMetadata } from 'astro'
 import { Image } from 'astro:assets'
+import { getCollection } from 'astro:content'
 import SiteSeo from '~/components/SiteSeo.astro'
 import LayoutDefault from '~/layouts/LayoutDefault.astro'
 import { formatDate } from '~/utils'
@@ -12,15 +12,15 @@ interface TimelineEvent {
   date: Date
   kind: 'life' | 'project' | 'learning' | 'blog'
   summary: string
-  images: { src: ImageMetadata; alt: string }[]
-  links: { label: string; url: string }[]
+  images: { src: ImageMetadata, alt: string }[]
+  links: { label: string, url: string }[]
   featured: boolean
 }
 
 const { translate: t } = Astro.locals
 const events: TimelineEvent[] = (await getCollection('journey'))
-  .filter((entry) => entry.data.draft !== true)
-  .map((entry) => ({
+  .filter(entry => entry.data.draft !== true)
+  .map(entry => ({
     id: entry.id,
     title: entry.data.title,
     date: entry.data.date,
@@ -36,7 +36,7 @@ const events: TimelineEvent[] = (await getCollection('journey'))
   }))
   .sort(compareEvents)
 
-const yearGroups = Map.groupBy(events, (event) => event.date.getUTCFullYear())
+const yearGroups = Map.groupBy(events, event => event.date.getUTCFullYear())
 const sortedYearGroups = [...yearGroups.entries()].sort(([a], [b]) => b - a)
 const filters = ['all', 'life', 'project', 'learning', 'blog'] as const
 
@@ -63,7 +63,7 @@ function compareEvents(a: TimelineEvent, b: TimelineEvent) {
             <button type="button" data-journey-filter={filter} aria-pressed={index === 0 ? 'true' : 'false'}>
               <span>{t(`journey_filter_${filter}`)}</span>
               <span class="journey-filter-count">
-                {filter === 'all' ? events.length : events.filter((event) => event.kind === filter).length}
+                {filter === 'all' ? events.length : events.filter(event => event.kind === filter).length}
               </span>
             </button>
           ))
@@ -73,9 +73,11 @@ function compareEvents(a: TimelineEvent, b: TimelineEvent) {
 
     <div class="journey-years" aria-live="polite">
       {
-        events.length === 0 ? (
+        events.length === 0
+? (
           <p class="journey-empty">{t('journey_empty')}</p>
-        ) : (
+        )
+: (
           sortedYearGroups.map(([year, yearEvents]) => (
             <section class="journey-year" data-journey-year>
               <header class="journey-year-heading">
@@ -83,7 +85,7 @@ function compareEvents(a: TimelineEvent, b: TimelineEvent) {
                 <span aria-hidden="true">年</span>
               </header>
               <ol>
-                {yearEvents.map((event) => (
+                {yearEvents.map(event => (
                   <li
                     class:list={{
                       'is-featured': event.featured,
@@ -102,7 +104,7 @@ function compareEvents(a: TimelineEvent, b: TimelineEvent) {
                       <p>{event.summary}</p>
                       {event.links.length > 0 && (
                         <ul class="journey-links">
-                          {event.links.map((link) => (
+                          {event.links.map(link => (
                             <li>
                               <a href={link.url}>
                                 {link.label} <span aria-hidden="true">↗</span>
@@ -114,7 +116,7 @@ function compareEvents(a: TimelineEvent, b: TimelineEvent) {
                     </article>
                     {event.images.length > 0 && (
                       <div class="journey-media" data-media-count={event.images.length}>
-                        {event.images.map((image) => (
+                        {event.images.map(image => (
                           <figure>
                             <Image
                               src={image.src}
@@ -173,13 +175,13 @@ function compareEvents(a: TimelineEvent, b: TimelineEvent) {
             }
 
             const filter = button.dataset.journeyFilter || 'all'
-            buttons.forEach((item) => item.setAttribute('aria-pressed', String(item === button)))
-            const visibleEvents = events.filter((event) => !event.hidden)
+            buttons.forEach(item => item.setAttribute('aria-pressed', String(item === button)))
+            const visibleEvents = events.filter(event => !event.hidden)
 
             if (!prefersReducedMotion.matches) {
               page.dataset.filtering = 'true'
               await Promise.all(
-                visibleEvents.map((event) =>
+                visibleEvents.map(event =>
                   play(
                     event,
                     [
@@ -200,7 +202,7 @@ function compareEvents(a: TimelineEvent, b: TimelineEvent) {
             })
 
             if (!prefersReducedMotion.matches) {
-              const revealedEvents = events.filter((event) => !event.hidden)
+              const revealedEvents = events.filter(event => !event.hidden)
               await Promise.all(
                 revealedEvents.map((event, index) =>
                   play(

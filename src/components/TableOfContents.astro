@@ -1,8 +1,8 @@
 ---
-type Heading = { depth: number; slug: string; text: string }
+type Heading = { depth: number, slug: string, text: string }
 type Props = { headings: Heading[] }
 
-const sections = Astro.props.headings.filter((heading) => heading.depth === 2)
+const sections = Astro.props.headings.filter(heading => heading.depth === 2)
 const showTableOfContents = sections.length >= 2
 ---
 
@@ -41,7 +41,7 @@ const showTableOfContents = sections.length >= 2
 
         <nav class="toc-navigation custom-scrollbar" aria-label="文章章节">
           <ol>
-            {sections.map((heading) => (
+            {sections.map(heading => (
               <li>
                 <a
                   href={`#${heading.slug}`}
@@ -180,7 +180,7 @@ const showTableOfContents = sections.length >= 2
       { signal },
     )
 
-    tocLinks.forEach((link) =>
+    tocLinks.forEach(link =>
       link.addEventListener(
         'click',
         (event) => {

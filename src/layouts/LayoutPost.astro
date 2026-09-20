@@ -1,7 +1,7 @@
 ---
-import '~/styles/reading-design.css'
-import PostMeta from '~/components/PostMeta.astro'
 import type { Post } from '~/types'
+import PostMeta from '~/components/PostMeta.astro'
+import '~/styles/reading-design.css'
 
 interface Props {
   post: Post
@@ -13,7 +13,7 @@ const { post } = Astro.props
 <article class="article-sheet reading-design">
   <PostMeta post={post} />
   <div class="post-reading-surface">
-    <div class="post-prose-content prose mx-auto w-full max-w-[39rem]">
+    <div class="post-prose-content mx-auto max-w-[39rem] w-full prose">
       <slot />
     </div>
   </div>
@@ -45,7 +45,8 @@ const { post } = Astro.props
     position: absolute;
     z-index: -1;
     inset: 0 -12px -16px 38px;
-    background: radial-gradient(
+    background:
+      radial-gradient(
         ellipse 58% 24% at 28% 12%,
         color-mix(in srgb, var(--reading-wash) 42%, transparent),
         transparent 72%
@@ -234,7 +235,8 @@ const { post } = Astro.props
     }
     .post-reading-surface::after {
       inset-inline: 0 -8px;
-      background: radial-gradient(
+      background:
+        radial-gradient(
           ellipse 74% 20% at 22% 8%,
           color-mix(in srgb, var(--reading-wash) 36%, transparent),
           transparent 72%

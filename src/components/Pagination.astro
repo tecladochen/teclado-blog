@@ -26,27 +26,29 @@ const {
 const hasPrev = Boolean(showLeft && leftUrl)
 const hasNext = Boolean(showRight && rightUrl)
 
-const activeClass =
-  'not-underline-hover group inline-flex min-h-11 items-center gap-2 px-1 sm:px-2 text-[13px] font-medium text-[#544b41] dark:text-[#c8beaf] transition-colors hover:text-[#0f4c3a] dark:hover:text-[#6ee7b7]'
-const disabledClass =
-  'inline-flex min-h-11 items-center gap-2 px-1 sm:px-2 text-[13px] text-[#b7afa4] dark:text-neutral-600 cursor-default'
+const activeClass
+  = 'not-underline-hover group inline-flex min-h-11 items-center gap-2 px-1 sm:px-2 text-[13px] font-medium text-[#544b41] dark:text-[#c8beaf] transition-colors hover:text-[#0f4c3a] dark:hover:text-[#6ee7b7]'
+const disabledClass
+  = 'inline-flex min-h-11 items-center gap-2 px-1 sm:px-2 text-[13px] text-[#b7afa4] dark:text-neutral-600 cursor-default'
 ---
 
 {
   totalPage > 1 && (
     <nav
-      class="mt-9 mb-10 grid grid-cols-[1fr_auto_1fr] items-center border-t border-[#a0876e]/25 pt-4 select-none dark:border-white/[0.08]"
+      class="grid grid-cols-[1fr_auto_1fr] mb-10 mt-9 select-none items-center border-t border-[#a0876e]/25 pt-4 dark:border-white/[0.08]"
       aria-label="文章分页"
     >
       <div class="flex justify-start">
-        {hasPrev ? (
+        {hasPrev
+? (
           <a rel="prev" href={leftUrl} class={activeClass}>
             <span aria-hidden="true" class="transition-transform duration-200 group-hover:-translate-x-0.5">
               ←
             </span>
             <span>{leftTitle}</span>
           </a>
-        ) : (
+        )
+: (
           <span class={disabledClass} aria-disabled="true">
             <span aria-hidden="true">←</span>
             <span>{leftTitle}</span>
@@ -56,24 +58,26 @@ const disabledClass =
 
       {showPageCount && (
         <div
-          class="px-3 text-[12px] font-mono tabular tracking-wider text-[#766d61] dark:text-[#9f968a]"
+          class="tabular px-3 text-[12px] text-[#766d61] tracking-wider font-mono dark:text-[#9f968a]"
           aria-label={`第 ${currentPage} 页，共 ${totalPage} 页`}
         >
-          <span class="font-semibold text-[#4a4137] dark:text-neutral-300">{currentPage}</span>
+          <span class="text-[#4a4137] font-semibold dark:text-neutral-300">{currentPage}</span>
           <span class="mx-1.5">/</span>
           <span>{totalPage}</span>
         </div>
       )}
 
       <div class="flex justify-end">
-        {hasNext ? (
+        {hasNext
+? (
           <a rel="next" href={rightUrl} class={activeClass}>
             <span>{rightTitle}</span>
             <span aria-hidden="true" class="transition-transform duration-200 group-hover:translate-x-0.5">
               →
             </span>
           </a>
-        ) : (
+        )
+: (
           <span class={disabledClass} aria-disabled="true">
             <span>{rightTitle}</span>
             <span aria-hidden="true">→</span>

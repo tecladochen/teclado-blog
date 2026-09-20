@@ -64,6 +64,7 @@ uv --version
 ```bash
 uv 0.8.0 (0b2357294 2025-07-17)
 ```
+
 ## python 版本管理
 
 如果系统中已安装 Python，uv 会**自动检测并使用**，无需额外配置。不过，uv 也能够安装和管理 Python 版本，uv 会根据需要自动安装缺失的 Python 版本，因此你无需预先安装 Python 即可上手。
@@ -143,7 +144,7 @@ for i in track(range(20), description="For example:"):
 如果在未指定依赖项的情况下执行，此脚本将失败：
 
 ```bash
-uv run --no-project example.py	
+uv run --no-project example.py
 ```
 
 使用 --with 选项请求依赖项：
@@ -249,7 +250,7 @@ uv tool dir
 
 需要注意，安装工具并不能使其模块在当前环境中可用，uv 隔离管理了工具、脚本和项目环境，来减少相互影响和冲突。
 
-与 uvx 不同，uv tool install 操作的是一个 *包*，并且会安装该工具提供的所有可执行文件，所以无需 --from 即可指定包版本和来源：
+与 uvx 不同，uv tool install 操作的是一个 _包_，并且会安装该工具提供的所有可执行文件，所以无需 --from 即可指定包版本和来源：
 
 ```bash
 uv tool install 'httpie>0.1.0'
@@ -284,9 +285,9 @@ uv init
 ```bash
 .
 ├── .venv
-│   ├── bin
-│   ├── lib
-│   └── pyvenv.cfg
+│   ├── bin
+│   ├── lib
+│   └── pyvenv.cfg
 ├── .python-version
 ├── README.md
 ├── main.py
@@ -372,4 +373,3 @@ uv publish
 ## 结语
 
 文档看到现在基本了解的 uv 的用法和原理，因为大多数编程语言都有自己的包管理器，所以理解起来还不算太难，更多操作细节需要在实践中去摸索。
-

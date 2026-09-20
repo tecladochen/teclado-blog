@@ -1,11 +1,11 @@
 ---
 import { themeConfig } from '~/.config'
+import Analytics from '~/components/Analytics.astro'
+import LaTeX from '~/components/LaTeX.astro'
+import Signature from '~/components/Signature.astro'
 import SiteFooter from '~/components/SiteFooter.astro'
 import SiteNavigation from '~/components/SiteNavigation.astro'
-import Signature from '~/components/Signature.astro'
 import SiteSeo from '~/components/SiteSeo.astro'
-import LaTeX from '~/components/LaTeX.astro'
-import Analytics from '~/components/Analytics.astro'
 import ThemeScript from '~/components/ThemeScript.astro'
 import '~/styles/global.css'
 
@@ -40,12 +40,12 @@ const dark = themeConfig.appearance.theme === 'dark'
     />
   </head>
 
-  <body class="min-h-100vh w-full max-w-[880px] mx-auto px-4 sm:px-6 py-5 sm:py-10 flex flex-col">
+  <body class="mx-auto max-w-[880px] min-h-100vh w-full flex flex-col px-4 py-5 sm:px-6 sm:py-10">
     <!-- 极简现代顶栏 -->
     <header
-      class="transition-swup-header w-full pb-5 sm:pb-6 mb-8 sm:mb-12 border-b border-black/[0.06] dark:border-white/[0.08] flex items-center justify-between gap-1 sm:gap-4"
+      class="transition-swup-header mb-8 w-full flex items-center justify-between gap-1 border-b border-black/[0.06] pb-5 sm:mb-12 sm:gap-4 dark:border-white/[0.08] sm:pb-6"
     >
-      <a href="/" class="not-underline-hover inline-flex items-center shrink-0" title="Teclado - 首页" data-nav-logo>
+      <a href="/" class="not-underline-hover inline-flex shrink-0 items-center" title="Teclado - 首页" data-nav-logo>
         <Signature />
       </a>
 
@@ -53,11 +53,11 @@ const dark = themeConfig.appearance.theme === 'dark'
       <SiteNavigation />
     </header>
 
-    <main class="transition-swup-main flex-1 w-full outline-none">
+    <main class="transition-swup-main w-full flex-1 outline-none">
       <slot />
     </main>
 
-    <footer class="transition-swup-footer mt-16 sm:mt-20 pb-7 sm:pb-9">
+    <footer class="transition-swup-footer mt-16 pb-7 sm:mt-20 sm:pb-9">
       <SiteFooter />
     </footer>
 

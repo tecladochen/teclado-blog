@@ -17,7 +17,7 @@ function parseFooter(str: string) {
   footer.length && (
     <div class="footer-colophon">
       <p class="footer-owner" set:html={parseFooter(footer[0])} />
-      {footer.slice(1).map((str) => (
+      {footer.slice(1).map(str => (
         <p class="footer-record" set:html={parseFooter(str)} />
       ))}
     </div>

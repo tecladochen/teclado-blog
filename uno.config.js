@@ -56,22 +56,16 @@ export default defineConfig({
       /^col-(\d+)-(\d)$/,
       ([, start, end]) => ({ 'grid-column': `${start}/${end}` }),
     ],
-    [
-      /^scrollbar-hide$/,
-      ([_]) => `.scrollbar-hide { scrollbar-width:none;-ms-overflow-style: none; }
-      .scrollbar-hide::-webkit-scrollbar {display:none;}`,
-    ],
   ],
   presets: [
     presetWind3(),
     presetTypography({ cssExtend }),
     presetAttributify(),
     presetIcons({ scale: 1.2, warn: true }),
-    presetTheme ({
+    presetTheme({
       theme: {
         dark: {
           colors: { ...colorsDark, shadow: '#FFFFFF14' },
-          // TODO 需要配置代码块颜色
         },
         light: {
           colors: { ...colorsLight, shadow: '#00000014' },

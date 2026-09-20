@@ -26,7 +26,8 @@ html {
   text-rendering: optimizeLegibility;
   overflow-x: hidden;
   background-size: 14px 14px;
-  background-image: linear-gradient(to right, var(--theme-grid) 1px, transparent 1px),
+  background-image:
+    linear-gradient(to right, var(--theme-grid) 1px, transparent 1px),
     linear-gradient(to bottom, var(--theme-grid) 1px, transparent 1px);
 }
 body {

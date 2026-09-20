@@ -6,6 +6,7 @@ description: '介绍向量数据库的工作流程与选型思路，梳理 FLAT�
 categories: ['AI']
 draft: true
 ---
+
 在之前介绍过了什么是 embedding 以及在构建 RAG 系统时如何选择合适的 embedding 模型，当我们将原始数据嵌入成 embedding 向量后，为了能重复使用这些向量数据，我们就需要一个专门用于向量存储的数据库——向量数据库（vector database）。
 
 ## 什么是向量数据库
@@ -63,15 +64,16 @@ IVF（Inverted File Index）倒排文件索引，用 K-means 算法将所有向�
 ![IVF-Index](./IVF-Index.png)
 
 ### HNSW index
+
 HNSW（Hierarchical Navigable Small World）的核心思想是通过构建一个分层的图结构来实现高效的近似最近邻搜索，所以首先需要分层（例如分 3 层），然后确定每层的数据数量，layer0 层是全部数据，从 layer0 层中随机抽取一部分数据到 layer1 层，layer2 层则从下一层 layer1 层中抽取一部分数据，为每一层的数据建立 k 近邻图结构。搜索时从顶层开始，找到与查询向量最接近的节点，然后逐层向下，在更精细的图中进行搜索，直到最底层。
 
 ![hnsw](./hnsw.jpg)
 
-### PG 
+### PG
+
 PG（Product Quantization）量化乘积是一种高效的向量压缩技术，核心思想是将高维向量空间分解成多个低维子空间，然后对每个子空间进行聚类生成码本，每个子空间用聚类中心的索引来表示，原始向量压缩为低维子空间索引的组合。使用量化乘积可以大大降低内存占用（压缩率可达 10-100 倍），提高查询速度，量化过程会损失部分信息，所以需要平衡速度和精度。PQ 常与其他索引技术（如IVF）结合使用，形成 IVF-PQ 混合索引，在精度和效率间取得更好平衡。
 
 ![pg](./pg.jpg)
-
 
 ## 相似性度量
 
@@ -80,9 +82,11 @@ PG（Product Quantization）量化乘积是一种高效的向量压缩技术，�
 ### 欧几里得距离
 
 欧几里得距离是指两个向量之间的直线距离，它的计算公式为：
+
 $$
 d(\mathbf{A}, \mathbf{B})=\sqrt{\sum_{i=1}^{n}\left(A_{i}-B_{i}\right)^{2}}
 $$
+
 其中，$A$ 和 $B$ 分别表示两个向量，$n$ 表示向量的维度。
 
 ![euclidean distance](./euclidean_distance.jpg)
@@ -94,6 +98,7 @@ $$
 $$
 \text{cosine}(A,B) = \frac{\mathbf{A} \cdot \mathbf{B}}{|\mathbf{A}| |\mathbf{B}|}
 $$
+
 其中，$A$ 和 $B$ 分别表示两个向量，$\cdot$ 表示向量的点积，$|A|$ 和 $|B|$ 分别表示两个向量的模长。
 
 ![cosine](./cosine.jpg)
@@ -101,13 +106,16 @@ $$
 ### 点积相似度
 
 向量的点积相似度是指两个向量之间的点积值，它的计算公式为：
+
 $$
 \text{dot}(A,B) = \mathbf{A} \cdot \mathbf{B} = \sum_{i=1}^{n} A_i B_i
 $$
+
 其中，$A$ 和 $B$ 分别表示两个向量，$n$ 表示向量的维度。
 ![dot_product](./dot_product.jpg)
 
 ## 过滤（filtering）
+
 在实际的业务场景中，往往不需要在整个向量数据库中进行相似性搜索，而是通过部分的业务字段进行过滤再进行查询。所以存储在数据库的向量往往还需要包含元数据，例如用户 ID、文档 ID 等信息。这样就可以在搜索的时候，根据元数据来过滤搜索结果，从而得到最终的结果。
 
 为此，向量数据库通常维护两个索引：一个是向量索引，另一个是元数据索引。
@@ -119,7 +127,6 @@ $$
 - Post-filtering：在向量搜索完成后进行元数据过滤。考虑全部数据之后进行元数据过滤会增加很多开销，并且减慢查询速度。
 
 为了优化过滤流程，向量数据库使用各种技术，例如利用先进的索引方法来处理元数据或使用并行处理来加速过滤任务。平衡搜索性能和筛选精度之间的权衡对于提供高效且相关的向量数据库查询结果至关重要。
-
 
 ## 热门的向量数据库
 
@@ -139,4 +146,3 @@ $$
 [https://guangzhengli.com/blog/zh/vector-database](https://guangzhengli.com/blog/zh/vector-database)
 
 [https://zhuanlan.zhihu.com/p/27399676042](https://zhuanlan.zhihu.com/p/27399676042)
-

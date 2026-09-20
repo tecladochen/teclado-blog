@@ -1,7 +1,7 @@
 ---
+import { themeConfig } from '~/.config'
 import GoogleAnalytics from '~/components/analytics/GoogleAnalytics.astro'
 import UmamiAnalytics from '~/components/analytics/UmamiAnalytics.astro'
-import { themeConfig } from '~/.config'
 
 const PUBLIC_GOOGLE_ANALYTICS_ID = import.meta.env.PUBLIC_GOOGLE_ANALYTICS_ID
 const googleAnalyticsId = themeConfig.analytics.googleAnalyticsId || PUBLIC_GOOGLE_ANALYTICS_ID

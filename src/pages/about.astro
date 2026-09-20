@@ -1,7 +1,7 @@
 ---
 import { getEntry, render } from 'astro:content'
-import LayoutDefault from '~/layouts/LayoutDefault.astro'
 import SiteSeo from '~/components/SiteSeo.astro'
+import LayoutDefault from '~/layouts/LayoutDefault.astro'
 
 const aboutPost = await getEntry('spec', 'about')
 if (!aboutPost) {
@@ -20,7 +20,7 @@ const { Content } = await render(aboutPost)
         {
           aboutPost.data.labels && (
             <ul class="about-labels" aria-label="个人标签">
-              {aboutPost.data.labels.map((label) => (
+              {aboutPost.data.labels.map(label => (
                 <li>{label}</li>
               ))}
             </ul>
@@ -46,7 +46,7 @@ const { Content } = await render(aboutPost)
         const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
         if (reducedMotion || !('IntersectionObserver' in window)) {
-          blocks.forEach((block) => block.classList.add('is-visible'))
+          blocks.forEach(block => block.classList.add('is-visible'))
           return
         }
 
@@ -54,7 +54,7 @@ const { Content } = await render(aboutPost)
         const observer = new IntersectionObserver(
           (entries) => {
             const visibleEntries = entries
-              .filter((entry) => entry.isIntersecting)
+              .filter(entry => entry.isIntersecting)
               .sort((a, b) => blocks.indexOf(a.target) - blocks.indexOf(b.target))
 
             visibleEntries.forEach((entry, index) => {
@@ -65,7 +65,7 @@ const { Content } = await render(aboutPost)
           { rootMargin: '0px 0px -8% 0px', threshold: 0.08 },
         )
 
-        blocks.forEach((block) => observer.observe(block))
+        blocks.forEach(block => observer.observe(block))
       })()
     </script>
   </section>

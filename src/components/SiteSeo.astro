@@ -1,5 +1,7 @@
 ---
-import { SEO, type SEOProps } from 'astro-seo'
+import type { ImageMetadata } from 'astro'
+import type { SEOProps } from 'astro-seo'
+import { SEO } from 'astro-seo'
 import { getImage } from 'astro:assets'
 import { themeConfig } from '~/.config'
 
@@ -20,8 +22,8 @@ const configSEO = themeConfig.seo
 const configSite = themeConfig.site
 
 const pageTitle = props.title ?? configSite.title
-const title =
-  props.title && props.title !== configSite.title ? `${props.title} · ${configSite.title}` : configSite.title
+const title
+  = props.title && props.title !== configSite.title ? `${props.title} · ${configSite.title}` : configSite.title
 const desc = props.desc ?? configSite.description
 const siteUrl = Astro.site ?? new URL(configSite.website)
 const canonical = new URL(Astro.url.pathname, siteUrl).toString()
@@ -70,7 +72,7 @@ const seoMeta = [
           : []),
         { property: 'article:author', content: author },
         ...(props.categories?.[0] ? [{ property: 'article:section', content: props.categories[0] }] : []),
-        ...(props.categories?.map((category) => ({ property: 'article:tag', content: category })) ?? []),
+        ...(props.categories?.map(category => ({ property: 'article:tag', content: category })) ?? []),
       ]
     : []),
   ...(twitter
@@ -84,7 +86,7 @@ const seoMeta = [
 
 const openGraph: SEOProps['openGraph'] = {
   basic: {
-    title: title,
+    title,
     type: props.type ?? 'website',
     image: optimizedImage,
     url: canonical,
@@ -99,50 +101,50 @@ const structuredData = JSON.stringify({
     {
       '@type': 'WebSite',
       '@id': websiteId,
-      url: new URL('/', siteUrl).toString(),
-      name: configSite.title,
-      description: configSite.description,
-      inLanguage: languageTag,
-      author: {
+      'url': new URL('/', siteUrl).toString(),
+      'name': configSite.title,
+      'description': configSite.description,
+      'inLanguage': languageTag,
+      'author': {
         '@type': 'Person',
-        name: configSite.author,
-        url: new URL('/about/', siteUrl).toString(),
+        'name': configSite.author,
+        'url': new URL('/about/', siteUrl).toString(),
       },
     },
     props.type === 'article'
       ? {
           '@type': 'BlogPosting',
           '@id': webpageId,
-          url: canonical,
-          mainEntityOfPage: canonical,
-          headline: pageTitle,
-          name: title,
-          description: desc,
-          image: optimizedImage,
-          datePublished: props.publishedTime?.toISOString(),
-          dateModified: (props.modifiedTime ?? props.publishedTime)?.toISOString(),
-          inLanguage: languageTag,
-          keywords: props.categories,
-          author: {
+          'url': canonical,
+          'mainEntityOfPage': canonical,
+          'headline': pageTitle,
+          'name': title,
+          'description': desc,
+          'image': optimizedImage,
+          'datePublished': props.publishedTime?.toISOString(),
+          'dateModified': (props.modifiedTime ?? props.publishedTime)?.toISOString(),
+          'inLanguage': languageTag,
+          'keywords': props.categories,
+          'author': {
             '@type': 'Person',
-            name: author,
-            url: new URL('/about/', siteUrl).toString(),
+            'name': author,
+            'url': new URL('/about/', siteUrl).toString(),
           },
-          publisher: {
+          'publisher': {
             '@type': 'Person',
-            name: configSite.author,
-            url: new URL('/about/', siteUrl).toString(),
+            'name': configSite.author,
+            'url': new URL('/about/', siteUrl).toString(),
           },
-          isPartOf: { '@id': websiteId },
+          'isPartOf': { '@id': websiteId },
         }
       : {
           '@type': 'WebPage',
           '@id': webpageId,
-          url: canonical,
-          name: title,
-          description: desc,
-          inLanguage: languageTag,
-          isPartOf: { '@id': websiteId },
+          'url': canonical,
+          'name': title,
+          'description': desc,
+          'inLanguage': languageTag,
+          'isPartOf': { '@id': websiteId },
         },
   ],
 }).replace(/</g, '\\u003c')

@@ -36,8 +36,8 @@ const friendLinkProfile = [
                 aria-label="复制全部友链资料"
               >
                 <span class="copy-icon" aria-hidden="true">
-                  <span class="copy-icon-default i-tabler-copy w-3.5 h-3.5"></span>
-                  <span class="copy-icon-success i-tabler-check w-3.5 h-3.5"></span>
+                  <span class="copy-icon-default i-tabler-copy h-3.5 w-3.5"></span>
+                  <span class="copy-icon-success i-tabler-check h-3.5 w-3.5"></span>
                 </span>
                 <span data-copy-label aria-live="polite">复制全部</span>
               </button>
@@ -95,7 +95,7 @@ const friendLinkProfile = [
 
     <ol class="links-list">
       {
-        friendLinks.map((link) => (
+        friendLinks.map(link => (
           <li class="friend-row" data-friend-row>
             <div class="friend-avatar-wrap">
               <div class:list={['friend-avatar-placeholder', { 'is-hidden': Boolean(link.avatar) }]} aria-hidden="true">
@@ -128,7 +128,7 @@ const friendLinkProfile = [
             </div>
             <p class="friend-description">{link.desc}</p>
             <div class="friend-tags" aria-label="标签">
-              {link.tags?.slice(0, 3).map((tag) => (
+              {link.tags?.slice(0, 3).map(tag => (
                 <span>{tag}</span>
               ))}
             </div>
@@ -142,7 +142,7 @@ const friendLinkProfile = [
                   title="RSS 订阅"
                   aria-label={`${link.name} RSS 订阅`}
                 >
-                  <span class="i-tabler-rss w-3.5 h-3.5" aria-hidden="true" />
+                  <span class="i-tabler-rss h-3.5 w-3.5" aria-hidden="true" />
                 </a>
               )}
               <span class="friend-arrow" aria-hidden="true">
@@ -198,7 +198,7 @@ const friendLinkProfile = [
         })
 
         if (reducedMotion || !('IntersectionObserver' in window)) {
-          rows.forEach((row) => row.classList.add('is-visible'))
+          rows.forEach(row => row.classList.add('is-visible'))
           return
         }
 
@@ -206,7 +206,7 @@ const friendLinkProfile = [
         const observer = new IntersectionObserver(
           (entries) => {
             const visibleEntries = entries
-              .filter((entry) => entry.isIntersecting)
+              .filter(entry => entry.isIntersecting)
               .sort((a, b) => rows.indexOf(a.target) - rows.indexOf(b.target))
 
             visibleEntries.forEach((entry, index) => {
@@ -217,7 +217,7 @@ const friendLinkProfile = [
           { rootMargin: '0px 0px -7% 0px', threshold: 0.08 },
         )
 
-        rows.forEach((row) => observer.observe(row))
+        rows.forEach(row => observer.observe(row))
       })()
     </script>
   </section>

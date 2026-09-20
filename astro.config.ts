@@ -1,3 +1,4 @@
+import { unified } from '@astrojs/markdown-remark'
 import mdx from '@astrojs/mdx'
 import sitemap from '@astrojs/sitemap'
 import swup from '@swup/astro'
@@ -16,18 +17,14 @@ export default defineConfig({
   base: '/',
   vite: {
     plugins: [
-      // eslint-disable-next-line ts/ban-ts-comment
-      // @ts-ignore
       devtoolsJson(),
     ],
   },
   markdown: {
-    remarkPlugins: [
-      remarkMath,
-    ],
-    rehypePlugins: [
-      rehypeKatex,
-    ],
+    processor: unified({
+      remarkPlugins: [remarkMath],
+      rehypePlugins: [rehypeKatex],
+    }),
     shikiConfig: {
       theme: 'dracula',
       wrap: true,

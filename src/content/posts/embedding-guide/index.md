@@ -15,8 +15,6 @@ draft: true
 
 ![embedding 的目的](./embedding-purpose.png)
 
-
-
 由于 embedding 模型有这种精确理解语义的能力，通过对于不同句子段落的语义相似度的计算，embedding 模型可以应用在检索增强生成（RAG）、推荐系统这些领域。
 
 注意：在后面学习 transformer 架构时会发现模型架构中会一个 embedding 层，这里的 embedding 层和 embedding 模型存在差异，核心区别是 embedding 层是服务于生成任务的内部零件，而 embedding 模型是专注于理解的最终完整产品。所以他们的目标、训练方式和优化方向完全不同。
@@ -94,20 +92,18 @@ HuggingFace 的 **MTEB leaderboard** 是一个一站式的文本 embedding 模�
 但是最近的 Qwen3/Qwen3-Embedding 模型很火，这个模型基于 Qwen3-base 模型训练，属于 LLM 架构，但是采用了混合专家（MoE）架构设计，针对 embedding 任务做了深度优化。虽然单次推理成本比 BERT 模型高，但在大规模检索系统中，Qwen3-Embedding 的高准确率可减少召回次数，综合成本效益反而提升。
 
 所以说 Qwen3-Embedding 选择基于LLM架构，并非简单追求模型规模，而是通过平衡精度-成本来完成更好的 embedding 效果。对于简单任务，BERT 仍是高性价比选择；但在需要泛化性、多语言支持或长文本处理的场景，LLM 衍生的嵌入模型也许会变成发展趋势。
- 
+
 因为 MTEB 评测数据集是公开的，所以模型通常会基于评测数据进行效果优化，因此 MTEB 的排名和评分更适合作为参考，一般来说选择合适 embedding 模型的流程是根据自己的场景需求参考 MTEB 榜单挑选出一些备选模型，然后构建 baseline 和自己评测的数据集，然后对于 baseline 进行测试，根据测试的结果来选择是否要更换或者优化 embedding 模型，经过反复迭代才能找到适合自己的 embedding 模型。
 
 ![挑选 embedding 模型的流程](./embedding-model-selection.png)
-
-
 
 ## embedding 的调用方式
 
 这里选择 Qwen3/Qwen3-Embedding-0.6B 模型来演示，代码来自官方示例。
 
-### transformers 
+### transformers
 
-Qwen3-Embedding 系列模型是指令感知型嵌入模型，所以对于 query 必须要指定 task，而对于 document 则不需要指定 task，get_detailed_instruct()  这个功能函数就是将 query 和 task 绑定；Qwen3 模型处理数据使用了左填充（Left-Padding），序列的最后一个 token 通常都是有效的，在模型推理后最后一个 token 的向量包含整个序列的信息，last_token_pool() 这个功能函数的作用就是获取序列最后一个 token 向量作为最终的 embedding 向量。
+Qwen3-Embedding 系列模型是指令感知型嵌入模型，所以对于 query 必须要指定 task，而对于 document 则不需要指定 task，get_detailed_instruct() 这个功能函数就是将 query 和 task 绑定；Qwen3 模型处理数据使用了左填充（Left-Padding），序列的最后一个 token 通常都是有效的，在模型推理后最后一个 token 的向量包含整个序列的信息，last_token_pool() 这个功能函数的作用就是获取序列最后一个 token 向量作为最终的 embedding 向量。
 
 ```python
 # 导入要用到的库

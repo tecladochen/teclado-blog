@@ -1,18 +1,20 @@
 ---
 import type { GetStaticPaths, InferGetStaticPropsType } from 'astro'
 import { themeConfig } from '~/.config'
-import '~/styles/reading-design.css'
-import Pagination from '~/components/Pagination.astro'
-import LayoutDefault from '~/layouts/LayoutDefault.astro'
 import EditorialPostItem from '~/components/EditorialPostItem.astro'
+import Pagination from '~/components/Pagination.astro'
 import SiteSeo from '~/components/SiteSeo.astro'
-import { getPosts, getPostDescription } from '~/utils'
+import LayoutDefault from '~/layouts/LayoutDefault.astro'
+import { getPostDescription, getPosts } from '~/utils'
+import '~/styles/reading-design.css'
 
 export const getStaticPaths = (async ({ paginate }) => {
   const posts = await getPosts()
   posts.sort((a, b) => {
-    if (a.data.pin && !b.data.pin) return -1
-    if (!a.data.pin && b.data.pin) return 1
+    if (a.data.pin && !b.data.pin)
+return -1
+    if (!a.data.pin && b.data.pin)
+return 1
     return 0
   })
   return paginate(posts, { pageSize: themeConfig.site.pageSize })
@@ -32,7 +34,7 @@ const isFirstPage = page.currentPage === 1
   />
 
   <section class="editorial-index reading-design" aria-label="文章列表">
-    {page.data.map((post) => <EditorialPostItem post={post} description={getPostDescription(post)} />)}
+    {page.data.map(post => <EditorialPostItem post={post} description={getPostDescription(post)} />)}
   </section>
 
   <div>
