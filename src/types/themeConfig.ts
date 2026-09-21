@@ -57,6 +57,7 @@ export interface ConfigComment {
   disqus: Disqus
   giscus: Giscus
   twikoo: Twikoo
+  waline: Waline
 }
 
 export interface ConfigRSS {
@@ -105,6 +106,10 @@ interface Twikoo {
   envId: string
   region?: string
   lang?: string
+}
+
+interface Waline {
+  serverURL: string
 }
 
 interface Disqus {

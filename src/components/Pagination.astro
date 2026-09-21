@@ -27,7 +27,7 @@ const hasPrev = Boolean(showLeft && leftUrl)
 const hasNext = Boolean(showRight && rightUrl)
 
 const activeClass
-  = 'not-underline-hover group inline-flex min-h-11 items-center gap-2 px-1 sm:px-2 text-[13px] font-medium text-[#544b41] dark:text-[#c8beaf] transition-colors hover:text-[#0f4c3a] dark:hover:text-[#6ee7b7]'
+  = 'pagination-link not-underline-hover group inline-flex min-h-11 items-center gap-2 px-1 sm:px-2 text-[13px] font-medium transition-colors'
 const disabledClass
   = 'inline-flex min-h-11 items-center gap-2 px-1 sm:px-2 text-[13px] text-[#b7afa4] dark:text-neutral-600 cursor-default'
 ---
@@ -94,9 +94,11 @@ const disabledClass
   }
   a {
     border-bottom: 1px solid transparent;
+    color: var(--theme-sub);
   }
   a:hover {
     border-bottom-color: currentColor;
+    color: var(--theme-accent-hover);
   }
   @media (prefers-reduced-motion: reduce) {
     a,

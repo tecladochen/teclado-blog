@@ -1,5 +1,6 @@
 ---
 import { friendLinks, myBlogInfo } from '~/.config'
+import Waline from '~/components/comments/Waline.astro'
 import SiteSeo from '~/components/SiteSeo.astro'
 import LayoutDefault from '~/layouts/LayoutDefault.astro'
 
@@ -154,6 +155,15 @@ const friendLinkProfile = [
       }
     </ol>
 
+    <div class="links-comments">
+      <Waline
+        path="/links/"
+        heading="留言"
+        description="申请友链或随便聊聊，留言将在审核后显示。"
+        placeholder="想交换友链的话，请留下名称、网址、描述和头像地址…"
+      />
+    </div>
+
     <script is:inline>
       ;(() => {
         const page = document.querySelector('[data-links-page]')
@@ -225,17 +235,17 @@ const friendLinkProfile = [
 
 <style>
   .links-page {
-    --friends-ink: #2e5946;
-    --friends-wash: rgba(46, 89, 70, 0.075);
-    --friends-line: rgba(46, 89, 70, 0.34);
+    --friends-ink: var(--theme-accent);
+    --friends-wash: var(--theme-accent-soft);
+    --friends-line: var(--theme-accent-line);
     --friends-serif: 'Songti SC', 'Noto Serif CJK SC', 'Source Han Serif SC', STSong, SimSun, Georgia, serif;
     margin-top: clamp(-1.5rem, -2.6vw, -0.8rem);
   }
 
   :global(.dark) .links-page {
-    --friends-ink: #9ab8a8;
-    --friends-wash: rgba(112, 151, 130, 0.12);
-    --friends-line: rgba(154, 184, 168, 0.4);
+    --friends-ink: var(--theme-accent);
+    --friends-wash: var(--theme-accent-soft);
+    --friends-line: var(--theme-accent-line);
   }
 
   .visually-hidden {
@@ -529,6 +539,10 @@ const friendLinkProfile = [
     list-style: none;
   }
 
+  .links-comments {
+    margin-top: clamp(2.7rem, 5.5vw, 3.8rem);
+  }
+
   .friend-row {
     position: relative;
     display: grid;
@@ -768,6 +782,10 @@ const friendLinkProfile = [
 
     .friend-row {
       min-height: 136px;
+    }
+
+    .links-comments {
+      margin-top: 2.4rem;
     }
   }
 

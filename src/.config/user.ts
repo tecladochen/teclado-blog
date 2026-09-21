@@ -56,6 +56,11 @@ export const userConfig: Partial<UserConfig> = {
   seo: {
     twitter: '',
   },
+  comment: {
+    waline: {
+      serverURL: 'https://comments.teclado.cn',
+    },
+  },
   analytics: {
     umamiAnalyticsId: 'cdea5eb4-dd22-42aa-926a-b3b97c891417',
   },

@@ -16,6 +16,10 @@
   --theme-border-subtle: rgba(105, 100, 96, 0.11);
   --theme-muted: #746f6b;
   --theme-sub: #54504d;
+  --theme-accent: #7a5148;
+  --theme-accent-hover: #5f3d36;
+  --theme-accent-soft: rgba(122, 81, 72, 0.09);
+  --theme-accent-line: rgba(122, 81, 72, 0.34);
 }
 .dark {
   --uno-colors-primary: #ede4d8;
@@ -26,6 +30,10 @@
   --theme-border-subtle: rgba(255, 255, 255, 0.06);
   --theme-muted: #9c9285;
   --theme-sub: #c8beaf;
+  --theme-accent: #d0a49a;
+  --theme-accent-hover: #e3bbb2;
+  --theme-accent-soft: rgba(208, 164, 154, 0.12);
+  --theme-accent-line: rgba(208, 164, 154, 0.4);
 }
 html {
   -webkit-font-smoothing: antialiased;
@@ -45,11 +53,11 @@ body {
 }
 
 ::selection {
-  background-color: rgba(122, 81, 72, 0.2);
+  background-color: color-mix(in srgb, var(--theme-accent) 20%, transparent);
   color: #171717;
 }
 .dark ::selection {
-  background-color: rgba(16, 185, 129, 0.3);
+  background-color: color-mix(in srgb, var(--theme-accent) 28%, transparent);
   color: #ededed;
 }
 
@@ -98,12 +106,12 @@ body {
 }
 
 :where(a, button, summary, [tabindex]):focus-visible {
-  outline: 2px solid #7a5148;
+  outline: 2px solid var(--theme-accent);
   outline-offset: 3px;
 }
 
 .dark :where(a, button, summary, [tabindex]):focus-visible {
-  outline-color: #d0a49a;
+  outline-color: var(--theme-accent);
 }
 
 .tabular {

@@ -26,7 +26,7 @@ function parseFooter(str: string) {
 
 <style>
   .footer-colophon {
-    --footer-hover: #294f3d;
+    --footer-hover: var(--theme-accent-hover);
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -74,7 +74,7 @@ function parseFooter(str: string) {
     color: var(--footer-hover);
   }
   :global(.dark) .footer-colophon {
-    --footer-hover: #a8c5b3;
+    --footer-hover: var(--theme-accent-hover);
   }
   @media (max-width: 639px) {
     .footer-colophon {

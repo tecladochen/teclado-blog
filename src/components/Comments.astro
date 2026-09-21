@@ -4,6 +4,7 @@ import { themeConfig } from '~/.config'
 import Disqus from '~/components/comments/Disqus.astro'
 import Giscus from '~/components/comments/Giscus.astro'
 import Twikoo from '~/components/comments/Twikoo.astro'
+import Waline from '~/components/comments/Waline.astro'
 
 interface Props {
   post: Post
@@ -11,7 +12,7 @@ interface Props {
 
 const { id, data } = Astro.props.post
 
-const path = `/posts/${id}`
+const path = `/posts/${id}/`
 const url = `${Astro.site?.href}${path}`
 
 const provider = getProvider()
@@ -24,10 +25,11 @@ function getProvider() {
 
 {
   provider !== '' && (
-    <div py-16>
+    <div pt-8 sm:pt-10>
       {provider === 'disqus' && <Disqus identifier={id} url={url} title={data.title} />}
       {provider === 'giscus' && <Giscus />}
       {provider === 'twikoo' && <Twikoo path={path} />}
+      {provider === 'waline' && <Waline path={path} />}
     </div>
   )
 }
