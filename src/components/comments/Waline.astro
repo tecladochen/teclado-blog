@@ -268,34 +268,34 @@ const headingId = `waline-heading-${path.replace(/^\/+|\/+$/g, '').replaceAll('/
 
   #waline {
     --waline-theme-color: var(--reading-accent);
-    --waline-active-color: var(--reading-hover-ink);
+    --waline-active-color: var(--theme-accent-hover);
     --waline-color: var(--reading-ink);
     --waline-bg-color: var(--reading-surface);
-    --waline-bg-color-light: var(--reading-hover);
-    --waline-bg-color-hover: var(--reading-hover);
+    --waline-bg-color-light: var(--theme-accent-soft);
+    --waline-bg-color-hover: var(--theme-accent-soft);
     --waline-border-color: var(--reading-rule);
     --waline-disable-bg-color: rgba(105, 100, 96, 0.08);
     --waline-disable-color: var(--reading-muted);
     --waline-code-bg-color: rgba(105, 100, 96, 0.08);
-    --waline-info-bg-color: var(--reading-hover);
+    --waline-info-bg-color: var(--theme-accent-soft);
     --waline-info-color: var(--reading-muted);
     --waline-font-size: 1rem;
     --waline-avatar-size: 2.75rem;
     --comment-like-color: #a75450;
     --comment-like-hover: #8f413e;
     --comment-reply-color: var(--reading-muted);
-    --comment-reply-hover: var(--reading-hover-ink);
+    --comment-reply-hover: var(--theme-accent-hover);
     font-family: var(--reading-sans);
   }
 
   .dark #waline {
     --waline-theme-color: var(--reading-accent);
-    --waline-active-color: var(--reading-hover-ink);
-    --waline-bg-color-light: rgba(255, 255, 255, 0.045);
-    --waline-bg-color-hover: rgba(255, 255, 255, 0.065);
+    --waline-active-color: var(--theme-accent-hover);
+    --waline-bg-color-light: var(--theme-accent-soft);
+    --waline-bg-color-hover: var(--theme-accent-soft);
     --waline-disable-bg-color: rgba(255, 255, 255, 0.06);
     --waline-code-bg-color: rgba(255, 255, 255, 0.06);
-    --waline-info-bg-color: rgba(255, 255, 255, 0.045);
+    --waline-info-bg-color: var(--theme-accent-soft);
     --comment-like-color: #d58b86;
     --comment-like-hover: #e5aaa5;
   }
@@ -570,8 +570,8 @@ const headingId = `waline-heading-${path.replace(/^\/+|\/+$/g, '').replaceAll('/
   }
 
   #waline .wl-btn.primary:hover {
-    border-color: var(--reading-hover-ink);
-    background: var(--reading-hover-ink);
+    border-color: var(--theme-accent-hover);
+    background: var(--theme-accent-hover);
   }
 
   .dark #waline .wl-btn.primary {
@@ -581,8 +581,8 @@ const headingId = `waline-heading-${path.replace(/^\/+|\/+$/g, '').replaceAll('/
   }
 
   .dark #waline .wl-btn.primary:hover {
-    border-color: var(--reading-hover-ink);
-    background: var(--reading-hover-ink);
+    border-color: var(--theme-accent-hover);
+    background: var(--theme-accent-hover);
   }
 
   #waline .wl-card {
