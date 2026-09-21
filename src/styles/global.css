@@ -94,7 +94,7 @@ body {
 }
 
 .serif-text {
-  font-family: 'Noto Serif SC Variable', 'Songti SC', Georgia, serif;
+  font-family: 'Songti SC', 'Noto Serif CJK SC', 'Source Han Serif SC', STSong, SimSun, Georgia, serif;
 }
 
 :where(a, button, summary, [tabindex]):focus-visible {

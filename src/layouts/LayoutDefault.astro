@@ -9,7 +9,6 @@ import SiteSeo from '~/components/SiteSeo.astro'
 import ThemeScript from '~/components/ThemeScript.astro'
 import '@fontsource-variable/inter/wght.css'
 import '@fontsource-variable/jetbrains-mono/wght.css'
-import '@fontsource-variable/noto-serif-sc/wght.css'
 import '~/styles/global.css'
 
 const lang = themeConfig.appearance.locale ?? 'en-us'
@@ -21,13 +20,26 @@ const dark = themeConfig.appearance.theme === 'dark'
     <script is:inline>
       ;(() => {
         const root = document.documentElement
+        const storageKey = 'teclado:signature-intro-played'
         const clearIntro = () => delete root.dataset.signatureIntro
+        let hasPlayed = false
 
-        if (root.dataset.signatureIntroRun !== 'true') {
-          root.dataset.signatureIntroRun = 'true'
+        try {
+          hasPlayed = sessionStorage.getItem(storageKey) === 'true'
+        }
+        catch {
+          // Session storage is optional; the signature can still animate once per page.
+        }
+
+        if (!hasPlayed) {
           root.dataset.signatureIntro = 'play'
+          try {
+            sessionStorage.setItem(storageKey, 'true')
+          }
+          catch {
+            // Ignore storage failures in privacy-restricted browsers.
+          }
           window.setTimeout(clearIntro, 2800)
-          document.addEventListener('astro:before-swap', clearIntro, { once: true })
         }
       })()
     </script>
@@ -40,7 +52,7 @@ const dark = themeConfig.appearance.theme === 'dark'
   <body class="mx-auto max-w-[880px] min-h-100vh w-full flex flex-col px-4 py-5 sm:px-6 sm:py-10">
     <!-- 极简现代顶栏 -->
     <header
-      class="transition-swup-header mb-8 w-full flex items-center justify-between gap-1 border-b border-black/[0.06] pb-5 sm:mb-12 sm:gap-4 dark:border-white/[0.08] sm:pb-6"
+      class="page-intro mb-8 w-full flex items-center justify-between gap-1 border-b border-black/[0.06] pb-5 sm:mb-12 sm:gap-4 dark:border-white/[0.08] sm:pb-6"
     >
       <a href="/" class="not-underline-hover inline-flex shrink-0 items-center" title="Teclado - 首页" data-nav-logo>
         <Signature />
@@ -50,11 +62,11 @@ const dark = themeConfig.appearance.theme === 'dark'
       <SiteNavigation />
     </header>
 
-    <main class="transition-swup-main w-full flex-1 outline-none">
+    <main class="w-full flex-1 outline-none">
       <slot />
     </main>
 
-    <footer class="transition-swup-footer mt-16 pb-7 sm:mt-20 sm:pb-9">
+    <footer class="page-intro mt-16 pb-7 sm:mt-20 sm:pb-9">
       <SiteFooter />
     </footer>
 
@@ -67,8 +79,7 @@ const dark = themeConfig.appearance.theme === 'dark'
     </script>
     <style>
       /* 页面首次加载动画 */
-      html.animation-prepared .transition-swup-header,
-      html.animation-prepared .transition-swup-footer {
+      html.animation-prepared .page-intro {
         animation: fade-in-down 0.24s ease-out 1;
       }
 
@@ -83,30 +94,9 @@ const dark = themeConfig.appearance.theme === 'dark'
         }
       }
 
-      /* 页面过渡动画 */
-      html.is-animating .transition-swup-main {
-        opacity: 0;
-        transform: translateY(-0.25rem);
-      }
-      html.is-leaving .transition-swup-main {
-        opacity: 0;
-        transform: translateY(0.25rem);
-      }
-      .transition-swup-main {
-        transition-property: opacity, transform;
-        transition-duration: 0.16s;
-        transition-timing-function: ease;
-        opacity: 1;
-      }
-
       @media (prefers-reduced-motion: reduce) {
-        html.animation-prepared .transition-swup-header,
-        html.animation-prepared .transition-swup-footer {
+        html.animation-prepared .page-intro {
           animation: none;
-        }
-
-        .transition-swup-main {
-          transition: none;
         }
       }
     </style>
