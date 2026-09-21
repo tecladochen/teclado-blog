@@ -191,6 +191,29 @@ function renderSummary(summary: string) {
           animation.cancel()
         }
 
+        if (!prefersReducedMotion.matches && !document.documentElement.classList.contains('animation-prepared')) {
+          const entranceTargets = [
+            page.querySelector('.journey-toolbar'),
+            page.querySelector('.journey-years'),
+          ].filter(Boolean)
+
+          entranceTargets.forEach((element, index) => {
+            void play(
+              element,
+              [
+                { opacity: 0.86, transform: 'translateY(6px)' },
+                { opacity: 1, transform: 'translateY(0)' },
+              ],
+              {
+                duration: 240,
+                delay: index * 28,
+                easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
+                fill: 'both',
+              },
+            )
+          })
+        }
+
         buttons.forEach((button) => {
           button.addEventListener('click', async () => {
             if (button.getAttribute('aria-pressed') === 'true' || page.dataset.filtering === 'true') {
