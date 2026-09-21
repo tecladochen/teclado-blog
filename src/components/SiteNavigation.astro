@@ -25,7 +25,7 @@ function isNavActive(href: string) {
 ---
 
 <nav class="flex shrink-0 items-center gap-2 text-xs font-sans sm:gap-5" id="site-nav">
-  <ul class="nav-list relative m-0 flex list-none items-center gap-1 p-0 sm:gap-1.5" data-nav-list>
+  <ul class="nav-list relative m-0 flex list-none items-center gap-1 p-0 sm:gap-1.5" data-nav-list data-swup-preload-all>
     {
       navLinks.map((nav) => {
         const label = navLabels[nav.name] ?? t(nav.name)

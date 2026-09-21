@@ -20,26 +20,13 @@ const dark = themeConfig.appearance.theme === 'dark'
     <script is:inline>
       ;(() => {
         const root = document.documentElement
-        const storageKey = 'teclado:signature-intro-played'
         const clearIntro = () => delete root.dataset.signatureIntro
-        let hasPlayed = false
 
-        try {
-          hasPlayed = sessionStorage.getItem(storageKey) === 'true'
-        }
-        catch {
-          // Session storage is optional; the signature can still animate once per page.
-        }
-
-        if (!hasPlayed) {
+        if (root.dataset.signatureIntroRun !== 'true') {
+          root.dataset.signatureIntroRun = 'true'
           root.dataset.signatureIntro = 'play'
-          try {
-            sessionStorage.setItem(storageKey, 'true')
-          }
-          catch {
-            // Ignore storage failures in privacy-restricted browsers.
-          }
           window.setTimeout(clearIntro, 2800)
+          document.addEventListener('astro:before-swap', clearIntro, { once: true })
         }
       })()
     </script>
@@ -72,11 +59,26 @@ const dark = themeConfig.appearance.theme === 'dark'
 
     <script>
       document.addEventListener('animationend', removeAnimation, false)
+      document.addEventListener('astro:page-load', animatePageContent)
+
       function removeAnimation(event: AnimationEvent) {
         if (event.animationName !== 'page-content-enter')
           return
         document.documentElement.classList.remove('animation-prepared')
         document.removeEventListener('animationend', removeAnimation, false)
+      }
+
+      function animatePageContent() {
+        const root = document.documentElement
+        const content = document.querySelector<HTMLElement>('.page-content')
+        if (!content || root.classList.contains('animation-prepared'))
+          return
+
+        content.classList.remove('is-entering')
+        window.requestAnimationFrame(() => {
+          content.classList.add('is-entering')
+          content.addEventListener('animationend', () => content.classList.remove('is-entering'), { once: true })
+        })
       }
     </script>
     <style>
@@ -87,6 +89,10 @@ const dark = themeConfig.appearance.theme === 'dark'
 
       html.animation-prepared .page-content {
         animation: page-content-enter 0.22s cubic-bezier(0.22, 1, 0.36, 1) 1 both;
+      }
+
+      .page-content.is-entering {
+        animation: page-content-enter 0.2s cubic-bezier(0.22, 1, 0.36, 1) 1 both;
       }
 
       @keyframes fade-in-down {
@@ -113,7 +119,8 @@ const dark = themeConfig.appearance.theme === 'dark'
 
       @media (prefers-reduced-motion: reduce) {
         html.animation-prepared .page-intro,
-        html.animation-prepared .page-content {
+        html.animation-prepared .page-content,
+        .page-content.is-entering {
           animation: none;
         }
       }
