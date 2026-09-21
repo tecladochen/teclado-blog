@@ -52,6 +52,17 @@ const headingId = `waline-heading-${path.replace(/^\/+|\/+$/g, '').replaceAll('/
   }
 
   function setupCommentAvatars(el: HTMLElement) {
+    const prepareLogoutButton = (root: ParentNode) => {
+      const button = root.querySelector<HTMLButtonElement>('.wl-logout-btn')
+
+      if (!button || button.dataset.tecladoLogoutReady)
+        return
+
+      button.dataset.tecladoLogoutReady = 'true'
+      button.setAttribute('aria-label', button.title || '退出登录')
+      button.removeAttribute('title')
+    }
+
     const prepareAvatar = (avatar: HTMLImageElement) => {
       if (avatar.dataset.tecladoAvatarReady)
         return
@@ -106,6 +117,7 @@ const headingId = `waline-heading-${path.replace(/^\/+|\/+$/g, '').replaceAll('/
 
     window.__tecladoWalineAvatarObserver?.disconnect()
     prepareAllAvatars(el)
+    prepareLogoutButton(el)
 
     window.__tecladoWalineAvatarObserver = new MutationObserver((mutations) => {
       mutations.forEach((mutation) => {
@@ -117,6 +129,7 @@ const headingId = `waline-heading-${path.replace(/^\/+|\/+$/g, '').replaceAll('/
             prepareAvatar(node as HTMLImageElement)
 
           prepareAllAvatars(node)
+          prepareLogoutButton(node)
         })
       })
     })
@@ -300,6 +313,98 @@ const headingId = `waline-heading-${path.replace(/^\/+|\/+$/g, '').replaceAll('/
   #waline .wl-panel:focus-within {
     border-color: color-mix(in srgb, var(--reading-accent) 58%, var(--reading-rule));
     background: color-mix(in srgb, var(--reading-surface) 82%, transparent);
+  }
+
+  #waline .wl-comment {
+    display: block;
+  }
+
+  #waline .wl-login-info {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    width: fit-content;
+    max-width: calc(100% - 0.7rem);
+    min-height: 2.15rem;
+    margin: 0 0 0.65rem 0.4rem;
+    text-align: left;
+  }
+
+  #waline .wl-login-info .wl-avatar {
+    display: contents;
+  }
+
+  #waline .wl-login-info .wl-avatar > .wl-login-nick {
+    order: 1;
+    flex: 0 0 auto;
+    width: 1.95rem;
+    height: 1.95rem;
+  }
+
+  #waline .wl-login-info .wl-avatar img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border: 1px solid color-mix(in srgb, var(--reading-rule) 68%, transparent);
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  #waline .wl-login-info > .wl-login-nick {
+    order: 2;
+    overflow: hidden;
+    max-width: 9rem;
+    color: var(--reading-secondary);
+    font-family: var(--reading-serif);
+    font-size: 0.84rem;
+    font-weight: 500;
+    text-decoration: none;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    word-break: normal;
+  }
+
+  #waline .wl-login-info > .wl-login-nick:is(:hover, :focus-visible) {
+    color: var(--reading-accent);
+    outline: none;
+  }
+
+  #waline .wl-login-info .wl-logout-btn {
+    display: inline-flex;
+    position: static;
+    order: 3;
+    align-items: center;
+    justify-content: center;
+    min-width: 2.7rem;
+    min-height: 1.95rem;
+    margin-inline-start: 0.15rem;
+    padding: 0.3rem 0.25rem 0.3rem 0.7rem;
+    border: 0;
+    border-inline-start: 1px solid color-mix(in srgb, var(--reading-rule) 78%, transparent);
+    border-radius: 0;
+    background: transparent;
+    color: var(--reading-muted);
+    font-family: var(--reading-sans);
+    font-size: 0;
+    line-height: 1;
+    cursor: pointer;
+    transition:
+      color 180ms ease;
+  }
+
+  #waline .wl-login-info .wl-logout-btn::after {
+    content: '退出';
+    font-size: 0.76rem;
+    letter-spacing: 0.08em;
+  }
+
+  #waline .wl-login-info .wl-logout-btn svg {
+    display: none;
+  }
+
+  #waline .wl-login-info .wl-logout-btn:is(:hover, :focus-visible) {
+    color: var(--reading-accent);
+    outline: none;
   }
 
   #waline .wl-header {
