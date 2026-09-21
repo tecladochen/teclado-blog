@@ -283,12 +283,14 @@ const headingId = `waline-heading-${path.replace(/^\/+|\/+$/g, '').replaceAll('/
     --waline-avatar-size: 2.75rem;
     --comment-like-color: #a75450;
     --comment-like-hover: #8f413e;
+    --comment-reply-color: var(--reading-muted);
+    --comment-reply-hover: var(--reading-hover-ink);
     font-family: var(--reading-sans);
   }
 
   .dark #waline {
-    --waline-theme-color: #d0a49a;
-    --waline-active-color: #e3bbb2;
+    --waline-theme-color: var(--reading-accent);
+    --waline-active-color: var(--reading-hover-ink);
     --waline-bg-color-light: rgba(255, 255, 255, 0.045);
     --waline-bg-color-hover: rgba(255, 255, 255, 0.065);
     --waline-disable-bg-color: rgba(255, 255, 255, 0.06);
@@ -573,14 +575,14 @@ const headingId = `waline-heading-${path.replace(/^\/+|\/+$/g, '').replaceAll('/
   }
 
   .dark #waline .wl-btn.primary {
-    border-color: #d0a49a;
-    background: #d0a49a;
+    border-color: var(--reading-accent);
+    background: var(--reading-accent);
     color: #231c1a;
   }
 
   .dark #waline .wl-btn.primary:hover {
-    border-color: #e3bbb2;
-    background: #e3bbb2;
+    border-color: var(--reading-hover-ink);
+    background: var(--reading-hover-ink);
   }
 
   #waline .wl-card {
@@ -673,20 +675,20 @@ const headingId = `waline-heading-${path.replace(/^\/+|\/+$/g, '').replaceAll('/
   }
 
   #waline .wl-card .wl-reply {
-    color: var(--comment-like-color);
+    color: var(--comment-reply-color);
     opacity: 0.9;
   }
 
   #waline .wl-card .wl-reply:is(:hover, :focus-visible) {
-    background: color-mix(in srgb, var(--comment-like-color) 8%, transparent);
-    color: var(--comment-like-hover);
+    background: color-mix(in srgb, var(--comment-reply-hover) 8%, transparent);
+    color: var(--comment-reply-hover);
     opacity: 1;
     outline: none;
   }
 
   #waline .wl-card .wl-reply.active {
-    background: color-mix(in srgb, var(--comment-like-color) 10%, transparent);
-    color: var(--comment-like-hover);
+    background: color-mix(in srgb, var(--comment-reply-hover) 10%, transparent);
+    color: var(--comment-reply-hover);
     opacity: 1;
   }
 

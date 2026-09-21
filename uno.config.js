@@ -26,9 +26,9 @@ const cssExtend = {
     'white-space': 'normal',
     'word-wrap': 'break-word',
     'padding': '2px 4px',
-    'color': '#c7254e',
+    'color': 'var(--theme-accent)',
     'font-size': '90%',
-    'background-color': '#f9f2f4',
+    'background-color': 'var(--theme-accent-soft)',
     'border-radius': '4px',
   },
 

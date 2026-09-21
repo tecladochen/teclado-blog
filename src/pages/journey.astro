@@ -276,14 +276,14 @@ function renderSummary(summary: string) {
 
 <style>
   .journey-page {
-    --journey-accent: #8b5147;
+    --journey-accent: var(--theme-accent-emphasis);
     --journey-serif: 'Songti SC', 'Noto Serif CJK SC', 'Source Han Serif SC', STSong, SimSun, Georgia, serif;
     margin-top: clamp(-3rem, -5vw, -1.75rem);
     font-family: var(--uno-fonts-ui);
   }
 
   :global(.dark) .journey-page {
-    --journey-accent: #d0a49a;
+    --journey-accent: var(--theme-accent-emphasis);
   }
 
   .journey-title {
