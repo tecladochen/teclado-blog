@@ -641,7 +641,53 @@ const headingId = `waline-heading-${path.replace(/^\/+|\/+$/g, '').replaceAll('/
   #waline .wl-card .wl-comment-actions {
     display: flex;
     align-items: center;
-    gap: 0.08rem;
+    gap: 0.12rem;
+  }
+
+  #waline .wl-card :is(.wl-edit, .wl-delete) {
+    display: inline-grid;
+    width: 1.75rem;
+    height: 1.75rem;
+    padding: 0;
+    place-items: center;
+    border: 1px solid transparent;
+    border-radius: 0.32rem;
+    background: transparent;
+    color: var(--reading-muted);
+    opacity: 0.72;
+    transition:
+      color 180ms ease,
+      border-color 180ms ease,
+      background-color 180ms ease,
+      opacity 180ms ease,
+      transform 260ms var(--reading-ease);
+  }
+
+  #waline .wl-card :is(.wl-edit, .wl-delete) svg {
+    width: 1.05rem;
+    height: 1.05rem;
+  }
+
+  #waline .wl-card .wl-delete svg path {
+    fill: currentColor;
+  }
+
+  #waline .wl-card .wl-edit:is(:hover, :focus-visible) {
+    border-color: var(--theme-accent-line);
+    background: var(--theme-accent-soft);
+    color: var(--theme-accent-hover);
+    opacity: 1;
+    outline: none;
+    transform: translateY(-1px);
+  }
+
+  #waline .wl-card .wl-delete:is(:hover, :focus-visible) {
+    border-color: color-mix(in srgb, var(--comment-like-color) 34%, transparent);
+    background: color-mix(in srgb, var(--comment-like-color) 8%, transparent);
+    color: var(--comment-like-hover);
+    opacity: 1;
+    outline: none;
+    transform: translateY(-1px);
   }
 
   #waline .wl-card :is(.wl-like, .wl-reply) {
@@ -705,6 +751,66 @@ const headingId = `waline-heading-${path.replace(/^\/+|\/+$/g, '').replaceAll('/
     opacity: 1;
   }
 
+  #waline .wl-card .wl-admin-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.45rem;
+    margin: 0.85rem 0 0;
+    padding-top: 0.65rem;
+    border-top: 1px solid color-mix(in srgb, var(--reading-rule) 72%, transparent);
+    font-size: 0.7rem;
+  }
+
+  #waline .wl-card .wl-comment-status {
+    display: inline-flex;
+    gap: 0.28rem;
+    margin: 0;
+  }
+
+  #waline .wl-card .wl-comment-status .wl-btn,
+  #waline .wl-card .wl-admin-actions > .wl-sticky {
+    min-height: 1.9rem;
+    margin: 0;
+    padding: 0.32rem 0.7rem;
+    border: 1px solid var(--reading-rule);
+    border-radius: 0.3rem;
+    background: transparent;
+    color: var(--reading-muted);
+    font-size: 0.68rem;
+    line-height: 1;
+    letter-spacing: 0.03em;
+  }
+
+  #waline .wl-card .wl-comment-status .wl-btn:first-child,
+  #waline .wl-card .wl-comment-status .wl-btn:last-child {
+    border: 1px solid var(--reading-rule);
+    border-radius: 0.3rem;
+  }
+
+  #waline .wl-card .wl-comment-status .wl-btn:not(:disabled):is(:hover, :focus-visible),
+  #waline .wl-card .wl-admin-actions > .wl-sticky:is(:hover, :focus-visible) {
+    border-color: var(--theme-accent-line);
+    background: var(--theme-accent-soft);
+    color: var(--theme-accent-hover);
+    outline: none;
+  }
+
+  #waline .wl-card .wl-comment-status .wl-btn:disabled {
+    border-color: var(--theme-accent-line);
+    background: var(--theme-accent-soft);
+    color: var(--reading-accent);
+    cursor: default;
+    opacity: 1;
+    transform: none;
+  }
+
+  #waline .wl-card .wl-comment-status .wl-spam:not(:disabled):is(:hover, :focus-visible) {
+    border-color: color-mix(in srgb, var(--comment-like-color) 34%, transparent);
+    background: color-mix(in srgb, var(--comment-like-color) 8%, transparent);
+    color: var(--comment-like-hover);
+  }
+
   #waline .wl-card .wl-content {
     color: var(--reading-secondary);
     font-size: 0.9rem;
@@ -755,10 +861,21 @@ const headingId = `waline-heading-${path.replace(/^\/+|\/+$/g, '').replaceAll('/
     #waline .wl-editor {
       min-height: 6.75rem;
     }
+
+    #waline .wl-card .wl-admin-actions {
+      align-items: flex-end;
+      flex-direction: column;
+    }
+
+    #waline .wl-card .wl-comment-status {
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    #waline .wl-btn {
+    #waline .wl-btn,
+    #waline .wl-card :is(.wl-edit, .wl-delete) {
       transition: none;
       transform: none !important;
     }
