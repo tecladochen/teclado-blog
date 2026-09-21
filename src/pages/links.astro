@@ -238,6 +238,8 @@ const friendLinkProfile = [
     --friends-ink: #2e5946;
     --friends-wash: rgba(46, 89, 70, 0.075);
     --friends-line: rgba(46, 89, 70, 0.34);
+    --friends-link: #93473d;
+    --friends-link-hover: #6f342c;
     --friends-serif: 'Songti SC', 'Noto Serif CJK SC', 'Source Han Serif SC', STSong, SimSun, Georgia, serif;
     margin-top: clamp(-1.5rem, -2.6vw, -0.8rem);
   }
@@ -246,6 +248,8 @@ const friendLinkProfile = [
     --friends-ink: #9ab8a8;
     --friends-wash: rgba(112, 151, 130, 0.12);
     --friends-line: rgba(154, 184, 168, 0.4);
+    --friends-link: #d99b8f;
+    --friends-link-hover: #edb6ad;
   }
 
   .visually-hidden {
@@ -467,14 +471,15 @@ const friendLinkProfile = [
 
   .info-address a,
   .info-feed a {
-    color: var(--theme-accent-emphasis);
+    color: var(--friends-link);
+    font-weight: 500;
   }
 
   .info-address a:hover,
   .info-address a:focus-visible,
   .info-feed a:hover,
   .info-feed a:focus-visible {
-    color: var(--theme-accent-hover);
+    color: var(--friends-link-hover);
   }
 
   .copy-button {
