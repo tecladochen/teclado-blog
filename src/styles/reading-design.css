@@ -10,8 +10,8 @@
   --reading-hover: rgba(37, 72, 55, 0.09);
   --reading-hover-ink: #294f3d;
   --reading-ease: cubic-bezier(0.22, 1, 0.36, 1);
-  --reading-serif: 'Noto Serif SC', 'Songti SC', Georgia, serif;
-  --reading-sans: 'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --reading-serif: 'Noto Serif SC Variable', 'Songti SC', Georgia, serif;
+  --reading-sans: 'Inter Variable', 'PingFang SC', 'Microsoft YaHei', sans-serif;
   color: var(--reading-ink);
   font-family: var(--reading-sans);
 }

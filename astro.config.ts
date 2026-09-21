@@ -13,7 +13,6 @@ import { themeConfig } from './src/.config'
 // https://astro.build/config
 export default defineConfig({
   site: themeConfig.site.website,
-  prefetch: true,
   base: '/',
   vite: {
     plugins: [

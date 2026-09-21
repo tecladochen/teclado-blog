@@ -7,6 +7,9 @@ import SiteFooter from '~/components/SiteFooter.astro'
 import SiteNavigation from '~/components/SiteNavigation.astro'
 import SiteSeo from '~/components/SiteSeo.astro'
 import ThemeScript from '~/components/ThemeScript.astro'
+import '@fontsource-variable/inter/wght.css'
+import '@fontsource-variable/jetbrains-mono/wght.css'
+import '@fontsource-variable/noto-serif-sc/wght.css'
 import '~/styles/global.css'
 
 const lang = themeConfig.appearance.locale ?? 'en-us'
@@ -32,12 +35,6 @@ const dark = themeConfig.appearance.theme === 'dark'
     <LaTeX />
     <Analytics />
     <ThemeScript />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Noto+Serif+SC:wght@400;600;700&display=swap"
-      rel="stylesheet"
-    />
   </head>
 
   <body class="mx-auto max-w-[880px] min-h-100vh w-full flex flex-col px-4 py-5 sm:px-6 sm:py-10">
@@ -72,11 +69,7 @@ const dark = themeConfig.appearance.theme === 'dark'
       /* 页面首次加载动画 */
       html.animation-prepared .transition-swup-header,
       html.animation-prepared .transition-swup-footer {
-        animation: fade-in-down 0.8s ease-out 1;
-      }
-
-      html.animation-prepared .transition-swup-main {
-        animation: fade-in-down 0.8s ease-out 1;
+        animation: fade-in-down 0.24s ease-out 1;
       }
 
       @keyframes fade-in-down {
@@ -93,23 +86,22 @@ const dark = themeConfig.appearance.theme === 'dark'
       /* 页面过渡动画 */
       html.is-animating .transition-swup-main {
         opacity: 0;
-        transform: translateY(-0.75rem);
+        transform: translateY(-0.25rem);
       }
       html.is-leaving .transition-swup-main {
         opacity: 0;
-        transform: translateY(0.75rem);
+        transform: translateY(0.25rem);
       }
       .transition-swup-main {
         transition-property: opacity, transform;
-        transition-duration: 0.35s;
+        transition-duration: 0.16s;
         transition-timing-function: ease;
         opacity: 1;
       }
 
       @media (prefers-reduced-motion: reduce) {
         html.animation-prepared .transition-swup-header,
-        html.animation-prepared .transition-swup-footer,
-        html.animation-prepared .transition-swup-main {
+        html.animation-prepared .transition-swup-footer {
           animation: none;
         }
 

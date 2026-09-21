@@ -69,8 +69,7 @@ function createAmbientEnvironment(): AmbientEnvironment {
     bindControls(controlsAbortController.signal)
     syncInterface()
 
-    if (!animationFrame)
-      animationFrame = window.requestAnimationFrame(render)
+    startRendering()
   }
 
   function bindControls(signal: AbortSignal) {
@@ -89,6 +88,10 @@ function createAmbientEnvironment(): AmbientEnvironment {
       () => {
         isPageVisible = !document.hidden
         lastFrame = performance.now()
+        if (isPageVisible)
+          startRendering()
+        else
+          stopRendering()
       },
       { signal },
     )
@@ -110,6 +113,10 @@ function createAmbientEnvironment(): AmbientEnvironment {
     petals = []
     context?.clearRect(0, 0, width, height)
     mode = nextMode
+    if (mode === 'none')
+      stopRendering()
+    else
+      startRendering()
 
     if (persist) {
       try {
@@ -176,7 +183,7 @@ function createAmbientEnvironment(): AmbientEnvironment {
 
     const screenArea = width * height
     const mobile = isMobile.matches
-    const count = clamp(Math.round(screenArea / 32000), mobile ? 12 : 20, mobile ? 20 : 38)
+    const count = clamp(Math.round(screenArea / 40000), mobile ? 10 : 16, mobile ? 16 : 28)
     petals = Array.from({ length: count }, () => createPetal(true))
   }
 
@@ -195,14 +202,15 @@ function createAmbientEnvironment(): AmbientEnvironment {
   }
 
   function render(now: number) {
-    animationFrame = window.requestAnimationFrame(render)
+    animationFrame = 0
     if (!context || !canvas || !isPageVisible || mode === 'none') {
       context?.clearRect(0, 0, width, height)
       lastFrame = now
       return
     }
 
-    const targetFrameDuration = isMobile.matches ? 1000 / 30 : 1000 / 60
+    animationFrame = window.requestAnimationFrame(render)
+    const targetFrameDuration = 1000 / 30
     if (now - lastFrame < targetFrameDuration)
       return
 
@@ -224,6 +232,20 @@ function createAmbientEnvironment(): AmbientEnvironment {
       if (outside)
         petals[index] = createPetal(false)
     })
+  }
+
+  function startRendering() {
+    if (!animationFrame && context && canvas && isPageVisible && mode === 'petals') {
+      lastFrame = performance.now()
+      animationFrame = window.requestAnimationFrame(render)
+    }
+  }
+
+  function stopRendering() {
+    if (animationFrame)
+      window.cancelAnimationFrame(animationFrame)
+    animationFrame = 0
+    context?.clearRect(0, 0, width, height)
   }
 
   function drawPetal(petal: Petal, dark: boolean) {
