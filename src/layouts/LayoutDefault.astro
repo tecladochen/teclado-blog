@@ -62,7 +62,7 @@ const dark = themeConfig.appearance.theme === 'dark'
       <SiteNavigation />
     </header>
 
-    <main class="w-full flex-1 outline-none">
+    <main class="page-content w-full flex-1 outline-none">
       <slot />
     </main>
 
@@ -72,7 +72,9 @@ const dark = themeConfig.appearance.theme === 'dark'
 
     <script>
       document.addEventListener('animationend', removeAnimation, false)
-      function removeAnimation() {
+      function removeAnimation(event: AnimationEvent) {
+        if (event.animationName !== 'page-content-enter')
+          return
         document.documentElement.classList.remove('animation-prepared')
         document.removeEventListener('animationend', removeAnimation, false)
       }
@@ -80,7 +82,11 @@ const dark = themeConfig.appearance.theme === 'dark'
     <style>
       /* 页面首次加载动画 */
       html.animation-prepared .page-intro {
-        animation: fade-in-down 0.24s ease-out 1;
+        animation: fade-in-down 0.22s ease-out 1 both;
+      }
+
+      html.animation-prepared .page-content {
+        animation: page-content-enter 0.22s cubic-bezier(0.22, 1, 0.36, 1) 1 both;
       }
 
       @keyframes fade-in-down {
@@ -94,8 +100,20 @@ const dark = themeConfig.appearance.theme === 'dark'
         }
       }
 
+      @keyframes page-content-enter {
+        0% {
+          transform: translateY(0.25rem);
+          opacity: 0.62;
+        }
+        100% {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+
       @media (prefers-reduced-motion: reduce) {
-        html.animation-prepared .page-intro {
+        html.animation-prepared .page-intro,
+        html.animation-prepared .page-content {
           animation: none;
         }
       }
