@@ -44,7 +44,10 @@ export default defineConfig({
       },
       accessibility: true,
       smoothScrolling: true,
-      updateHead: true,
+      updateHead: {
+        awaitAssets: true,
+        persistTags: 'link[rel="stylesheet"][href^="/_astro/"]',
+      },
       updateBodyClass: true,
       reloadScripts: true,
       loadOnIdle: false,

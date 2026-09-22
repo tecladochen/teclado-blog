@@ -20,8 +20,4 @@ pnpm-debug.log*
 # macOS-specific files
 .DS_Store
 
-# 文章收件箱（待归档的原稿不入库）
-inbox/*
-!inbox/README.md
-
 Markdown style guide.md

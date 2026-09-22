@@ -1,45 +1,34 @@
 # AGENTS.md
 
-个人博客「teclado」，Astro 5 + UnoCSS + TypeScript，包管理用 pnpm。
+个人博客「Teclado」，使用 Astro、UnoCSS、TypeScript 和 pnpm。具体版本以 `package.json`
+为准。
 
-这份文件是所有 AI 编码工具的共同入口（Codex、Cursor、Claude Code 等）。工具特定的
-配置只做薄封装，规则本身一律写在 `docs/blog-ops/`，改规则改那里。
+## 基本约定
+
+- 开始前检查工作区，保留用户已有的未提交修改，不改任务外文件。
+- 文章正文由作者手写。除非用户明确要求，不创建、改写或扩写 `src/content/` 中的内容。
+- 路径别名 `~/` 指向 `src/`。
+- 站点配置修改 `src/.config/user.ts`，不要修改 `src/.config/default.ts`。
+- 内容字段以 `src/content.config.ts` 为准。
+- 样式沿用现有设计，优先使用 UnoCSS；组件样式留在组件中，全局规则才放入
+  `src/styles/global.css`。
+
+## 目录
+
+- 页面：`src/pages/`
+- 组件：`src/components/`
+- 样式：`src/styles/`
+- 配置：`src/.config/`
+- 内容：`src/content/`
 
 ## 常用命令
 
 ```bash
-pnpm dev            # 本地开发（含 astro check）
-pnpm build          # 构建（含 astro check）
-pnpm theme:create   # 交互式新建文章
-pnpm theme:check    # 文章硬规则检查
-pnpm lint           # ESLint（提交前会自动跑 lint-staged）
-pnpm typecheck      # tsc --noEmit
+pnpm dev
+pnpm lint
+pnpm typecheck
+pnpm build
 ```
 
-## 文章相关的工作
-
-**处理 `inbox/` 里的稿件、归档文章、维护存量文章，一律按
-[docs/blog-ops/post-intake.md](docs/blog-ops/post-intake.md) 执行**，排版判断依据
-[docs/blog-ops/display-rules.md](docs/blog-ops/display-rules.md)。
-
-两条最容易踩的硬约束：
-
-- 正文文件必须叫 `index.md` / `index.mdx`，否则文件名会并进 URL。
-- `categories` 和 `series.name` 必须已登记在 `src/.config/user.ts`，否则会生成中文 URL。
-
-改完文章跑 `pnpm theme:check`，必须零 error。
-
-## 轨迹节点
-
-给 `/journey` 加节点或改节点，按
-[docs/blog-ops/journey-rules.md](docs/blog-ops/journey-rules.md) 写：title 写发生了什么，
-summary 写 title 说不出的那层，两层不互相复述。信息不够就问，不要替作者编。
-
-## 代码约定
-
-- 路径别名 `~/` 指向 `src/`。
-- 主题配置改 `src/.config/user.ts`，不改 `default.ts`。
-- 内容集合 schema 在 `src/content.config.ts`。
-- 样式优先用 UnoCSS 原子类；全局样式放 `src/styles/global.css`，改动要克制，
-  不引入新的视觉风格。
-- 提交信息用中文或英文均可，与近期历史保持一致。
+代码改动至少运行 `pnpm lint` 和 `pnpm build`。明显的布局或交互动效改动还要检查实际页面。
+未经用户要求，不主动提交或推送。

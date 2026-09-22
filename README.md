@@ -2,57 +2,31 @@
 
 > 记录日常生活、阅读感受和偶尔的技术折腾，也分享一路上的经历与想法。
 
-这是我（Teclado）的个人博客，使用 [Astro](https://astro.build/) 构建，主题基于 [astro-theme-typography](https://github.com/moeyua/astro-theme-typography)。
+Teclado 的个人博客，使用 Astro、UnoCSS 和 TypeScript 构建，主题源自
+[astro-theme-typography](https://github.com/moeyua/astro-theme-typography)。
 
 线上地址：<https://blog.teclado.cn>
 
 ## 本地开发
 
+需要 Node.js LTS 和 pnpm。Node 版本约束见 `.nvmrc`。
+
 ```bash
-# 安装依赖
 pnpm install
-
-# 启动开发服务器
 pnpm dev
-
-# 构建
-pnpm build
-
-# 本地预览构建产物
-pnpm preview
 ```
 
-## 写作
-
-在 `src/content/posts` 下新建 Markdown 文件即可，frontmatter 示例：
-
-```md
----
-title: 标题
-pubDate: 2026-06-24
-categories: ['随笔']
-description: '描述'
----
-```
-
-也可以使用命令快速创建文章：
+提交前检查：
 
 ```bash
-pnpm theme:create
+pnpm lint
+pnpm typecheck
+pnpm build
 ```
 
-创建流程会询问标题、文章目录名、摘要、分类、系列和草稿状态，并统一生成：
-
-```text
-src/content/posts/<文章目录名>/index.md
-```
-
-## 配置
-
-站点配置位于 [src/.config/user.ts](src/.config/user.ts)，可在此覆盖默认配置（标题、社交链接、分类、页脚等）。
+站点配置位于 [src/.config/user.ts](src/.config/user.ts)，内容字段定义位于
+[src/content.config.ts](src/content.config.ts)。
 
 ## License
 
-博客文章内容版权归本人所有。
-
-主题代码基于 [astro-theme-typography](https://github.com/moeyua/astro-theme-typography)，遵循 MIT 协议，详见 [LICENSE](LICENSE)。
+博客文章内容版权归作者所有。主题代码遵循 [MIT License](LICENSE)。

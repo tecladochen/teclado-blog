@@ -6,11 +6,11 @@ import consola from 'consola'
 import { themeConfig } from '../src/.config'
 
 /**
- * 文章硬规则检查。阈值与 docs/blog-ops/display-rules.md 一一对应，改一处要同步另一处。
+ * 文章结构与展示规则检查。
  *
  * 用法：
  *   pnpm theme:check              检查全部文章
- *   pnpm theme:check uv-guide     只检查指定文章（归档流程用这个）
+ *   pnpm theme:check uv-guide     只检查指定文章
  */
 
 const POSTS_DIR = path.resolve('src/content/posts')
