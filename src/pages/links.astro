@@ -214,7 +214,7 @@ const exchangeInfoList = [
                   status.textContent = ''
                 }
                 copyTimers.delete(button)
-              }, 1600)
+              }, 1400)
               copyTimers.set(button, timer)
             }
             catch {
@@ -595,23 +595,19 @@ const exchangeInfoList = [
     cursor: pointer;
     transition:
       color 180ms ease,
-      opacity 180ms ease,
-      transform 320ms cubic-bezier(0.16, 1, 0.3, 1);
+      opacity 120ms ease;
   }
 
   .copy-button:hover {
     color: var(--friends-ink);
-    transform: translateX(-2px);
   }
 
   .copy-button.is-copied {
     color: var(--friends-ink);
-    transform: none;
   }
 
   .copy-button:active {
-    opacity: 0.68;
-    transform: translateY(1px);
+    opacity: 0.72;
   }
 
   .copy-icon {
@@ -626,52 +622,48 @@ const exchangeInfoList = [
     position: absolute;
     inset: 0;
     transition:
-      opacity 150ms ease,
-      transform 260ms cubic-bezier(0.16, 1, 0.3, 1);
+      opacity 140ms ease,
+      transform 220ms cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .copy-icon-success {
     opacity: 0;
-    transform: rotate(-12deg) scale(0.65);
+    transform: translateY(4px);
   }
 
   .is-copied .copy-icon-default {
     opacity: 0;
-    transform: scale(0.72);
+    transform: translateY(-4px);
   }
 
   .is-copied .copy-icon-success {
     opacity: 1;
-    transform: rotate(0) scale(1);
+    transform: translateY(0);
   }
 
   .copy-label {
     display: grid;
     min-width: 2.72rem;
-    text-align: center;
+    justify-items: start;
+    text-align: left;
   }
 
   .copy-label-default,
   .copy-label-success {
     grid-area: 1 / 1;
-    transition:
-      opacity 150ms ease,
-      transform 260ms cubic-bezier(0.16, 1, 0.3, 1);
+    transition: opacity 140ms ease;
   }
 
   .copy-label-success {
     opacity: 0;
-    transform: translateY(3px);
   }
 
   .is-copied .copy-label-default {
     opacity: 0;
-    transform: translateY(-3px);
   }
 
   .is-copied .copy-label-success {
     opacity: 1;
-    transform: translateY(0);
   }
 
   .links-list {
