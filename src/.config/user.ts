@@ -10,9 +10,8 @@ export const userConfig: Partial<UserConfig> = {
     pageSize: 5,
     socialLinks: [
       { name: 'rss', href: '/atom.xml' },
-      { name: 'email', href: 'mailto:tecladochen@qq.com' },
-      { name: 'bilibili', href: 'https://space.bilibili.com/297265384' },
       { name: 'github', href: 'https://github.com/tecladochen' },
+      { name: 'bilibili', href: 'https://space.bilibili.com/297265384' },
     ],
     navLinks: [
       { name: 'Posts', href: '/' },
