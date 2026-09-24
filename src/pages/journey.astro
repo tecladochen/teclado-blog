@@ -214,6 +214,17 @@ function renderSummary(summary: string) {
           })
         }
 
+        const list = page.querySelector('.journey-years')
+
+        const applyFilter = (filter) => {
+          events.forEach((event) => {
+            event.hidden = filter !== 'all' && event.dataset.kind !== filter
+          })
+          years.forEach((year) => {
+            year.hidden = !year.querySelector('[data-journey-event]:not([hidden])')
+          })
+        }
+
         buttons.forEach((button) => {
           button.addEventListener('click', async () => {
             if (button.getAttribute('aria-pressed') === 'true' || page.dataset.filtering === 'true') {
@@ -222,51 +233,29 @@ function renderSummary(summary: string) {
 
             const filter = button.dataset.journeyFilter || 'all'
             buttons.forEach(item => item.setAttribute('aria-pressed', String(item === button)))
-            const visibleEvents = events.filter(event => !event.hidden)
 
-            if (!prefersReducedMotion.matches) {
-              page.dataset.filtering = 'true'
-              await Promise.all(
-                visibleEvents.map(event =>
-                  play(
-                    event,
-                    [
-                      { opacity: 1, transform: 'translateY(0)' },
-                      { opacity: 0, transform: 'translateY(-6px)' },
-                    ],
-                    { duration: 140, easing: 'cubic-bezier(0.4, 0, 1, 1)', fill: 'forwards' },
-                  ),
-                ),
-              )
+            if (prefersReducedMotion.matches || !list) {
+              applyFilter(filter)
+              return
             }
 
-            events.forEach((event) => {
-              event.hidden = filter !== 'all' && event.dataset.kind !== filter
-            })
-            years.forEach((year) => {
-              year.hidden = !year.querySelector('[data-journey-event]:not([hidden])')
-            })
-
-            if (!prefersReducedMotion.matches) {
-              const revealedEvents = events.filter(event => !event.hidden)
-              await Promise.all(
-                revealedEvents.map((event, index) =>
-                  play(
-                    event,
-                    [
-                      { opacity: 0, transform: 'translateY(10px)' },
-                      { opacity: 1, transform: 'translateY(0)' },
-                    ],
-                    {
-                      duration: 280,
-                      delay: Math.min(index * 28, 84),
-                      easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
-                    },
-                  ),
-                ),
-              )
-              delete page.dataset.filtering
-            }
+            page.dataset.filtering = 'true'
+            const exit = list.animate(
+              [{ opacity: 1 }, { opacity: 0 }],
+              { duration: 120, easing: 'cubic-bezier(0.4, 0, 1, 1)', fill: 'forwards' },
+            )
+            await exit.finished.catch(() => undefined)
+            list.style.opacity = '0'
+            exit.cancel()
+            applyFilter(filter)
+            const enter = list.animate(
+              [{ opacity: 0 }, { opacity: 1 }],
+              { duration: 200, easing: 'cubic-bezier(0.22, 1, 0.36, 1)', fill: 'both' },
+            )
+            list.style.opacity = ''
+            await enter.finished.catch(() => undefined)
+            enter.cancel()
+            delete page.dataset.filtering
           })
         })
       })()
