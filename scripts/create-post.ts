@@ -44,7 +44,7 @@ async function createPost(): Promise<void> {
       initial: true,
       cancel: 'reject',
     })
-    const description = await promptDescription(draft)
+    const description = await promptDescription()
     const categories = await promptCategories()
     const series = await promptSeries()
 
@@ -124,43 +124,24 @@ async function promptSlug(initial: string): Promise<string> {
   }
 }
 
-async function promptDescription(draft: boolean): Promise<string> {
-  while (true) {
-    const description = await consola.prompt(
-      draft ? '文章摘要（草稿可留空）' : '文章摘要',
-      {
-        type: 'text',
-        cancel: 'reject',
-      },
-    )
-    const normalized = description.trim()
-
-    if (draft || normalized) {
-      return normalized
-    }
-
-    consola.warn('正式文章需要填写摘要。')
-  }
+async function promptDescription(): Promise<string> {
+  const description = await consola.prompt('文章摘要（留空自动采用正文开头）', {
+    type: 'text',
+    cancel: 'reject',
+  })
+  return description.trim()
 }
 
 async function promptCategories(): Promise<string[]> {
   const categoryHint = themeConfig.site.categoryMap.map(category => category.name).join('、')
 
-  while (true) {
-    const value = await consola.prompt(`分类（多个用逗号分隔，例如：${categoryHint}）`, {
-      type: 'text',
-      cancel: 'reject',
-    })
-    const categories = Array.from(
-      new Set(value.split(/[,，]/).map(category => category.trim()).filter(Boolean)),
-    )
-
-    if (categories.length > 0) {
-      return categories
-    }
-
-    consola.warn('请至少填写一个分类。')
-  }
+  const value = await consola.prompt(`分类（可留空，多个用逗号分隔，例如：${categoryHint}）`, {
+    type: 'text',
+    cancel: 'reject',
+  })
+  return Array.from(
+    new Set(value.split(/[,，]/).map(category => category.trim()).filter(Boolean)),
+  )
 }
 
 async function promptSeries(): Promise<PostInput['series']> {

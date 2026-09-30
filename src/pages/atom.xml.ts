@@ -4,7 +4,7 @@ import rss from '@astrojs/rss'
 import MarkdownIt from 'markdown-it'
 import sanitizeHtml from 'sanitize-html'
 import { themeConfig } from '~/.config'
-import { getPosts } from '~/utils'
+import { getPostDescription, getPosts } from '~/utils'
 
 const parser = new MarkdownIt()
 const { title, description, website, author } = themeConfig.site
@@ -36,7 +36,7 @@ function getPostItem(post: Post) {
     content: getPostContent(post),
     title: post.data.title,
     pubDate: post.data.pubDate,
-    description: post.data.description,
+    description: getPostDescription(post),
     customData: post.data.customData,
     categories: post.data.categories,
     commentsUrl: post.data.commentsUrl,
@@ -50,6 +50,6 @@ function getPostItem(post: Post) {
 function getPostContent(post: Post) {
   const isFullText = themeConfig.rss.fullText
   if (!isFullText)
-    return post.data.description
+    return getPostDescription(post)
   return sanitizeHtml(parser.render(post.body || ''), { allowedTags })
 }

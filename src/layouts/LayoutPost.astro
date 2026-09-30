@@ -13,7 +13,7 @@ const { post } = Astro.props
 <article class="article-sheet reading-design">
   <PostMeta post={post} />
   <div class="post-reading-surface">
-    <div class="post-prose-content mx-auto max-w-[39rem] w-full prose">
+    <div class="post-prose-content prose">
       <slot />
     </div>
   </div>
@@ -21,6 +21,10 @@ const { post } = Astro.props
 
 <style is:global>
   .article-sheet {
+    --post-body-size: 17px;
+    --post-body-leading: 2.05;
+    --post-content-width: 39rem;
+    --post-paragraph-space: 1.35rem;
     background: transparent;
   }
   .post-reading-surface {
@@ -69,21 +73,24 @@ const { post } = Astro.props
     pointer-events: none;
   }
 
-  .post-prose-content {
+  /* Article rules outrank prose defaults, including styles re-injected during development. */
+  .article-sheet .post-prose-content {
     position: relative;
-    max-width: 39rem;
+    width: 100%;
+    max-width: var(--post-content-width);
     margin-inline: auto 20px;
     font-family: var(--reading-sans);
     color: var(--reading-ink);
-    font-size: 17px;
-    line-height: 2.05;
+    font-size: var(--post-body-size);
+    line-height: var(--post-body-leading);
+    overflow-wrap: break-word;
     letter-spacing: 0.006em;
   }
-  .dark .post-prose-content {
+  .dark .article-sheet .post-prose-content {
     color: var(--reading-ink);
   }
 
-  .post-prose-content h2 {
+  .article-sheet .post-prose-content h2 {
     position: relative;
     width: calc(100% + 56px);
     margin-top: 5.2rem;
@@ -97,11 +104,11 @@ const { post } = Astro.props
     letter-spacing: -0.035em;
     scroll-margin-top: 5rem;
   }
-  .dark .post-prose-content h2 {
+  .dark .article-sheet .post-prose-content h2 {
     color: var(--reading-ink);
   }
 
-  .post-prose-content h2::before {
+  .article-sheet .post-prose-content h2::before {
     content: '';
     position: absolute;
     top: 0.82em;
@@ -113,11 +120,11 @@ const { post } = Astro.props
     transition: transform 450ms var(--reading-ease);
   }
 
-  .post-prose-content > h2:first-child {
+  .article-sheet .post-prose-content > h2:first-child {
     margin-top: 0;
   }
 
-  .post-prose-content h3 {
+  .article-sheet .post-prose-content h3 {
     margin-top: 3rem;
     margin-bottom: 0.9rem;
     color: var(--reading-ink);
@@ -126,27 +133,28 @@ const { post } = Astro.props
     font-weight: 600;
     line-height: 1.6;
   }
-  .dark .post-prose-content h3 {
+  .dark .article-sheet .post-prose-content h3 {
     color: var(--reading-ink);
   }
 
-  .post-prose-content p {
-    margin-top: 1.35rem;
-    margin-bottom: 1.35rem;
+  .article-sheet .post-prose-content p {
+    margin-top: var(--post-paragraph-space);
+    margin-bottom: var(--post-paragraph-space);
     text-align: start;
   }
 
-  .post-prose-content :where(ul, ol) {
+  .article-sheet .post-prose-content :where(ul, ol) {
     margin-top: 1.2rem;
     margin-bottom: 1.2rem;
   }
 
-  .post-prose-content li {
+  .article-sheet .post-prose-content li {
     margin-top: 0.45rem;
     margin-bottom: 0.45rem;
+    white-space: normal;
   }
 
-  .post-prose-content blockquote {
+  .article-sheet .post-prose-content blockquote {
     margin: 2.4rem 0 2.4rem -32px;
     padding: 1.25rem 0 1.25rem 31px;
     border-left: 2px solid var(--reading-accent);
@@ -154,29 +162,43 @@ const { post } = Astro.props
     font-size: 0.95em;
     font-style: normal;
   }
-  .post-prose-content blockquote p {
+  .article-sheet .post-prose-content blockquote p {
     margin: 0.6rem 0;
   }
-  .post-prose-content a {
+  .article-sheet .post-prose-content a {
     color: var(--reading-accent);
     text-decoration-line: underline;
     text-underline-offset: 4px;
     text-decoration-color: var(--reading-rule);
     transition: text-decoration-color 180ms ease;
   }
-  .post-prose-content a:hover {
+  .article-sheet .post-prose-content a:hover {
     text-decoration-color: currentColor;
   }
-  .post-prose-content strong {
+  .article-sheet .post-prose-content strong {
     font-weight: 600;
     color: var(--reading-ink);
   }
-  .post-prose-content hr {
+  .article-sheet .post-prose-content hr {
     border-color: var(--reading-rule);
     margin-block: 2.5rem;
   }
 
-  .post-prose-content img {
+  .article-sheet .post-prose-content code::before,
+  .article-sheet .post-prose-content code::after {
+    content: none;
+  }
+  .article-sheet .post-prose-content :where(:not(pre):not(a) > code) {
+    white-space: normal;
+    overflow-wrap: break-word;
+    padding: 2px 4px;
+    color: var(--reading-accent);
+    font-size: 90%;
+    background-color: var(--theme-accent-soft);
+    border-radius: 4px;
+  }
+
+  .article-sheet .post-prose-content img {
     width: calc(100% + 64px);
     max-width: calc(100% + 64px);
     margin: 2.75rem 0 2.75rem -32px;
@@ -184,33 +206,37 @@ const { post } = Astro.props
     border-radius: 0.5rem;
   }
 
-  .post-prose-content :where(h2, h3, h4) {
+  .article-sheet .post-prose-content :where(h2, h3, h4) {
     text-wrap: pretty;
     scroll-margin-top: 2rem;
   }
-  .post-prose-content :where(pre, table) {
+  .article-sheet .post-prose-content :where(pre, table) {
     max-width: 100%;
     overflow-x: auto;
     font-size: 0.85em;
   }
-  .post-prose-content table {
+  .article-sheet .post-prose-content table {
     display: block;
   }
-  .post-prose-content pre {
+  .article-sheet .post-prose-content :where(td, th) {
+    padding: 0.5em 0.75em;
+    min-width: 5rem;
+  }
+  .article-sheet .post-prose-content pre {
     padding: 1.5rem;
     border: 1px solid var(--theme-border-subtle);
     border-radius: 4px;
     line-height: 1.7;
   }
-  .post-prose-content > :first-child {
+  .article-sheet .post-prose-content > :first-child {
     margin-top: 0;
   }
-  .post-prose-content > :last-child {
+  .article-sheet .post-prose-content > :last-child {
     margin-bottom: 0;
   }
 
   @media (prefers-reduced-motion: no-preference) {
-    .post-prose-content h2:target {
+    .article-sheet .post-prose-content h2:target {
       animation: chapter-arrive 900ms ease-out;
     }
     @keyframes chapter-arrive {
@@ -225,6 +251,10 @@ const { post } = Astro.props
     }
   }
   @media (max-width: 767px) {
+    .article-sheet {
+      --post-body-size: 16px;
+      --post-body-leading: 2;
+    }
     .post-reading-surface {
       padding: 48px 8px 64px 34px;
     }
@@ -249,27 +279,25 @@ const { post } = Astro.props
           transparent
         );
     }
-    .post-prose-content {
+    .article-sheet .post-prose-content {
       margin: 0;
-      font-size: 16px;
-      line-height: 2;
     }
-    .post-prose-content h2 {
+    .article-sheet .post-prose-content h2 {
       width: calc(100% + 16px);
       margin-top: 4rem;
       margin-left: -16px;
       font-size: 1.55rem;
     }
-    .post-prose-content h2::before {
+    .article-sheet .post-prose-content h2::before {
       top: 0.82em;
       left: -27px;
       width: 18px;
     }
-    .post-prose-content blockquote {
+    .article-sheet .post-prose-content blockquote {
       margin-left: -16px;
       padding-left: 16px;
     }
-    .post-prose-content img {
+    .article-sheet .post-prose-content img {
       width: calc(100% + 16px);
       max-width: calc(100% + 16px);
       margin-left: -16px;

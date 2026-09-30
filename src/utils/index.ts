@@ -96,7 +96,10 @@ export function getPostDescription(post: Post) {
 
 export function getPostPlainText(post: Post) {
   const html = parser.render(post.body || '')
-  const sanitized = sanitizeHtml(html, { allowedTags: [] })
+  const sanitized = sanitizeHtml(html, {
+    allowedTags: ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'],
+    exclusiveFilter: frame => /^h[1-6]$/.test(frame.tag),
+  })
   return sanitized.replace(/\s+/g, ' ').trim()
 }
 

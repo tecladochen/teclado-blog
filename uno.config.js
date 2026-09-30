@@ -13,39 +13,6 @@ import { getSocialIconClass } from './src/utils/socialIcons'
 
 const { colorsDark, colorsLight, fonts } = themeConfig.appearance
 
-const cssExtend = {
-  ':root': {
-    '--prose-borders': '#eee',
-  },
-
-  'code::before,code::after': {
-    content: 'none',
-  },
-
-  ':where(:not(pre):not(a) > code)': {
-    'white-space': 'normal',
-    'word-wrap': 'break-word',
-    'padding': '2px 4px',
-    'color': 'var(--theme-accent)',
-    'font-size': '90%',
-    'background-color': 'var(--theme-accent-soft)',
-    'border-radius': '4px',
-  },
-
-  'li': {
-    'white-space': 'normal',
-    'word-wrap': 'break-word',
-  },
-
-  // 正文列只有约 520px。收紧单元格内边距（默认 .625em 1em，三列光 padding 就吃掉近 100px），
-  // 并给出最小宽度，让宽表沿用 presetTypography 的 overflow-x: auto 横向滚动，
-  // 而不是把单元格挤成两三个字一行的竖条。
-  'td,th': {
-    'padding': '0.5em 0.75em',
-    'min-width': '5rem',
-  },
-}
-
 export default defineConfig({
   rules: [
     [
@@ -59,7 +26,7 @@ export default defineConfig({
   ],
   presets: [
     presetWind3(),
-    presetTypography({ cssExtend }),
+    presetTypography(),
     presetAttributify(),
     presetIcons({ scale: 1.2, warn: true }),
     presetTheme({

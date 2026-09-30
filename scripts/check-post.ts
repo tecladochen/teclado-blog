@@ -253,8 +253,6 @@ function checkFrontmatter(
   seriesIndex: Map<string, Map<string, string[]>>,
 ): Issue[] {
   const issues: Issue[] = []
-  const draft = frontmatter.draft === true
-
   if (!frontmatter.title) {
     issues.push({ level: 'error', rule: 'title', message: '缺少 title' })
   }
@@ -281,14 +279,7 @@ function checkFrontmatter(
     issues.push({ level: 'error', rule: 'pubDate', message: '缺少 pubDate' })
   }
 
-  if (!frontmatter.description) {
-    issues.push({
-      level: draft ? 'warn' : 'error',
-      rule: 'description',
-      message: draft ? '草稿还没有 description，发布前要补上' : '缺少 description，列表页、SEO 和 RSS 都要用',
-    })
-  }
-  else {
+  if (frontmatter.description) {
     const chars = countChars(frontmatter.description)
 
     if (chars < LIMITS.descriptionMin || chars > LIMITS.descriptionMax) {
@@ -302,10 +293,7 @@ function checkFrontmatter(
 
   const categoryNames = themeConfig.site.categoryMap.map(category => category.name)
 
-  if (!frontmatter.categories || frontmatter.categories.length === 0) {
-    issues.push({ level: 'error', rule: 'categories', message: '缺少 categories' })
-  }
-  else {
+  if (frontmatter.categories) {
     for (const category of frontmatter.categories) {
       if (!categoryNames.includes(category)) {
         issues.push({

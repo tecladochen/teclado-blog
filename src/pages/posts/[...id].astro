@@ -6,7 +6,7 @@ import SiteSeo from '~/components/SiteSeo.astro'
 import TableOfContents from '~/components/TableOfContents.astro'
 import LayoutDefault from '~/layouts/LayoutDefault.astro'
 import LayoutPost from '~/layouts/LayoutPost.astro'
-import { formatDate, getPosts } from '~/utils'
+import { formatDate, getPostDescription, getPosts } from '~/utils'
 
 export const getStaticPaths = (async () => {
   const posts = await getPosts()
@@ -35,7 +35,7 @@ function getUrl(id?: string) {
   <SiteSeo
     slot="seo"
     title={entry.data.title}
-    desc={entry.data.description}
+    desc={getPostDescription(entry)}
     banner={entry.data.banner}
     type="article"
     publishedTime={entry.data.pubDate}
