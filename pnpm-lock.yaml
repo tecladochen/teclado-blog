@@ -53,8 +53,8 @@ importers:
         specifier: ^1.8.0
         version: 1.8.0(rolldown@1.2.9)
       '@waline/client':
-        specifier: ^3.15.2
-        version: 3.15.2(typescript@5.8.3)
+        specifier: ^3.16.0
+        version: 3.16.0(typescript@5.8.3)
       astro:
         specifier: ^7.3.3
         version: 7.3.3(@astrojs/markdown-remark@7.3.1)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)(@types/node@22.16.4)(jiti@2.7.0)(terser@5.32.0)(tsx@4.23.15)(yaml@2.9.1)
@@ -2533,9 +2533,12 @@ packages:
     resolution: {integrity: sha512-r1H+XL+/Ww4qXv8vjq09HJQtMvYqMofgfueuokgsDW1kJ9/6CYY7g6LkksYlDJmWm0aqkLR/9ZTI/bbozL4FBA==}
     engines: {node: '>=22'}
 
-  '@waline/client@3.15.2':
-    resolution: {integrity: sha512-QBAVbruefDR+IKyQdM/Ao9fd07Xxpx1WEJ7xI8lBVNDjMQBr1PpdwrTpLC8RrYbgUR9ymNBvtLDJi0xK3pbORQ==}
+  '@waline/client@3.16.0':
+    resolution: {integrity: sha512-pluWjHTYiSGIkK0mzejJaZazlpPxAEGGqpn9xQC8QW5SzrEqZ4lBixeR8jsivuvKAtBV2Hp6EsqZp50P+ebmZw==}
     engines: {node: '>=22'}
+
+  '@webc.site/math@0.1.41':
+    resolution: {integrity: sha512-Tev02lqJLaEO+MNMq74lWpzuNZT/8bp2rSSzyDJR/u2ovh1jI3bW5HVveGILVKK+7Owf48KaUG9pd35BNf9mrw==}
 
   acorn-jsx@5.3.2:
     resolution: {integrity: sha512-rq9s+JNhf0IChjtDXxllJ7g41oZk5SlXtp0LHwyA5cejwn7vKmKp4pPri6YEePv2PU65sAsegbXtIinmDFDXgQ==}
@@ -4457,8 +4460,8 @@ packages:
     peerDependencies:
       marked: '>=4 <19'
 
-  marked@18.0.13:
-    resolution: {integrity: sha512-xTxVzZsBFwunP6HDmtBkabUQEYArnP7/rMDGmPj9SlrKlQ4i8MdYVow+nJL0eOqwpUqhzBoTBRADGN6uYwPyOw==}
+  marked@18.0.14:
+    resolution: {integrity: sha512-mBHK6FBHuBAlhgRe88w9F0O1AbwwXJUcQibUbC/QcdTbVGAD7aWza+xt3N6oT/jCZx3/OMeS+8rnuiHZcQ9s7A==}
     engines: {node: '>= 20'}
     hasBin: true
 
@@ -5659,6 +5662,10 @@ packages:
 
   source-map-js@1.2.1:
     resolution: {integrity: sha512-UXWMKhLOwVKb728IUtQPXxfYU+usdybtUrK/8uGE8CQMvrhOpwvzDBwj0QhSL7MQc7vIsISBG8VQ8+IDQxpfQA==}
+    engines: {node: '>=0.10.0'}
+
+  source-map-js@1.2.2:
+    resolution: {integrity: sha512-KGj/8Y43x35aZVDtt+J4mK1hoLGHULMYfSkODJNQjNDC3oW1PqPoxMwo0pLUsWM/UEGzON/NxeHywEfNXNP3Vw==}
     engines: {node: '>=0.10.0'}
 
   source-map-support@0.5.21:
@@ -8912,7 +8919,7 @@ snapshots:
       '@vue/shared': 3.5.43
       entities: 7.0.1
       estree-walker: 2.0.2
-      source-map-js: 1.2.1
+      source-map-js: 1.2.2
 
   '@vue/compiler-dom@3.5.43':
     dependencies:
@@ -8929,7 +8936,7 @@ snapshots:
       estree-walker: 2.0.2
       magic-string: 0.30.21
       postcss: 8.5.28
-      source-map-js: 1.2.1
+      source-map-js: 1.2.2
 
   '@vue/compiler-ssr@3.5.43':
     dependencies:
@@ -8975,17 +8982,20 @@ snapshots:
 
   '@waline/api@1.1.2': {}
 
-  '@waline/client@3.15.2(typescript@5.8.3)':
+  '@waline/client@3.16.0(typescript@5.8.3)':
     dependencies:
       '@vueuse/core': 14.4.0(vue@3.5.43(typescript@5.8.3))
       '@waline/api': 1.1.2
+      '@webc.site/math': 0.1.41
       autosize: 6.0.1
-      marked: 18.0.13
-      marked-highlight: 2.2.4(marked@18.0.13)
+      marked: 18.0.14
+      marked-highlight: 2.2.4(marked@18.0.14)
       recaptcha-v3: 1.11.3
       vue: 3.5.43(typescript@5.8.3)
     transitivePeerDependencies:
       - typescript
+
+  '@webc.site/math@0.1.41': {}
 
   acorn-jsx@5.3.2(acorn@8.18.0):
     dependencies:
@@ -9503,7 +9513,7 @@ snapshots:
   css-tree@2.2.1:
     dependencies:
       mdn-data: 2.0.28
-      source-map-js: 1.2.1
+      source-map-js: 1.2.2
 
   css-tree@3.1.0:
     dependencies:
@@ -11175,7 +11185,7 @@ snapshots:
   magic-regexp@0.10.0:
     dependencies:
       estree-walker: 3.0.3
-      magic-string: 0.30.17
+      magic-string: 0.30.21
       mlly: 1.7.4
       regexp-tree: 0.1.27
       type-level-regexp: 0.1.17
@@ -11227,11 +11237,11 @@ snapshots:
 
   markdown-table@3.0.3: {}
 
-  marked-highlight@2.2.4(marked@18.0.13):
+  marked-highlight@2.2.4(marked@18.0.14):
     dependencies:
-      marked: 18.0.13
+      marked: 18.0.14
 
-  marked@18.0.13: {}
+  marked@18.0.14: {}
 
   math-intrinsics@1.1.0: {}
 
@@ -12974,6 +12984,8 @@ snapshots:
   smol-toml@1.8.0: {}
 
   source-map-js@1.2.1: {}
+
+  source-map-js@1.2.2: {}
 
   source-map-support@0.5.21:
     dependencies:
