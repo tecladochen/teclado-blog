@@ -43,7 +43,7 @@
     "@astrojs/check": "^0.9.10",
     "@astrojs/markdown-remark": "^7.3.1",
     "@iconify-json/mdi": "^1.2.3",
-    "@iconify-json/tabler": "^1.2.39",
+    "@iconify-json/tabler": "^1.2.40",
     "@types/markdown-it": "^14.2.0",
     "@types/node": "^22.16.4",
     "@types/sanitize-html": "^2.16.1",
