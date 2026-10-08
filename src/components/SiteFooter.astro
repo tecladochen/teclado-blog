@@ -1,7 +1,9 @@
 ---
 import { themeConfig } from '~/.config'
+import { travels } from '~/.config/travels'
 
 const year = new Date().getFullYear()
+const showTravels = travels.length > 0
 
 const { website, author, footer } = themeConfig.site
 
@@ -16,7 +18,10 @@ function parseFooter(str: string) {
 {
   footer.length && (
     <div class="footer-colophon">
-      <p class="footer-owner" set:html={parseFooter(footer[0])} />
+      <div class="footer-lead">
+        <p class="footer-owner" set:html={parseFooter(footer[0])} />
+        {showTravels && <a class="footer-travel not-underline-hover" href="/travels">足迹</a>}
+      </div>
       {footer.slice(1).map(str => (
         <p class="footer-record" set:html={parseFooter(str)} />
       ))}
@@ -36,12 +41,29 @@ function parseFooter(str: string) {
     color: var(--theme-muted);
     font-family: 'JetBrains Mono Variable', monospace;
   }
+  .footer-lead {
+    display: flex;
+    align-items: baseline;
+    min-width: 0;
+    gap: 14px;
+  }
   .footer-owner,
   .footer-record {
     margin: 0;
     font-size: 9px;
     line-height: 1.5;
     letter-spacing: 0.025em;
+  }
+  .footer-travel {
+    color: var(--theme-muted);
+    font-family: 'JetBrains Mono Variable', monospace;
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    line-height: 1.5;
+  }
+  .footer-travel:hover,
+  .footer-travel:focus-visible {
+    color: var(--footer-hover);
   }
   .footer-owner {
     display: flex;

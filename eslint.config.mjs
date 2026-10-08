@@ -4,7 +4,10 @@ export default antfu({
   formatters: false,
   unocss: true,
   astro: true,
-  ignores: ['src/content/journey/_template.md'],
+  ignores: [
+    'src/content/journey/_template.md',
+    'src/data/travel/**/*.json',
+  ],
 }, {
   files: ['pnpm-workspace.yaml'],
   rules: {

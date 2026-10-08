@@ -1,0 +1,455 @@
+---
+import { getCollection } from 'astro:content'
+import { buildTravelMap } from '~/utils/travelMap'
+
+const map = buildTravelMap()
+const posts = await getCollection('posts')
+const postTitles = new Map(posts.map(post => [post.id, post.data.title]))
+
+function articleTitle(href: string) {
+  const id = href.replace(/^\/posts\//, '').replace(/\/$/, '')
+  return postTitles.get(id) ?? '文章'
+}
+
+const quietRegions = map.regions.filter(region => !region.visited)
+const visitedRegions = map.regions.filter(region => region.visited)
+---
+
+<section class="travel-page" data-travel-page data-scope={map.scope}>
+  {
+    map.empty
+      ? <p class="travel-empty">还没有记录。</p>
+      : (
+          <>
+            <header class="travel-heading">
+              <h1>足迹</h1>
+              {map.countLabel && <p class="travel-count">{map.countLabel}</p>}
+            </header>
+
+            <div class="travel-map">
+              <svg class="travel-svg" viewBox={map.viewBox} role="img" aria-labelledby="travel-map-title">
+                <title id="travel-map-title">{map.summary}</title>
+                {
+                  quietRegions.map(region => (
+                    <path class="travel-region" d={region.d} />
+                  ))
+                }
+                {
+                  visitedRegions.map(region => (
+                    <path
+                      class="travel-region is-visited"
+                      d={region.d}
+                      data-travel-mark
+                      data-travel-key={region.key}
+                    />
+                  ))
+                }
+                {
+                  map.regions.map(region => region.label && (
+                    <text class="travel-label" x={region.label.x} y={region.label.y} font-size={map.labelSize}>
+                      {region.name}
+                    </text>
+                  ))
+                }
+                {
+                  map.cities.map(city => (
+                    <g
+                      class="travel-city"
+                      data-travel-mark
+                      data-travel-key={city.key}
+                    >
+                      <circle class="travel-city-hit" cx={city.x} cy={city.y} r={map.dotRadius * 3} />
+                      <circle class="travel-city-dot" cx={city.x} cy={city.y} r={map.dotRadius} />
+                      {
+                        map.showCityNames && (
+                          <text
+                            class="travel-city-label"
+                            x={city.align === 'end' ? city.x - map.dotRadius * 2.6 : city.x + map.dotRadius * 2.6}
+                            y={city.y}
+                            text-anchor={city.align}
+                            font-size={map.labelSize * 0.68}
+                          >
+                            {city.name}
+                          </text>
+                        )
+                      }
+                    </g>
+                  ))
+                }
+                {
+                  map.inset && (
+                    <g class="travel-inset" aria-hidden="true">
+                      <rect x={map.inset.x} y={map.inset.y} width={map.inset.width} height={map.inset.height} />
+                      {
+                        map.inset.regions.map(region => (
+                          <path
+                            class:list={[
+                              region.kind === 'dash' ? 'travel-dash' : 'travel-region',
+                              { 'is-visited': region.visited && region.kind !== 'dash' },
+                            ]}
+                            d={region.d}
+                          />
+                        ))
+                      }
+                    </g>
+                  )
+                }
+              </svg>
+            </div>
+
+            <ol class="travel-ledger">
+              {
+                map.entries.map(entry => (
+                  <li class="travel-entry" data-travel-mark data-travel-key={entry.key}>
+                    {
+                      entry.visited
+                        ? <time datetime={entry.visited.replace('.', '-')}>{entry.visited}</time>
+                        : <span class="travel-entry-date" />
+                    }
+                    <div class="travel-entry-body">
+                      <button class="travel-entry-button" type="button" data-travel-key={entry.key} aria-pressed="false">
+                        <span class="travel-entry-name">{entry.title}</span>
+                        {entry.meta && <span class="travel-entry-meta">{entry.meta}</span>}
+                      </button>
+                      {entry.note && <p class="travel-note">{entry.note}</p>}
+                      {entry.post && <a class="travel-post" href={entry.post}>{articleTitle(entry.post)}</a>}
+                    </div>
+                  </li>
+                ))
+              }
+            </ol>
+          </>
+        )
+  }
+</section>
+
+<script is:inline>
+  ;(() => {
+    const page = document.querySelector('[data-travel-page]')
+    if (!page || page.dataset.ready === 'true')
+      return
+    page.dataset.ready = 'true'
+
+    let selected = ''
+    let hot = ''
+
+    const paint = () => {
+      const focus = hot || selected
+      page.querySelectorAll('[data-travel-mark]').forEach((element) => {
+        const key = element.getAttribute('data-travel-key')
+        const match = Boolean(focus) && key === focus
+        element.classList.toggle('is-dimmed', Boolean(focus) && !match)
+        element.classList.toggle('is-focus', match)
+        element.classList.toggle('is-chosen', Boolean(selected) && key === selected)
+      })
+      page.querySelectorAll('[aria-pressed]').forEach((element) => {
+        const key = element.getAttribute('data-travel-key')
+        element.setAttribute('aria-pressed', selected && key === selected ? 'true' : 'false')
+      })
+    }
+
+    const select = (key) => {
+      selected = selected === key ? '' : key
+      hot = ''
+      paint()
+    }
+
+    page.addEventListener('click', (event) => {
+      if (event.target.closest('a'))
+        return
+      const target = event.target.closest('[data-travel-key]')
+      if (!target || !page.contains(target))
+        return
+      select(target.getAttribute('data-travel-key') || '')
+    })
+
+    page.addEventListener('pointerover', (event) => {
+      const target = event.target.closest('[data-travel-mark]')
+      const next = target ? (target.getAttribute('data-travel-key') || '') : ''
+      if (next === hot)
+        return
+      hot = next
+      paint()
+    })
+
+    page.addEventListener('pointerleave', () => {
+      if (!hot)
+        return
+      hot = ''
+      paint()
+    })
+
+    page.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && selected) {
+        selected = ''
+        hot = ''
+        paint()
+        return
+      }
+      if (event.key !== 'Enter' && event.key !== ' ')
+        return
+      const target = event.target.closest('[data-travel-key]')
+      if (!target || target.tagName === 'BUTTON' || target.tagName === 'A')
+        return
+      event.preventDefault()
+      select(target.getAttribute('data-travel-key') || '')
+    })
+  })()
+</script>
+
+<style>
+  .travel-page {
+    --travel-serif: 'Songti SC', 'Noto Serif CJK SC', 'Source Han Serif SC', STSong, Georgia, serif;
+  }
+
+  .travel-empty {
+    margin: 0;
+    color: var(--theme-muted);
+    font-family: 'JetBrains Mono Variable', monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+  }
+
+  .travel-heading {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    margin: 0 0 0.85rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 1px solid var(--uno-colors-primary);
+  }
+
+  .travel-heading h1 {
+    margin: 0;
+    font-family: var(--travel-serif);
+    font-size: 1.2rem;
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    line-height: 1.4;
+  }
+
+  .travel-count {
+    margin: 0;
+    color: var(--theme-muted);
+    font-family: 'JetBrains Mono Variable', monospace;
+    font-size: 11px;
+    letter-spacing: 0.04em;
+  }
+
+  .travel-map {
+    margin: 0.2rem 0 0.15rem;
+  }
+
+  .travel-svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: hidden;
+  }
+
+  .travel-svg :focus,
+  .travel-svg :focus-visible {
+    outline: none;
+  }
+
+  .travel-region {
+    fill: color-mix(in srgb, var(--uno-colors-primary) 8%, var(--uno-colors-background));
+    stroke: color-mix(in srgb, var(--uno-colors-primary) 16%, var(--uno-colors-background));
+    stroke-linejoin: round;
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+    pointer-events: none;
+    transition: fill 160ms ease, opacity 160ms ease;
+  }
+
+  .travel-region.is-visited {
+    fill: color-mix(in srgb, var(--theme-accent) 30%, var(--uno-colors-background));
+    stroke: color-mix(in srgb, var(--theme-accent) 62%, var(--uno-colors-background));
+    cursor: pointer;
+    pointer-events: auto;
+  }
+
+  .travel-region.is-visited.is-focus {
+    fill: color-mix(in srgb, var(--theme-accent) 40%, var(--uno-colors-background));
+    stroke: var(--theme-accent);
+  }
+
+  .travel-label,
+  .travel-city-label {
+    fill: var(--uno-colors-primary);
+    font-family: var(--travel-serif);
+    paint-order: stroke;
+    stroke: var(--uno-colors-background);
+    stroke-linejoin: round;
+    stroke-width: 0.22em;
+    pointer-events: none;
+  }
+
+  .travel-label {
+    dominant-baseline: middle;
+    text-anchor: middle;
+  }
+
+  .travel-city-label {
+    dominant-baseline: middle;
+  }
+
+  .travel-city {
+    cursor: pointer;
+  }
+
+  .travel-city-hit {
+    fill: transparent;
+  }
+
+  .travel-city-dot {
+    fill: var(--theme-accent-emphasis);
+    stroke: var(--uno-colors-background);
+    stroke-width: 1.5;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .travel-city.is-focus .travel-city-dot {
+    stroke: var(--theme-accent);
+  }
+
+  .travel-inset rect {
+    fill: var(--uno-colors-background);
+    stroke: var(--theme-border);
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .travel-dash {
+    fill: none;
+    stroke: var(--theme-muted);
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .is-dimmed {
+    opacity: 0.38;
+  }
+
+  .travel-ledger {
+    margin: 0.35rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .travel-entry {
+    position: relative;
+    display: grid;
+    grid-template-columns: 4.6rem minmax(0, 1fr);
+    column-gap: 1.15rem;
+    padding: 0.95rem 0 1rem;
+    border-bottom: 1px solid var(--theme-border-subtle);
+  }
+
+  .travel-entry::before {
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 0;
+    height: 1px;
+    background: var(--theme-accent);
+    content: '';
+    transition: width 420ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .travel-entry:is(:hover, :focus-within, .is-chosen)::before {
+    width: 4.6rem;
+  }
+
+  .travel-entry.is-chosen {
+    background: linear-gradient(90deg, color-mix(in srgb, var(--theme-accent) 8%, transparent), transparent 72%);
+  }
+
+  .travel-entry > time,
+  .travel-entry-date {
+    padding-top: 0.38rem;
+    color: var(--theme-muted);
+    font-family: 'JetBrains Mono Variable', monospace;
+    font-size: 11px;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.04em;
+  }
+
+  .travel-entry-button {
+    display: flex;
+    align-items: baseline;
+    gap: 0.7rem;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--uno-colors-primary);
+    cursor: pointer;
+    font: inherit;
+    text-align: left;
+  }
+
+  .travel-entry-button:focus-visible {
+    outline: none;
+  }
+
+  .travel-entry.is-focus .travel-entry-name,
+  .travel-entry.is-chosen .travel-entry-name {
+    color: var(--theme-accent-emphasis);
+  }
+
+  .travel-entry-name {
+    font-family: var(--travel-serif);
+    font-size: 1.05rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    line-height: 1.5;
+  }
+
+  .travel-entry-meta {
+    color: var(--theme-muted);
+    font-family: var(--travel-serif);
+    font-size: 0.92rem;
+    letter-spacing: 0.08em;
+  }
+
+  .travel-note {
+    max-width: 36rem;
+    margin: 0.15rem 0 0;
+    color: var(--theme-sub);
+    font-size: 0.9rem;
+    line-height: 1.7;
+  }
+
+  .travel-post {
+    display: inline-block;
+    margin-top: 0.28rem;
+    color: var(--theme-accent-emphasis);
+    font-size: 0.84rem;
+  }
+
+  @media (max-width: 680px) {
+    .travel-heading {
+      align-items: flex-start;
+      flex-direction: column;
+      gap: 0.28rem;
+    }
+
+    .travel-entry {
+      grid-template-columns: 3.6rem minmax(0, 1fr);
+      column-gap: 0.75rem;
+    }
+
+    .travel-entry:is(:hover, :focus-within, .is-chosen)::before {
+      width: 3.6rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .travel-region,
+    .is-dimmed,
+    .travel-entry::before {
+      transition: none;
+    }
+  }
+</style>
