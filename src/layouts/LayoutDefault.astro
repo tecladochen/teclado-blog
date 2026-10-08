@@ -58,8 +58,33 @@ const dark = themeConfig.appearance.theme === 'dark'
     </footer>
 
     <script>
+      import type Swup from '@swup/astro/client/Swup'
+
       document.addEventListener('animationend', removeAnimation, false)
       document.addEventListener('astro:page-load', animatePageContent)
+      document.addEventListener('DOMContentLoaded', setupTravelTransition)
+      document.addEventListener('astro:page-load', setupTravelTransition)
+
+      function setupTravelTransition() {
+        const transitionWindow = window as Window & {
+          swup?: Swup
+          __tecladoTravelTransitionReady?: boolean
+        }
+        if (!transitionWindow.swup || transitionWindow.__tecladoTravelTransitionReady)
+          return
+
+        transitionWindow.__tecladoTravelTransitionReady = true
+        transitionWindow.swup.hooks.before('content:scroll', (visit) => {
+          if (visit.to.url.replace(/\/$/, '') !== '/travels' || visit.history.popstate || visit.to.hash)
+            return
+
+          // Scroll Plugin schedules scrolling after content replacement; skip its long ascent.
+          const scroll = visit.scroll as typeof visit.scroll & { animate?: boolean }
+          scroll.animate = false
+        })
+      }
+
+      setupTravelTransition()
 
       function removeAnimation(event: AnimationEvent) {
         if (event.animationName !== 'page-content-enter')
@@ -93,6 +118,23 @@ const dark = themeConfig.appearance.theme === 'dark'
 
       .page-content.is-entering {
         animation: page-content-enter 0.2s cubic-bezier(0.22, 1, 0.36, 1) 1 both;
+      }
+
+      :global(html:has(.travel-page)) {
+        scroll-behavior: auto;
+      }
+
+      .page-content.is-entering:has(:global(.travel-page)) {
+        animation-name: page-content-fade;
+      }
+
+      @keyframes page-content-fade {
+        from {
+          opacity: 0.62;
+        }
+        to {
+          opacity: 1;
+        }
       }
 
       @keyframes fade-in-down {

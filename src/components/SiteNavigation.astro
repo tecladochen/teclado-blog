@@ -40,6 +40,7 @@ function isNavActive(href: string) {
                 active ? 'is-active' : 'is-inactive',
               ]}
               href={nav.href}
+              aria-current={active ? 'page' : undefined}
             >
               {label}
             </a>
@@ -133,8 +134,14 @@ function isNavActive(href: string) {
 <script>
   function positionActiveIndicator(activeItem: HTMLAnchorElement | null) {
     const navList = document.querySelector<HTMLElement>('[data-nav-list]')
-    if (!navList || !activeItem)
+    if (!navList)
       return
+
+    if (!activeItem) {
+      navList.style.setProperty('--nav-indicator-opacity', '0')
+      navList.style.setProperty('--nav-indicator-width', '0px')
+      return
+    }
 
     const listRect = navList.getBoundingClientRect()
     const itemRect = activeItem.getBoundingClientRect()
@@ -160,6 +167,10 @@ function isNavActive(href: string) {
       const active = checkActive(itemHref, path)
       item.classList.toggle('is-active', active)
       item.classList.toggle('is-inactive', !active)
+      if (active)
+        item.setAttribute('aria-current', 'page')
+      else
+        item.removeAttribute('aria-current')
       if (active)
         activeItem = item
     })

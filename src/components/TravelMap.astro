@@ -25,13 +25,30 @@ function spot(label: TravelLabelSpot, suffix = '') {
               </div>
               <ul class="travel-legend" aria-hidden="true">
                 <li><span class="travel-legend-area" />{`去过的${areaName}`}</li>
-                {map.cities.length > 0 && <li><span class="travel-legend-dot" />城市</li>}
+                {map.cities.length > 0 && <li><span class="travel-legend-dot" />到访</li>}
+                {map.cities.some(city => city.home) && <li><span class="travel-legend-home" />出生地</li>}
               </ul>
             </header>
 
+            {
+              map.milestones.length > 0 && (
+                <ol class="travel-homes" aria-label="出生与居住地">
+                  {map.milestones.map(item => (
+                    <li>
+                      <span class="travel-place-tag">{item.tag}</span>
+                      <span class="travel-home-name">
+                        {item.title}{item.place && <span class="travel-home-detail"> · {item.place}</span>}
+                        <span class="travel-home-date">（{item.dateLabel}）</span>
+                      </span>
+                    </li>
+                  ))}
+                </ol>
+              )
+            }
+
             <figure class="travel-map" data-scope={map.scope}>
-              <svg class="travel-svg" viewBox={map.viewBox} role="img" aria-labelledby="travel-map-title">
-                <title id="travel-map-title">{`去过：${map.summary}`}</title>
+              <div class="travel-map-canvas">
+              <svg class="travel-svg" viewBox={map.viewBox} role="img" aria-label="足迹地图">
                 <g class="travel-land">
                   {map.regions.map(region => <path d={region.d} />)}
                 </g>
@@ -79,7 +96,7 @@ function spot(label: TravelLabelSpot, suffix = '') {
                 {
                   map.cities.map((city, index) => (
                     <g
-                      class="travel-city"
+                      class:list={['travel-city', { 'is-home': city.home }]}
                       style={`--i:${index}`}
                       data-travel-mark
                       data-travel-key={city.key}
@@ -88,7 +105,10 @@ function spot(label: TravelLabelSpot, suffix = '') {
                     >
                       <circle class="travel-city-hit" cx={city.x} cy={city.y} r={map.dotRadius * 3.2} />
                       <circle class="travel-city-halo" cx={city.x} cy={city.y} r={map.dotRadius * 2.5} />
-                      <circle class="travel-city-dot" cx={city.x} cy={city.y} r={map.dotRadius} />
+                      {city.home
+                        ? <path class="travel-city-dot travel-city-home" d={`M ${city.x} ${city.y - map.dotRadius * 1.7} L ${city.x + map.dotRadius * 1.6} ${city.y + map.dotRadius * 1.2} L ${city.x - map.dotRadius * 1.6} ${city.y + map.dotRadius * 1.2} Z`} />
+                        : <circle class="travel-city-dot" cx={city.x} cy={city.y} r={map.dotRadius} />}
+
                       {
                         city.named && (city.label.show || city.compactLabel.show) && (
                           <text
@@ -138,6 +158,7 @@ function spot(label: TravelLabelSpot, suffix = '') {
                   </svg>
                 )
               }
+              </div>
 
               <div class="travel-cards" aria-live="polite">
                 {
@@ -151,8 +172,8 @@ function spot(label: TravelLabelSpot, suffix = '') {
                         {
                           group.items.map(item => (
                             <li data-travel-card-city={item.city} data-travel-card-entry={item.id}>
-                              <span class="travel-card-city">{item.title ?? '到访'}</span>
-                              {item.visited && <time datetime={item.visited.replace('.', '-')}>{item.visited}</time>}
+                              <span class="travel-card-city">{item.kind === 'visit' && item.place ? item.place : item.title}</span>
+                              {item.visited && <time datetime={item.visited.replace('.', '-')}>{item.dateLabel}</time>}
                             </li>
                           ))
                         }
@@ -209,40 +230,33 @@ function spot(label: TravelLabelSpot, suffix = '') {
 
               {
                 map.timeline && (
-                  <div class="travel-timeline">
-                    <div class="travel-years" aria-hidden="true">
-                      {
-                        map.timeline.years.map(year => (
-                          <span style={`left:${size(year.from)}%;width:${size(year.width)}%`}>
-                            {year.label && year.year}
-                          </span>
-                        ))
-                      }
-                    </div>
-                    <div class="travel-axis">
-                      {
-                        map.timeline.points.map(point => (
-                          <button
-                            class="travel-point"
-                            type="button"
-                            style={`--pos:${size(point.pos)}%;--row:${Math.max(point.row, 0)};--row-compact:${Math.max(point.rowCompact, 0)}`}
-                            data-align={point.align}
-                            data-row={point.row}
-                            data-row-compact={point.rowCompact}
-                            aria-label={`${point.visited} ${point.title}`}
-                            aria-pressed="false"
-                            data-travel-mark
-                            data-travel-key={point.keys.join(' ')}
-                            data-travel-city={point.cities.join(' ') || undefined}
-                            data-travel-entry={point.id}
-                          >
-                            <span class="travel-point-dot" />
-                            <span class="travel-point-label" aria-hidden="true">{point.title}</span>
-                          </button>
-                        ))
-                      }
-                    </div>
-                  </div>
+                  <section class="travel-timeline" aria-label="足迹时间轴">
+                    <ol class="travel-timeline-segments" style={`--tracks:${map.timeline.segments.map(segment => segment.gap ? '0.3fr' : 'minmax(4.2rem, 1fr)').join(' ')}`}>
+                      {map.timeline.segments.map(segment => segment.gap
+                        ? (
+                          <li class="travel-gap" aria-label={`${segment.start} 至 ${segment.end} 年已缩略`} />
+                        )
+                        : (
+                          <li class="travel-event">
+                            <button
+                              class:list={['travel-point', { 'is-home': segment.point.home }]}
+                              type="button"
+                              aria-label={`${segment.point.visited} ${segment.point.title}`}
+                              aria-pressed="false"
+                              data-travel-mark
+                              data-travel-key={segment.point.keys.join(' ')}
+                              data-travel-city={segment.point.cities.join(' ') || undefined}
+                              data-travel-entry={segment.point.id}
+                            >
+                              <time class="travel-point-date" datetime={segment.point.visited.replace('.', '-')}>{segment.point.visited}</time>
+                              <span class="travel-point-label">
+                                {segment.point.title.split(' · ').map(city => <span>{city}</span>)}
+                              </span>
+                            </button>
+                          </li>
+                        ))}
+                    </ol>
+                  </section>
                 )
               }
             </div>
@@ -297,7 +311,10 @@ function spot(label: TravelLabelSpot, suffix = '') {
             card.hidden = hidden
         })
         cardItems.forEach((item) => {
-          item.classList.toggle('is-current', isCurrent(focus, item.dataset.travelCardCity, item.dataset.travelCardEntry))
+          const current = focus?.exact
+            ? item.dataset.travelCardEntry === focus.entry
+            : isCurrent(focus, item.dataset.travelCardCity, item.dataset.travelCardEntry)
+          item.classList.toggle('is-current', current)
         })
       }
 
@@ -370,6 +387,8 @@ function spot(label: TravelLabelSpot, suffix = '') {
     --travel-ease: cubic-bezier(0.22, 1, 0.36, 1);
     --travel-label-scale: 1;
     --travel-dot-scale: 1;
+    --travel-home-color: #6f8063;
+    margin-top: clamp(-2.5rem, -4vw, -1.5rem);
   }
 
   .travel-empty {
@@ -444,6 +463,13 @@ function spot(label: TravelLabelSpot, suffix = '') {
     background: color-mix(in srgb, var(--theme-accent) 26%, var(--uno-colors-background));
   }
 
+  .travel-legend-home {
+    width: 9px;
+    height: 9px;
+    background: var(--travel-home-color);
+    clip-path: polygon(50% 0, 100% 100%, 0 100%);
+  }
+
   .travel-legend-dot {
     width: 6px;
     height: 6px;
@@ -462,6 +488,10 @@ function spot(label: TravelLabelSpot, suffix = '') {
     display: block;
     width: 100%;
     height: auto;
+  }
+
+  .travel-map-canvas {
+    position: relative;
   }
 
   .travel-map[data-scope='region'] .travel-svg {
@@ -564,6 +594,15 @@ function spot(label: TravelLabelSpot, suffix = '') {
     vector-effect: non-scaling-stroke;
   }
 
+  .travel-city-home {
+    fill: var(--travel-home-color);
+    stroke-linejoin: round;
+  }
+
+  .travel-city.is-home .travel-city-halo {
+    stroke: var(--travel-home-color);
+  }
+
   .travel-city-halo {
     fill: none;
     stroke: var(--theme-accent-emphasis);
@@ -662,9 +701,8 @@ function spot(label: TravelLabelSpot, suffix = '') {
 
   .travel-card {
     position: absolute;
-    min-width: 8.5rem;
-    max-width: 12rem;
-    padding: 0.6rem 0.75rem 0.65rem;
+    width: min(14rem, 100%);
+    padding: 0.6rem 0.75rem;
     border: 1px solid var(--theme-border);
     background: color-mix(in srgb, var(--uno-colors-background) 94%, transparent);
     box-shadow: 0 12px 28px -22px rgba(0, 0, 0, 0.45);
@@ -720,24 +758,39 @@ function spot(label: TravelLabelSpot, suffix = '') {
 
   .travel-card ol {
     display: grid;
-    gap: 0.28rem;
+    gap: 0.25rem;
     margin: 0;
     padding: 0;
     list-style: none;
   }
 
   .travel-card li {
-    display: flex;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
     align-items: baseline;
-    justify-content: space-between;
-    gap: 1rem;
+    gap: 0.75rem;
     color: var(--theme-sub);
-    line-height: 1.35;
+    line-height: 1.4;
   }
 
   .travel-card-city {
     font-family: var(--travel-serif);
     letter-spacing: 0.04em;
+  }
+
+  .travel-place-tag {
+    color: var(--theme-muted);
+    font-family: 'Inter Variable', 'PingFang SC', sans-serif;
+    font-size: 9px;
+    font-weight: 400;
+    letter-spacing: 0.04em;
+    line-height: 1.5;
+    white-space: nowrap;
+  }
+
+  .travel-card time {
+    text-align: right;
+    white-space: nowrap;
   }
 
   .travel-card li.is-current {
@@ -826,11 +879,51 @@ function spot(label: TravelLabelSpot, suffix = '') {
 
   /* 图表 */
 
+  .travel-homes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem 2rem;
+    margin: 0;
+    padding: 0.9rem 0 0.2rem;
+    list-style: none;
+  }
+
+  .travel-homes li {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.45rem;
+    white-space: nowrap;
+  }
+
+  .travel-homes .travel-place-tag {
+    font-size: 10px;
+  }
+
+  .travel-home-detail {
+    color: var(--theme-muted);
+    font-size: 11px;
+  }
+
+  .travel-home-name {
+    font-family: var(--travel-serif);
+    font-size: 14px;
+    letter-spacing: 0;
+  }
+
+  .travel-home-date {
+    margin-left: 0.25rem;
+    color: var(--theme-muted);
+    font-family: var(--travel-mono);
+    font-size: 10px;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.5;
+  }
+
   .travel-charts {
     display: grid;
     grid-template-columns: auto minmax(0, 1fr);
     align-items: start;
-    column-gap: clamp(2rem, 6vw, 3.5rem);
+    column-gap: clamp(1.5rem, 4vw, 2.5rem);
     padding-top: 1.1rem;
     border-top: 1px solid var(--theme-border-subtle);
   }
@@ -886,123 +979,116 @@ function spot(label: TravelLabelSpot, suffix = '') {
   }
 
   .travel-timeline {
-    position: relative;
     min-width: 0;
-    height: 4.6rem;
+    overflow-x: auto;
+    padding: 0.1rem 0 0.6rem;
+    scrollbar-width: thin;
+    scrollbar-color: var(--theme-border) transparent;
   }
 
-  .travel-years span {
+  .travel-timeline-segments {
+    display: grid;
+    grid-template-columns: var(--tracks);
+    min-width: 100%;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .travel-event,
+  .travel-gap {
+    position: relative;
+    min-width: 0;
+  }
+
+  .travel-event::before,
+  .travel-gap::before {
     position: absolute;
-    top: 0;
-    height: 1.55rem;
+    top: 1.4rem;
+    right: 0;
+    left: 0;
+    border-top: 1px solid var(--theme-border);
+    content: '';
+  }
+
+  .travel-gap::before {
+    right: 4px;
+    left: 4px;
+    border-top-style: dashed;
+    border-top-color: var(--theme-muted);
+  }
+
+  .travel-point {
+    position: relative;
+    display: grid;
+    justify-items: start;
+    gap: 1.1rem;
+    width: 100%;
+    padding: 0 0.5rem 0 0;
+    border: 0;
+    background: transparent;
+    color: var(--theme-sub);
+    cursor: pointer;
+    text-align: left;
+    font: inherit;
+    transition: opacity 200ms ease, color 200ms ease;
+  }
+
+  .travel-point::after {
+    position: absolute;
+    top: calc(1.4rem - 4px);
+    left: 0;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--theme-accent-emphasis);
+    box-shadow: 0 0 0 2px var(--uno-colors-background);
+    content: '';
+  }
+
+  .travel-point.is-home::after {
+    top: calc(1.4rem - 6px);
+    width: 10px;
+    height: 10px;
+    border-radius: 0;
+    background: var(--travel-home-color);
+    clip-path: polygon(50% 0, 100% 100%, 0 100%);
+  }
+
+  .travel-point-date {
     color: var(--theme-muted);
     font-family: var(--travel-mono);
     font-size: 10px;
     font-variant-numeric: tabular-nums;
     line-height: 1;
-  }
-
-  .travel-years span::before,
-  .travel-axis::after {
-    position: absolute;
-    bottom: 0;
-    height: 5px;
-    border-left: 1px solid var(--theme-border);
-    content: '';
-  }
-
-  .travel-years span::before {
-    left: 0;
-  }
-
-  .travel-axis {
-    position: absolute;
-    top: 1.55rem;
-    right: 0;
-    left: 0;
-    height: 1px;
-    background: var(--theme-border);
-  }
-
-  .travel-axis::after {
-    right: 0;
-  }
-
-  .travel-point {
-    position: absolute;
-    top: 0;
-    left: var(--pos);
-    width: 0;
-    height: 0;
-    padding: 0;
-    border: 0;
-    background: transparent;
-    color: inherit;
-    cursor: pointer;
-    font: inherit;
-    transition: opacity 200ms ease;
-  }
-
-  .travel-point:focus-visible {
-    outline: none;
-  }
-
-  .travel-point-dot {
-    position: absolute;
-    top: -4px;
-    left: -4px;
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--theme-accent-emphasis);
-    box-shadow: 0 0 0 2px var(--uno-colors-background);
-    transition:
-      transform 280ms var(--travel-ease),
-      box-shadow 200ms ease;
-  }
-
-  .travel-point-dot::before {
-    position: absolute;
-    inset: -8px;
-    content: '';
-  }
-
-  .travel-point.is-current .travel-point-dot,
-  .travel-point:focus-visible .travel-point-dot {
-    box-shadow:
-      0 0 0 2px var(--uno-colors-background),
-      0 0 0 3px var(--theme-accent-emphasis);
-    transform: scale(1.15);
+    white-space: nowrap;
   }
 
   .travel-point-label {
-    position: absolute;
-    top: calc(0.75rem + var(--row) * 1.05rem);
-    left: 0;
-    color: var(--theme-sub);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.1rem 0.35rem;
     font-family: var(--travel-serif);
     font-size: 12px;
-    letter-spacing: 0.04em;
-    line-height: 1;
+    letter-spacing: 0;
+    line-height: 1.5;
+  }
+
+  .travel-point-label > span {
     white-space: nowrap;
-    transform: translateX(-50%);
-    transition: color 200ms ease;
   }
 
-  .travel-point[data-align='start'] .travel-point-label {
-    transform: translateX(-4px);
+  .travel-point.is-dimmed {
+    opacity: 0.65;
   }
 
-  .travel-point[data-align='end'] .travel-point-label {
-    transform: translateX(calc(4px - 100%));
+  .travel-point:is(.is-current, :hover) {
+    color: var(--theme-accent-emphasis);
   }
 
-  .travel-point[data-row='-1'] .travel-point-label {
-    display: none;
-  }
-
-  .travel-point:is(.is-current, :hover) .travel-point-label {
-    color: var(--uno-colors-primary);
+  .travel-point:focus-visible {
+    outline: 1px solid var(--theme-accent);
+    outline-offset: 4px;
   }
 
   @keyframes travel-ink {
@@ -1052,8 +1138,8 @@ function spot(label: TravelLabelSpot, suffix = '') {
     }
 
     .travel-card {
-      min-width: 6.5rem;
-      padding: 0.45rem 0.55rem 0.5rem;
+      width: min(13rem, 100%);
+      padding: 0.5rem 0.65rem;
       font-size: 11px;
     }
 
@@ -1066,17 +1152,18 @@ function spot(label: TravelLabelSpot, suffix = '') {
       row-gap: 1.4rem;
     }
 
+    .travel-homes {
+      gap: 0.65rem 1rem;
+    }
+
+    .travel-home-name {
+      font-size: 12px;
+    }
+
     .travel-point-label {
-      top: calc(0.75rem + var(--row-compact) * 1.05rem);
+      font-size: 11px;
     }
 
-    .travel-point[data-row='-1'] .travel-point-label {
-      display: block;
-    }
-
-    .travel-point[data-row-compact='-1'] .travel-point-label {
-      display: none;
-    }
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -1095,7 +1182,6 @@ function spot(label: TravelLabelSpot, suffix = '') {
     .travel-index-item,
     .travel-index-item::after,
     .travel-point,
-    .travel-point-dot,
     .travel-point-label,
     .is-dimmed {
       transition: none;

@@ -44,6 +44,9 @@ interface PlacedTravel {
   country: string
   countryId: string
   visited?: string
+  place?: string
+  kind: 'birth' | 'residence' | 'visit'
+  until?: string
   lng?: number
   lat?: number
 }
@@ -54,6 +57,10 @@ export interface TravelMapEntry {
   city?: string
   title: string
   visited?: string
+  place?: string
+  kind: PlacedTravel['kind']
+  dateLabel: string
+  tag: string
 }
 
 export interface TravelMapRegion {
@@ -82,6 +89,7 @@ export interface TravelMapCity {
   city: string
   entry: string
   name: string
+  home: boolean
   x: number
   y: number
   /** 直辖市、特别行政区和省名重名，只留一个名字：面积太小时留城市名，否则留省名 */
@@ -97,7 +105,7 @@ export interface TravelMapGroup {
   entry: string
   /** 城市卡片放在不遮挡该省的角上 */
   corner: Corner
-  items: Array<{ id: string, city?: string, title?: string, visited?: string }>
+  items: TravelMapEntry[]
   more: number
 }
 
@@ -123,21 +131,19 @@ export interface TravelMapStat {
   total?: number
 }
 
-/** 同一个月去的地方合成一个点 */
+/** 同一个月的到访合并展示，居住经历单独展示。 */
 export interface TravelTimelinePoint {
   id: string
   keys: string[]
   cities: string[]
   title: string
   visited: string
-  pos: number
-  align: 'start' | 'center' | 'end'
-  row: number
-  rowCompact: number
+  home: boolean
+  year: number
 }
 
 export interface TravelTimeline {
-  years: Array<{ year: number, from: number, width: number, label: boolean }>
+  segments: Array<{ gap: true, start: number, end: number } | { gap: false, point: TravelTimelinePoint }>
   points: TravelTimelinePoint[]
 }
 
@@ -156,6 +162,7 @@ export interface TravelMapModel {
   locator?: TravelMapLocator
   stats: TravelMapStat[]
   timeline?: TravelTimeline
+  milestones: TravelMapEntry[]
 }
 
 interface MapGeometry {
@@ -185,8 +192,6 @@ const CONTEXT_LABEL_RATIO = 0.7
 const CARD_ITEMS = 6
 const DESKTOP_SCALE = { label: 1, dot: 1 }
 const COMPACT_SCALE = { label: 1.7, dot: 1.5 }
-const TIMELINE_WIDTH = 560
-const TIMELINE_COMPACT_WIDTH = 320
 
 const cities = cityRecords as CityRecord[]
 const china = chinaMap as { features: ChinaFeature[] }
@@ -224,6 +229,7 @@ function emptyModel(): TravelMapModel {
     cities: [],
     groups: [],
     stats: [],
+    milestones: [],
   }
 }
 
@@ -312,6 +318,9 @@ function normalize(input: TravelPlace[], warnings: string[]) {
       country: country.name,
       countryId: country.id,
       visited: formatVisited(item.visited, warnings),
+      place: item.place?.trim(),
+      kind: item.kind ?? 'visit',
+      until: item.until === 'present' ? 'present' : formatVisited(item.until, warnings),
       lng,
       lat,
     })
@@ -706,6 +715,10 @@ function buildEntries(records: PlacedTravel[], mode: 'province' | 'country'): Tr
       city: record.city ? `${key}:${record.city}` : undefined,
       title: record.city || record.province || record.country,
       visited: record.visited,
+      place: record.place,
+      kind: record.kind,
+      dateLabel: record.until ? `${record.visited ?? ''} — ${record.until === 'present' ? '至今' : record.until}` : record.visited ?? '',
+      tag: record.kind === 'birth' ? '出生地' : record.kind === 'residence' ? (record.until === 'present' ? '常住' : '曾居') : '到访',
     }]
   })
     .sort(byVisitedDesc)
@@ -734,20 +747,14 @@ function buildGroups(
       const own = entries.filter(item => item.key === key)
       if (!own.length)
         return []
-      const items = own.map(item => ({
-        id: item.id,
-        city: item.city,
-        title: item.city ? item.title : undefined,
-        visited: item.visited,
-      }))
       return [{
         key,
         name: group.name,
         cities: group.cities.size,
         entry: own[0].id,
         corner: cornerOf(key),
-        items: items.slice(0, CARD_ITEMS),
-        more: Math.max(0, items.length - CARD_ITEMS),
+        items: own.slice(0, CARD_ITEMS),
+        more: Math.max(0, own.length - CARD_ITEMS),
       }]
     })
     .sort((a, b) => b.cities - a.cities || rank(a.entry) - rank(b.entry))
@@ -758,7 +765,7 @@ function buildSpan(entries: TravelMapEntry[]) {
   if (!years.length)
     return ''
   const first = years[0]
-  const last = years[years.length - 1]
+  const last = entries.some(entry => entry.tag === '常住') ? '至今' : years[years.length - 1]
   return first === last ? first : `${first} — ${last}`
 }
 
@@ -767,27 +774,10 @@ function visitedValue(visited: string) {
   return month ? year + (month - 0.5) / 12 : year + 0.5
 }
 
-function labelWidth(text: string) {
-  return [...text].reduce((sum, char) => sum + (char.charCodeAt(0) < 0x2E80 ? 7 : 12), 6)
-}
-
-function stackLabels(points: Array<Pick<TravelTimelinePoint, 'title' | 'pos' | 'align'>>, width: number) {
-  const ends = [Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY]
-  return points.map((point) => {
-    const w = labelWidth(point.title)
-    const x = point.pos / 100 * width
-    const left = point.align === 'start' ? x - 4 : point.align === 'end' ? x - w + 4 : x - w / 2
-    const row = ends.findIndex(end => left >= end + 8)
-    if (row >= 0)
-      ends[row] = left + w
-    return row
-  })
-}
-
 function buildTimeline(entries: TravelMapEntry[]): TravelTimeline | undefined {
   const months = new Map<string, TravelMapEntry[]>()
   entries.forEach((entry) => {
-    if (entry.visited)
+    if (entry.visited && entry.kind !== 'residence')
       months.set(entry.visited, [...(months.get(entry.visited) ?? []), entry])
   })
   const dated = [...months.entries()]
@@ -795,33 +785,23 @@ function buildTimeline(entries: TravelMapEntry[]): TravelTimeline | undefined {
     .sort((a, b) => a.value - b.value)
   if (!dated.length)
     return
-  const start = Math.floor(dated[0].value)
-  const span = Math.floor(dated[dated.length - 1].value) + 1 - start
-  const every = Math.ceil(span / 8)
-  const years = Array.from({ length: span }, (_, index) => ({
-    year: start + index,
-    from: index / span * 100,
-    width: 100 / span,
-    label: index % every === 0,
+  const points = dated.map(({ list, visited, value }) => ({
+    id: list[0].id,
+    keys: [...new Set(list.map(entry => entry.key))],
+    cities: [...new Set(list.flatMap(entry => entry.city ? [entry.city] : []))],
+    title: list.map(entry => entry.place ?? entry.title).join(' · '),
+    visited,
+    home: list.some(entry => entry.kind === 'birth'),
+    year: Math.floor(value),
   }))
-  const points = dated.map(({ list, visited, value }) => {
-    const pos = (value - start) / span * 100
-    return {
-      id: list[0].id,
-      keys: [...new Set(list.map(entry => entry.key))],
-      cities: list.flatMap(entry => entry.city ? [entry.city] : []),
-      title: list.map(entry => entry.title).join('、'),
-      visited,
-      pos,
-      align: pos < 12 ? 'start' as const : pos > 88 ? 'end' as const : 'center' as const,
-    }
+  const segments: TravelTimeline['segments'] = []
+  points.forEach((point, index) => {
+    const previous = points[index - 1]
+    if (previous && point.year - previous.year > 1)
+      segments.push({ gap: true, start: previous.year + 1, end: point.year - 1 })
+    segments.push({ gap: false, point })
   })
-  const rows = stackLabels(points, TIMELINE_WIDTH)
-  const compactRows = stackLabels(points, TIMELINE_COMPACT_WIDTH)
-  return {
-    years,
-    points: points.map((point, index) => ({ ...point, row: rows[index], rowCompact: compactRows[index] })),
-  }
+  return { segments, points }
 }
 
 function latestEntry(entries: TravelMapEntry[], match: (entry: TravelMapEntry) => boolean) {
@@ -934,6 +914,7 @@ function projectChina(records: PlacedTravel[]): TravelMapModel {
       city,
       entry: latestEntry(entries, entry => entry.city === city) ?? '',
       name: record.city,
+      home: entries.some(entry => entry.city === city && entry.kind === 'birth'),
       x: projected[0],
       y: projected[1],
       named: record.city.replace(/市$/, '') !== record.province,
@@ -1049,6 +1030,7 @@ function projectChina(records: PlacedTravel[]): TravelMapModel {
     locator,
     stats: buildStats(chinaRecords, scope),
     timeline: buildTimeline(entries),
+    milestones: entries.filter(entry => entry.kind !== 'visit').reverse(),
   }
 }
 
@@ -1103,6 +1085,7 @@ function projectWorld(records: PlacedTravel[]): TravelMapModel {
     groups: buildGroups(records, entries, 'country', key => cardCorner(frame, countryBoxes.get(key), [])),
     stats: buildStats(records, 'world'),
     timeline: buildTimeline(entries),
+    milestones: entries.filter(entry => entry.kind !== 'visit').reverse(),
   }
 }
 

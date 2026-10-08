@@ -7,6 +7,11 @@ export interface TravelPlace {
   country?: string
   /** 年月，例如 2024-06 */
   visited?: string
+  /** 具体地点，地图仍按 city 所属的地级市归类 */
+  place?: string
+  kind?: 'birth' | 'residence' | 'visit'
+  /** 居住结束年份；present 表示至今 */
+  until?: string
   /** 城市库只收录地级市；县级市、景区等查不到时，手动补经纬度，同时写上 province */
   lng?: number
   lat?: number
@@ -16,10 +21,10 @@ export interface TravelPlace {
  * 去过的地方。省和城市重复时，地图只亮一次。
  */
 export const travels: TravelPlace[] = [
-  { city: '临海', province: '浙江', lng: 121.14, lat: 28.86 },
-  { city: '嘉兴' },
-  { city: '杭州' },
-  { city: '乌镇', province: '浙江', lng: 120.49, lat: 30.74, visited: '2023-10' },
+  { city: '台州', place: '临海市', visited: '2001', kind: 'birth' },
+  { city: '嘉兴', place: '南湖区', visited: '2019', until: '2024', kind: 'residence' },
+  { city: '杭州', place: '萧山区', visited: '2024', until: 'present', kind: 'residence' },
+  { city: '嘉兴', place: '乌镇', visited: '2023-10' },
   { city: '金华', visited: '2025-07' },
   { city: '南京', visited: '2025-10' },
   { city: '南昌', visited: '2024-04' },
