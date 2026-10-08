@@ -1,18 +1,15 @@
 ---
-import { getCollection } from 'astro:content'
+import type { TravelLabelSpot } from '~/utils/travelMap'
 import { buildTravelMap } from '~/utils/travelMap'
 
 const map = buildTravelMap()
-const posts = await getCollection('posts')
-const postTitles = new Map(posts.map(post => [post.id, post.data.title]))
-
-function articleTitle(href: string) {
-  const id = href.replace(/^\/posts\//, '').replace(/\/$/, '')
-  return postTitles.get(id) ?? '文章'
-}
-
-const quietRegions = map.regions.filter(region => !region.visited)
 const visitedRegions = map.regions.filter(region => region.visited)
+const areaName = map.scope === 'world' ? '国家' : '省份'
+const size = (value: number) => value.toFixed(2)
+
+function spot(label: TravelLabelSpot, suffix = '') {
+  return `--dx${suffix}:${size(label.dx)};--dy${suffix}:${size(label.dy)};--anchor${suffix}:${label.anchor}`
+}
 ---
 
 <section class="travel-page" data-travel-page data-scope={map.scope}>
@@ -22,52 +19,85 @@ const visitedRegions = map.regions.filter(region => region.visited)
       : (
           <>
             <header class="travel-heading">
-              <h1>足迹</h1>
-              {map.countLabel && <p class="travel-count">{map.countLabel}</p>}
+              <div class="travel-title">
+                <h1>足迹</h1>
+                {map.span && <p class="travel-span">{map.span}</p>}
+              </div>
+              <ul class="travel-legend" aria-hidden="true">
+                <li><span class="travel-legend-area" />{`去过的${areaName}`}</li>
+                {map.cities.length > 0 && <li><span class="travel-legend-dot" />城市</li>}
+              </ul>
             </header>
 
-            <div class="travel-map">
+            <figure class="travel-map" data-scope={map.scope}>
               <svg class="travel-svg" viewBox={map.viewBox} role="img" aria-labelledby="travel-map-title">
-                <title id="travel-map-title">{map.summary}</title>
-                {
-                  quietRegions.map(region => (
-                    <path class="travel-region" d={region.d} />
-                  ))
-                }
+                <title id="travel-map-title">{`去过：${map.summary}`}</title>
+                <g class="travel-land">
+                  {map.regions.map(region => <path d={region.d} />)}
+                </g>
                 {
                   visitedRegions.map(region => (
                     <path
-                      class="travel-region is-visited"
+                      class="travel-region"
                       d={region.d}
+                      style={`--i:${region.order}`}
+                      tabindex="0"
+                      role="button"
+                      aria-label={region.name}
                       data-travel-mark
                       data-travel-key={region.key}
+                      data-travel-entry={region.entry}
                     />
                   ))
                 }
                 {
-                  map.regions.map(region => region.label && (
-                    <text class="travel-label" x={region.label.x} y={region.label.y} font-size={map.labelSize}>
+                  map.regions.map(region => region.contextLabel && (
+                    <text
+                      class="travel-context"
+                      x={region.contextLabel.x}
+                      y={region.contextLabel.y}
+                      style={`--size:${size(map.labelSize * 0.7)}`}
+                    >
                       {region.name}
                     </text>
                   ))
                 }
                 {
-                  map.cities.map(city => (
+                  map.regions.map(region => region.label && (
+                    <text
+                      class="travel-label"
+                      x={region.label.x}
+                      y={region.label.y}
+                      style={`--size:${size(map.labelSize)};--i:${region.order}`}
+                      data-travel-mark
+                      data-travel-key={region.key}
+                    >
+                      {region.name}
+                    </text>
+                  ))
+                }
+                {
+                  map.cities.map((city, index) => (
                     <g
                       class="travel-city"
+                      style={`--i:${index}`}
                       data-travel-mark
                       data-travel-key={city.key}
+                      data-travel-city={city.city}
+                      data-travel-entry={city.entry}
                     >
-                      <circle class="travel-city-hit" cx={city.x} cy={city.y} r={map.dotRadius * 3} />
+                      <circle class="travel-city-hit" cx={city.x} cy={city.y} r={map.dotRadius * 3.2} />
+                      <circle class="travel-city-halo" cx={city.x} cy={city.y} r={map.dotRadius * 2.5} />
                       <circle class="travel-city-dot" cx={city.x} cy={city.y} r={map.dotRadius} />
                       {
-                        map.showCityNames && (
+                        city.named && (city.label.show || city.compactLabel.show) && (
                           <text
                             class="travel-city-label"
-                            x={city.align === 'end' ? city.x - map.dotRadius * 2.6 : city.x + map.dotRadius * 2.6}
+                            x={city.x}
                             y={city.y}
-                            text-anchor={city.align}
-                            font-size={map.labelSize * 0.68}
+                            style={`--size:${size(map.labelSize * 0.74)};${spot(city.label)};${spot(city.compactLabel, '-c')}`}
+                            data-show={String(city.label.show)}
+                            data-show-compact={String(city.compactLabel.show)}
                           >
                             {city.name}
                           </text>
@@ -81,171 +111,368 @@ const visitedRegions = map.regions.filter(region => region.visited)
                     <g class="travel-inset" aria-hidden="true">
                       <rect x={map.inset.x} y={map.inset.y} width={map.inset.width} height={map.inset.height} />
                       {
-                        map.inset.regions.map(region => (
-                          <path
-                            class:list={[
-                              region.kind === 'dash' ? 'travel-dash' : 'travel-region',
-                              { 'is-visited': region.visited && region.kind !== 'dash' },
-                            ]}
-                            d={region.d}
-                          />
+                        map.inset.lines.map(line => (
+                          <path class:list={['travel-inset-line', `is-${line.kind}`, { 'is-visited': line.visited }]} d={line.d} />
                         ))
                       }
                     </g>
                   )
                 }
               </svg>
-            </div>
 
-            <ol class="travel-ledger">
               {
-                map.entries.map(entry => (
-                  <li class="travel-entry" data-travel-mark data-travel-key={entry.key}>
-                    {
-                      entry.visited
-                        ? <time datetime={entry.visited.replace('.', '-')}>{entry.visited}</time>
-                        : <span class="travel-entry-date" />
-                    }
-                    <div class="travel-entry-body">
-                      <button class="travel-entry-button" type="button" data-travel-key={entry.key} aria-pressed="false">
-                        <span class="travel-entry-name">{entry.title}</span>
-                        {entry.meta && <span class="travel-entry-meta">{entry.meta}</span>}
-                      </button>
-                      {entry.note && <p class="travel-note">{entry.note}</p>}
-                      {entry.post && <a class="travel-post" href={entry.post}>{articleTitle(entry.post)}</a>}
+                map.locator && (
+                  <svg
+                    class="travel-locator"
+                    data-corner={map.locator.corner}
+                    viewBox={`0 0 ${map.locator.width} ${size(map.locator.height)}`}
+                    aria-hidden="true"
+                  >
+                    {map.locator.regions.map(region => <path class:list={{ 'is-visited': region.visited }} d={region.d} />)}
+                    <rect
+                      x={map.locator.frame.x}
+                      y={map.locator.frame.y}
+                      width={map.locator.frame.w}
+                      height={map.locator.frame.h}
+                    />
+                  </svg>
+                )
+              }
+
+              <div class="travel-cards" aria-live="polite">
+                {
+                  map.groups.map(group => (
+                    <div class="travel-card" data-travel-card={group.key} data-corner={group.corner} hidden>
+                      <p class="travel-card-head">
+                        <span class="travel-card-name">{group.name}</span>
+                        {group.cities > 0 && <span class="travel-card-count">{`${group.cities} 城`}</span>}
+                      </p>
+                      <ol>
+                        {
+                          group.items.map(item => (
+                            <li data-travel-card-city={item.city} data-travel-card-entry={item.id}>
+                              <span class="travel-card-city">{item.title ?? '到访'}</span>
+                              {item.visited && <time datetime={item.visited.replace('.', '-')}>{item.visited}</time>}
+                            </li>
+                          ))
+                        }
+                      </ol>
+                      {group.more > 0 && <p class="travel-card-more">{`还有 ${group.more} 处`}</p>}
                     </div>
+                  ))
+                }
+              </div>
+            </figure>
+
+            <ul class="travel-index" aria-label={areaName}>
+              {
+                map.groups.map(group => (
+                  <li>
+                    <button
+                      class="travel-index-item"
+                      type="button"
+                      aria-label={group.cities ? `${group.name}，${group.cities} 座城市` : group.name}
+                      aria-pressed="false"
+                      data-travel-mark
+                      data-travel-key={group.key}
+                      data-travel-entry={group.entry}
+                    >
+                      <span class="travel-index-name">{group.name}</span>
+                      {group.cities > 0 && <span class="travel-index-count" aria-hidden="true">{group.cities}</span>}
+                    </button>
                   </li>
                 ))
               }
-            </ol>
+            </ul>
+
+            <div class="travel-charts">
+              <dl class="travel-stats">
+                {
+                  map.stats.map(stat => (
+                    <div class="travel-stat">
+                      <dt>{stat.label}</dt>
+                      <dd>
+                        <span class="travel-stat-value">{String(stat.value).padStart(2, '0')}</span>
+                        {stat.total && <span class="travel-stat-total">/ {stat.total}</span>}
+                      </dd>
+                      {
+                        stat.total && (
+                          <dd class="travel-meter" aria-hidden="true">
+                            {Array.from({ length: stat.total }, (_, index) => <span class:list={{ 'is-on': index < stat.value }} />)}
+                          </dd>
+                        )
+                      }
+                    </div>
+                  ))
+                }
+              </dl>
+
+              {
+                map.timeline && (
+                  <div class="travel-timeline">
+                    <div class="travel-years" aria-hidden="true">
+                      {
+                        map.timeline.years.map(year => (
+                          <span style={`left:${size(year.from)}%;width:${size(year.width)}%`}>
+                            {year.label && year.year}
+                          </span>
+                        ))
+                      }
+                    </div>
+                    <div class="travel-axis">
+                      {
+                        map.timeline.points.map(point => (
+                          <button
+                            class="travel-point"
+                            type="button"
+                            style={`--pos:${size(point.pos)}%;--row:${Math.max(point.row, 0)};--row-compact:${Math.max(point.rowCompact, 0)}`}
+                            data-align={point.align}
+                            data-row={point.row}
+                            data-row-compact={point.rowCompact}
+                            aria-label={`${point.visited} ${point.title}`}
+                            aria-pressed="false"
+                            data-travel-mark
+                            data-travel-key={point.keys.join(' ')}
+                            data-travel-city={point.cities.join(' ') || undefined}
+                            data-travel-entry={point.id}
+                          >
+                            <span class="travel-point-dot" />
+                            <span class="travel-point-label" aria-hidden="true">{point.title}</span>
+                          </button>
+                        ))
+                      }
+                    </div>
+                  </div>
+                )
+              }
+            </div>
           </>
         )
   }
-</section>
 
-<script is:inline>
-  ;(() => {
-    const page = document.querySelector('[data-travel-page]')
-    if (!page || page.dataset.ready === 'true')
-      return
-    page.dataset.ready = 'true'
+  <script is:inline>
+    ;(() => {
+      const page = document.querySelector('[data-travel-page]')
+      if (!page || page.dataset.ready === 'true')
+        return
+      page.dataset.ready = 'true'
 
-    let selected = ''
-    let hot = ''
+      const marks = Array.from(page.querySelectorAll('[data-travel-mark]'))
+      const cards = Array.from(page.querySelectorAll('[data-travel-card]'))
+      const cardItems = Array.from(page.querySelectorAll('[data-travel-card-entry]'))
 
-    const paint = () => {
-      const focus = hot || selected
-      page.querySelectorAll('[data-travel-mark]').forEach((element) => {
-        const key = element.getAttribute('data-travel-key')
-        const match = Boolean(focus) && key === focus
-        element.classList.toggle('is-dimmed', Boolean(focus) && !match)
-        element.classList.toggle('is-focus', match)
-        element.classList.toggle('is-chosen', Boolean(selected) && key === selected)
+      let selected = null
+      let hot = null
+
+      const list = value => (value || '').split(' ').filter(Boolean)
+      const read = element => ({
+        keys: list(element.dataset.travelKey),
+        cities: list(element.dataset.travelCity),
+        entry: element.dataset.travelEntry || '',
+        exact: element.classList.contains('travel-point'),
       })
-      page.querySelectorAll('[aria-pressed]').forEach((element) => {
-        const key = element.getAttribute('data-travel-key')
-        element.setAttribute('aria-pressed', selected && key === selected ? 'true' : 'false')
-      })
-    }
+      const same = (a, b) => Boolean(a && b)
+        && a.keys.join() === b.keys.join()
+        && a.cities.join() === b.cities.join()
+        && a.entry === b.entry
+        && a.exact === b.exact
+      const isCurrent = (focus, cities, entry) => Boolean(focus)
+        && (focus.cities.length
+          ? list(cities).some(city => focus.cities.includes(city))
+          : focus.exact && entry === focus.entry)
 
-    const select = (key) => {
-      selected = selected === key ? '' : key
-      hot = ''
-      paint()
-    }
-
-    page.addEventListener('click', (event) => {
-      if (event.target.closest('a'))
-        return
-      const target = event.target.closest('[data-travel-key]')
-      if (!target || !page.contains(target))
-        return
-      select(target.getAttribute('data-travel-key') || '')
-    })
-
-    page.addEventListener('pointerover', (event) => {
-      const target = event.target.closest('[data-travel-mark]')
-      const next = target ? (target.getAttribute('data-travel-key') || '') : ''
-      if (next === hot)
-        return
-      hot = next
-      paint()
-    })
-
-    page.addEventListener('pointerleave', () => {
-      if (!hot)
-        return
-      hot = ''
-      paint()
-    })
-
-    page.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape' && selected) {
-        selected = ''
-        hot = ''
-        paint()
-        return
+      const paint = () => {
+        const focus = hot || selected
+        marks.forEach((mark) => {
+          const match = Boolean(focus) && list(mark.dataset.travelKey).some(key => focus.keys.includes(key))
+          mark.classList.toggle('is-dimmed', Boolean(focus) && !match)
+          mark.classList.toggle('is-focus', match)
+          mark.classList.toggle('is-current', isCurrent(focus, mark.dataset.travelCity, mark.dataset.travelEntry))
+          if (mark.hasAttribute('aria-pressed'))
+            mark.setAttribute('aria-pressed', String(same(selected, read(mark))))
+        })
+        cards.forEach((card) => {
+          const hidden = !focus || focus.keys.length !== 1 || card.dataset.travelCard !== focus.keys[0]
+          if (card.hidden !== hidden)
+            card.hidden = hidden
+        })
+        cardItems.forEach((item) => {
+          item.classList.toggle('is-current', isCurrent(focus, item.dataset.travelCardCity, item.dataset.travelCardEntry))
+        })
       }
-      if (event.key !== 'Enter' && event.key !== ' ')
-        return
-      const target = event.target.closest('[data-travel-key]')
-      if (!target || target.tagName === 'BUTTON' || target.tagName === 'A')
-        return
-      event.preventDefault()
-      select(target.getAttribute('data-travel-key') || '')
-    })
-  })()
-</script>
+
+      const select = (element) => {
+        const next = read(element)
+        selected = same(selected, next) ? null : next
+        hot = null
+        paint()
+      }
+
+      const hover = (next) => {
+        if (same(hot, next) || (!hot && !next))
+          return
+        hot = next
+        paint()
+      }
+
+      page.addEventListener('click', (event) => {
+        const target = event.target.closest('[data-travel-entry]')
+        if (target) {
+          select(target)
+          return
+        }
+        if (selected && event.target.closest('.travel-map')) {
+          selected = null
+          paint()
+        }
+      })
+
+      page.addEventListener('pointerover', (event) => {
+        if (event.pointerType === 'touch')
+          return
+        const target = event.target.closest('[data-travel-mark][data-travel-entry]')
+        hover(target ? read(target) : null)
+      })
+
+      page.addEventListener('pointerleave', () => hover(null))
+
+      page.addEventListener('focusin', (event) => {
+        const target = event.target.closest('[data-travel-entry]')
+        if (target && target.matches(':focus-visible'))
+          hover(read(target))
+      })
+
+      page.addEventListener('focusout', () => hover(null))
+
+      page.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && (selected || hot)) {
+          selected = null
+          hot = null
+          paint()
+          return
+        }
+        if (event.key !== 'Enter' && event.key !== ' ')
+          return
+        const target = event.target.closest('[data-travel-entry]')
+        if (!target || target.tagName === 'BUTTON')
+          return
+        event.preventDefault()
+        select(target)
+      })
+    })()
+  </script>
+</section>
 
 <style>
   .travel-page {
     --travel-serif: 'Songti SC', 'Noto Serif CJK SC', 'Source Han Serif SC', STSong, Georgia, serif;
+    --travel-mono: 'JetBrains Mono Variable', monospace;
+    --travel-ease: cubic-bezier(0.22, 1, 0.36, 1);
+    --travel-label-scale: 1;
+    --travel-dot-scale: 1;
   }
 
   .travel-empty {
     margin: 0;
     color: var(--theme-muted);
-    font-family: 'JetBrains Mono Variable', monospace;
+    font-family: var(--travel-mono);
     font-size: 11px;
     letter-spacing: 0.08em;
   }
 
   .travel-heading {
     display: flex;
-    align-items: baseline;
+    align-items: flex-end;
     justify-content: space-between;
     gap: 1rem;
-    margin: 0 0 0.85rem;
-    padding-bottom: 0.6rem;
+    padding-bottom: 0.65rem;
     border-bottom: 1px solid var(--uno-colors-primary);
   }
 
-  .travel-heading h1 {
+  .travel-title {
+    display: flex;
+    align-items: baseline;
+    gap: 0.9rem;
+    min-width: 0;
+  }
+
+  .travel-title h1 {
     margin: 0;
     font-family: var(--travel-serif);
-    font-size: 1.2rem;
+    font-size: 1.3rem;
     font-weight: 500;
-    letter-spacing: 0.16em;
-    line-height: 1.4;
+    letter-spacing: 0.22em;
+    line-height: 1.3;
   }
 
-  .travel-count {
+  .travel-span {
     margin: 0;
+    padding-left: 0.9rem;
+    border-left: 1px solid var(--theme-border);
     color: var(--theme-muted);
-    font-family: 'JetBrains Mono Variable', monospace;
-    font-size: 11px;
-    letter-spacing: 0.04em;
+    font-family: var(--travel-mono);
+    font-size: 10px;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.06em;
+    line-height: 1.1;
+    white-space: nowrap;
   }
+
+  .travel-legend {
+    display: flex;
+    gap: 1.1rem;
+    margin: 0;
+    padding: 0 0 0.2rem;
+    color: var(--theme-muted);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    line-height: 1;
+    list-style: none;
+    white-space: nowrap;
+  }
+
+  .travel-legend li {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+  }
+
+  .travel-legend-area {
+    width: 12px;
+    height: 8px;
+    border: 1px solid color-mix(in srgb, var(--theme-accent) 58%, var(--uno-colors-background));
+    background: color-mix(in srgb, var(--theme-accent) 26%, var(--uno-colors-background));
+  }
+
+  .travel-legend-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--theme-accent-emphasis);
+  }
+
+  /* 地图 */
 
   .travel-map {
-    margin: 0.2rem 0 0.15rem;
+    position: relative;
+    margin: clamp(0.75rem, 2.5vw, 1.4rem) 0 clamp(0.6rem, 2vw, 1rem);
   }
 
   .travel-svg {
     display: block;
     width: 100%;
     height: auto;
-    overflow: hidden;
+  }
+
+  .travel-map[data-scope='region'] .travel-svg {
+    -webkit-mask-image:
+      linear-gradient(90deg, transparent, #000 9%, #000 91%, transparent),
+      linear-gradient(180deg, transparent, #000 11%, #000 89%, transparent);
+    -webkit-mask-composite: source-in;
+    mask-image:
+      linear-gradient(90deg, transparent, #000 9%, #000 91%, transparent),
+      linear-gradient(180deg, transparent, #000 11%, #000 89%, transparent);
+    mask-composite: intersect;
   }
 
   .travel-svg :focus,
@@ -253,54 +480,81 @@ const visitedRegions = map.regions.filter(region => region.visited)
     outline: none;
   }
 
+  .travel-land path {
+    fill: color-mix(in srgb, var(--uno-colors-primary) 5%, var(--uno-colors-background));
+    stroke: color-mix(in srgb, var(--uno-colors-primary) 15%, var(--uno-colors-background));
+    stroke-linejoin: round;
+    stroke-width: 0.8;
+    vector-effect: non-scaling-stroke;
+  }
+
   .travel-region {
-    fill: color-mix(in srgb, var(--uno-colors-primary) 8%, var(--uno-colors-background));
-    stroke: color-mix(in srgb, var(--uno-colors-primary) 16%, var(--uno-colors-background));
+    fill: color-mix(in srgb, var(--theme-accent) 26%, var(--uno-colors-background));
+    stroke: color-mix(in srgb, var(--theme-accent) 58%, var(--uno-colors-background));
     stroke-linejoin: round;
     stroke-width: 1;
     vector-effect: non-scaling-stroke;
-    pointer-events: none;
-    transition: fill 160ms ease, opacity 160ms ease;
-  }
-
-  .travel-region.is-visited {
-    fill: color-mix(in srgb, var(--theme-accent) 30%, var(--uno-colors-background));
-    stroke: color-mix(in srgb, var(--theme-accent) 62%, var(--uno-colors-background));
     cursor: pointer;
-    pointer-events: auto;
+    transition:
+      fill 200ms ease,
+      stroke 200ms ease,
+      opacity 200ms ease;
+    animation: travel-ink 720ms var(--travel-ease) backwards;
+    animation-delay: calc(120ms + var(--i, 0) * 90ms);
   }
 
-  .travel-region.is-visited.is-focus {
+  .travel-region.is-focus {
     fill: color-mix(in srgb, var(--theme-accent) 40%, var(--uno-colors-background));
     stroke: var(--theme-accent);
   }
 
   .travel-label,
+  .travel-context,
   .travel-city-label {
-    fill: var(--uno-colors-primary);
     font-family: var(--travel-serif);
+    font-size: calc(var(--size) * var(--travel-label-scale) * 1px);
     paint-order: stroke;
     stroke: var(--uno-colors-background);
     stroke-linejoin: round;
-    stroke-width: 0.22em;
+    stroke-width: 0.24em;
+    dominant-baseline: middle;
     pointer-events: none;
   }
 
   .travel-label {
-    dominant-baseline: middle;
+    fill: var(--uno-colors-primary);
+    font-weight: 500;
+    letter-spacing: 0.12em;
     text-anchor: middle;
+    transition: opacity 200ms ease;
+    animation: travel-fade 520ms ease backwards;
+    animation-delay: calc(280ms + var(--i, 0) * 90ms);
   }
 
-  .travel-city-label {
-    dominant-baseline: middle;
+  .travel-context {
+    fill: var(--theme-muted);
+    letter-spacing: 0.24em;
+    opacity: 0.72;
+    text-anchor: middle;
   }
 
   .travel-city {
     cursor: pointer;
+    transition: opacity 200ms ease;
+    animation: travel-fade 420ms ease backwards;
+    animation-delay: calc(480ms + var(--i, 0) * 70ms);
   }
 
   .travel-city-hit {
     fill: transparent;
+  }
+
+  .travel-city-hit,
+  .travel-city-halo,
+  .travel-city-dot {
+    transform: scale(var(--travel-dot-scale));
+    transform-box: fill-box;
+    transform-origin: center;
   }
 
   .travel-city-dot {
@@ -310,8 +564,37 @@ const visitedRegions = map.regions.filter(region => region.visited)
     vector-effect: non-scaling-stroke;
   }
 
-  .travel-city.is-focus .travel-city-dot {
-    stroke: var(--theme-accent);
+  .travel-city-halo {
+    fill: none;
+    stroke: var(--theme-accent-emphasis);
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+    opacity: 0;
+    transform: scale(calc(var(--travel-dot-scale) * 0.4));
+    transition:
+      opacity 200ms ease,
+      transform 360ms var(--travel-ease);
+  }
+
+  .travel-city.is-current .travel-city-halo {
+    opacity: 1;
+    transform: scale(var(--travel-dot-scale));
+  }
+
+  .travel-city-label {
+    fill: var(--theme-sub);
+    opacity: 0;
+    text-anchor: var(--anchor);
+    transform: translate(calc(var(--dx) * 1px), calc(var(--dy) * 1px));
+    transition: opacity 200ms ease;
+  }
+
+  .travel-city-label[data-show='true'] {
+    opacity: 1;
+  }
+
+  .travel-city.is-current .travel-city-label {
+    fill: var(--uno-colors-primary);
   }
 
   .travel-inset rect {
@@ -321,134 +604,500 @@ const visitedRegions = map.regions.filter(region => region.visited)
     vector-effect: non-scaling-stroke;
   }
 
-  .travel-dash {
+  .travel-inset-line {
     fill: none;
     stroke: var(--theme-muted);
+    stroke-linejoin: round;
+    stroke-width: 0.8;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .travel-inset-line.is-visited {
+    stroke: var(--theme-accent);
+  }
+
+  .travel-locator {
+    position: absolute;
+    width: min(22%, 9rem);
+    height: auto;
+    pointer-events: none;
+  }
+
+  .travel-locator[data-corner^='t'] {
+    top: 0;
+  }
+
+  .travel-locator[data-corner^='b'] {
+    bottom: 0;
+  }
+
+  .travel-locator[data-corner$='l'] {
+    left: 0;
+  }
+
+  .travel-locator[data-corner$='r'] {
+    right: 0;
+  }
+
+  .travel-locator path {
+    fill: color-mix(in srgb, var(--uno-colors-primary) 13%, var(--uno-colors-background));
+  }
+
+  .travel-locator path.is-visited {
+    fill: color-mix(in srgb, var(--theme-accent) 62%, var(--uno-colors-background));
+  }
+
+  .travel-locator rect {
+    fill: color-mix(in srgb, var(--theme-accent) 8%, transparent);
+    stroke: var(--uno-colors-primary);
     stroke-width: 1;
     vector-effect: non-scaling-stroke;
   }
 
-  .is-dimmed {
-    opacity: 0.38;
+  .travel-cards {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
   }
 
-  .travel-ledger {
-    margin: 0.35rem 0 0;
+  .travel-card {
+    position: absolute;
+    min-width: 8.5rem;
+    max-width: 12rem;
+    padding: 0.6rem 0.75rem 0.65rem;
+    border: 1px solid var(--theme-border);
+    background: color-mix(in srgb, var(--uno-colors-background) 94%, transparent);
+    box-shadow: 0 12px 28px -22px rgba(0, 0, 0, 0.45);
+    font-size: 12px;
+    animation: travel-card-in 240ms var(--travel-ease) both;
+  }
+
+  .travel-card[hidden] {
+    display: none;
+  }
+
+  .travel-card[data-corner^='t'] {
+    top: 0.25rem;
+  }
+
+  .travel-card[data-corner^='b'] {
+    bottom: 0.25rem;
+  }
+
+  .travel-card[data-corner$='l'] {
+    left: 0;
+  }
+
+  .travel-card[data-corner$='r'] {
+    right: 0;
+  }
+
+  .travel-card-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    margin: 0 0 0.4rem;
+    padding-bottom: 0.4rem;
+    border-bottom: 1px solid var(--theme-border-subtle);
+  }
+
+  .travel-card-name {
+    font-family: var(--travel-serif);
+    font-size: 1.1em;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+  }
+
+  .travel-card-count,
+  .travel-card time,
+  .travel-card-more {
+    color: var(--theme-muted);
+    font-family: var(--travel-mono);
+    font-size: 0.82em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .travel-card ol {
+    display: grid;
+    gap: 0.28rem;
+    margin: 0;
     padding: 0;
     list-style: none;
   }
 
-  .travel-entry {
-    position: relative;
-    display: grid;
-    grid-template-columns: 4.6rem minmax(0, 1fr);
-    column-gap: 1.15rem;
-    padding: 0.95rem 0 1rem;
-    border-bottom: 1px solid var(--theme-border-subtle);
+  .travel-card li {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    color: var(--theme-sub);
+    line-height: 1.35;
   }
 
-  .travel-entry::before {
-    position: absolute;
-    bottom: -1px;
-    left: 0;
-    width: 0;
-    height: 1px;
-    background: var(--theme-accent);
-    content: '';
-    transition: width 420ms cubic-bezier(0.22, 1, 0.36, 1);
-  }
-
-  .travel-entry:is(:hover, :focus-within, .is-chosen)::before {
-    width: 4.6rem;
-  }
-
-  .travel-entry.is-chosen {
-    background: linear-gradient(90deg, color-mix(in srgb, var(--theme-accent) 8%, transparent), transparent 72%);
-  }
-
-  .travel-entry > time,
-  .travel-entry-date {
-    padding-top: 0.38rem;
-    color: var(--theme-muted);
-    font-family: 'JetBrains Mono Variable', monospace;
-    font-size: 11px;
-    font-variant-numeric: tabular-nums;
+  .travel-card-city {
+    font-family: var(--travel-serif);
     letter-spacing: 0.04em;
   }
 
-  .travel-entry-button {
+  .travel-card li.is-current {
+    color: var(--theme-accent-emphasis);
+  }
+
+  .travel-card li.is-current time {
+    color: inherit;
+  }
+
+  .travel-card-more {
+    margin: 0.35rem 0 0;
+  }
+
+  .is-dimmed {
+    opacity: 0.36;
+  }
+
+  /* 分布 */
+
+  .travel-index {
     display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem 1.4rem;
+    margin: 0;
+    padding: 0.8rem 0 0.85rem;
+    border-top: 1px solid var(--theme-border);
+    list-style: none;
+  }
+
+  .travel-index-item {
+    position: relative;
+    display: inline-flex;
     align-items: baseline;
-    gap: 0.7rem;
-    padding: 0;
+    gap: 0.28rem;
+    padding: 0.3rem 0 0.4rem;
     border: 0;
     background: transparent;
     color: var(--uno-colors-primary);
     cursor: pointer;
     font: inherit;
-    text-align: left;
+    transition:
+      color 200ms ease,
+      opacity 200ms ease;
   }
 
-  .travel-entry-button:focus-visible {
+  .travel-index-item::after {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    height: 1px;
+    background: var(--theme-accent-emphasis);
+    content: '';
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 280ms var(--travel-ease);
+  }
+
+  .travel-index-item:is(.is-focus, :focus-visible)::after {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+
+  .travel-index-item:focus-visible {
     outline: none;
   }
 
-  .travel-entry.is-focus .travel-entry-name,
-  .travel-entry.is-chosen .travel-entry-name {
+  .travel-index-item.is-focus {
     color: var(--theme-accent-emphasis);
   }
 
-  .travel-entry-name {
+  .travel-index-name {
     font-family: var(--travel-serif);
-    font-size: 1.05rem;
-    font-weight: 500;
-    letter-spacing: 0.04em;
-    line-height: 1.5;
-  }
-
-  .travel-entry-meta {
-    color: var(--theme-muted);
-    font-family: var(--travel-serif);
-    font-size: 0.92rem;
+    font-size: 0.95rem;
     letter-spacing: 0.08em;
   }
 
-  .travel-note {
-    max-width: 36rem;
-    margin: 0.15rem 0 0;
-    color: var(--theme-sub);
-    font-size: 0.9rem;
-    line-height: 1.7;
+  .travel-index-count {
+    color: var(--theme-muted);
+    font-family: var(--travel-mono);
+    font-size: 9px;
+    font-variant-numeric: tabular-nums;
+    transform: translateY(-0.45em);
   }
 
-  .travel-post {
-    display: inline-block;
-    margin-top: 0.28rem;
-    color: var(--theme-accent-emphasis);
-    font-size: 0.84rem;
+  /* 图表 */
+
+  .travel-charts {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: start;
+    column-gap: clamp(2rem, 6vw, 3.5rem);
+    padding-top: 1.1rem;
+    border-top: 1px solid var(--theme-border-subtle);
+  }
+
+  .travel-stats {
+    display: flex;
+    gap: clamp(1.6rem, 4vw, 2.4rem);
+    margin: 0;
+  }
+
+  .travel-stat dt {
+    color: var(--theme-muted);
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    line-height: 1;
+  }
+
+  .travel-stat dd {
+    display: flex;
+    align-items: baseline;
+    gap: 0.3rem;
+    margin: 0.55rem 0 0;
+    font-family: var(--travel-mono);
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+  }
+
+  .travel-stat-value {
+    font-size: 1.7rem;
+    font-weight: 500;
+    letter-spacing: -0.04em;
+  }
+
+  .travel-stat-total {
+    color: var(--theme-muted);
+    font-size: 0.72rem;
+  }
+
+  .travel-stat dd.travel-meter {
+    display: grid;
+    grid-template-columns: repeat(17, 4px);
+    gap: 2px;
+    margin-top: 0.6rem;
+  }
+
+  .travel-meter span {
+    height: 4px;
+    background: var(--theme-border);
+  }
+
+  .travel-meter span.is-on {
+    background: var(--theme-accent);
+  }
+
+  .travel-timeline {
+    position: relative;
+    min-width: 0;
+    height: 4.6rem;
+  }
+
+  .travel-years span {
+    position: absolute;
+    top: 0;
+    height: 1.55rem;
+    color: var(--theme-muted);
+    font-family: var(--travel-mono);
+    font-size: 10px;
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+  }
+
+  .travel-years span::before,
+  .travel-axis::after {
+    position: absolute;
+    bottom: 0;
+    height: 5px;
+    border-left: 1px solid var(--theme-border);
+    content: '';
+  }
+
+  .travel-years span::before {
+    left: 0;
+  }
+
+  .travel-axis {
+    position: absolute;
+    top: 1.55rem;
+    right: 0;
+    left: 0;
+    height: 1px;
+    background: var(--theme-border);
+  }
+
+  .travel-axis::after {
+    right: 0;
+  }
+
+  .travel-point {
+    position: absolute;
+    top: 0;
+    left: var(--pos);
+    width: 0;
+    height: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    font: inherit;
+    transition: opacity 200ms ease;
+  }
+
+  .travel-point:focus-visible {
+    outline: none;
+  }
+
+  .travel-point-dot {
+    position: absolute;
+    top: -4px;
+    left: -4px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--theme-accent-emphasis);
+    box-shadow: 0 0 0 2px var(--uno-colors-background);
+    transition:
+      transform 280ms var(--travel-ease),
+      box-shadow 200ms ease;
+  }
+
+  .travel-point-dot::before {
+    position: absolute;
+    inset: -8px;
+    content: '';
+  }
+
+  .travel-point.is-current .travel-point-dot,
+  .travel-point:focus-visible .travel-point-dot {
+    box-shadow:
+      0 0 0 2px var(--uno-colors-background),
+      0 0 0 3px var(--theme-accent-emphasis);
+    transform: scale(1.15);
+  }
+
+  .travel-point-label {
+    position: absolute;
+    top: calc(0.75rem + var(--row) * 1.05rem);
+    left: 0;
+    color: var(--theme-sub);
+    font-family: var(--travel-serif);
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    line-height: 1;
+    white-space: nowrap;
+    transform: translateX(-50%);
+    transition: color 200ms ease;
+  }
+
+  .travel-point[data-align='start'] .travel-point-label {
+    transform: translateX(-4px);
+  }
+
+  .travel-point[data-align='end'] .travel-point-label {
+    transform: translateX(calc(4px - 100%));
+  }
+
+  .travel-point[data-row='-1'] .travel-point-label {
+    display: none;
+  }
+
+  .travel-point:is(.is-current, :hover) .travel-point-label {
+    color: var(--uno-colors-primary);
+  }
+
+  @keyframes travel-ink {
+    from {
+      opacity: 0;
+    }
+  }
+
+  @keyframes travel-fade {
+    from {
+      opacity: 0;
+    }
+  }
+
+  @keyframes travel-card-in {
+    from {
+      opacity: 0;
+      transform: translateY(4px);
+    }
   }
 
   @media (max-width: 680px) {
-    .travel-heading {
-      align-items: flex-start;
-      flex-direction: column;
-      gap: 0.28rem;
+    .travel-page {
+      --travel-label-scale: 1.7;
+      --travel-dot-scale: 1.5;
     }
 
-    .travel-entry {
-      grid-template-columns: 3.6rem minmax(0, 1fr);
-      column-gap: 0.75rem;
+    .travel-locator {
+      width: 26%;
     }
 
-    .travel-entry:is(:hover, :focus-within, .is-chosen)::before {
-      width: 3.6rem;
+    .travel-legend {
+      gap: 0.8rem;
+    }
+
+    .travel-city-label {
+      text-anchor: var(--anchor-c);
+      transform: translate(calc(var(--dx-c) * 1px), calc(var(--dy-c) * 1px));
+    }
+
+    .travel-city-label[data-show='true'] {
+      opacity: 0;
+    }
+
+    .travel-city-label[data-show-compact='true'] {
+      opacity: 1;
+    }
+
+    .travel-card {
+      min-width: 6.5rem;
+      padding: 0.45rem 0.55rem 0.5rem;
+      font-size: 11px;
+    }
+
+    .travel-index {
+      gap: 0.2rem 1.1rem;
+    }
+
+    .travel-charts {
+      grid-template-columns: 1fr;
+      row-gap: 1.4rem;
+    }
+
+    .travel-point-label {
+      top: calc(0.75rem + var(--row-compact) * 1.05rem);
+    }
+
+    .travel-point[data-row='-1'] .travel-point-label {
+      display: block;
+    }
+
+    .travel-point[data-row-compact='-1'] .travel-point-label {
+      display: none;
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
     .travel-region,
-    .is-dimmed,
-    .travel-entry::before {
+    .travel-label,
+    .travel-city,
+    .travel-card {
+      animation: none;
+    }
+
+    .travel-region,
+    .travel-label,
+    .travel-city,
+    .travel-city-halo,
+    .travel-city-label,
+    .travel-index-item,
+    .travel-index-item::after,
+    .travel-point,
+    .travel-point-dot,
+    .travel-point-label,
+    .is-dimmed {
       transition: none;
     }
   }

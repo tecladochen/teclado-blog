@@ -7,33 +7,26 @@ export interface TravelPlace {
   country?: string
   /** 年月，例如 2024-06 */
   visited?: string
-  /** 一句短记 */
-  note?: string
-  /** 站内文章路径，例如 /posts/leave-hometown/ */
-  post?: string
+  /** 城市库只收录地级市；县级市、景区等查不到时，手动补经纬度，同时写上 province */
+  lng?: number
+  lat?: number
 }
 
 /**
  * 去过的地方。省和城市重复时，地图只亮一次。
- * 下面是示例，换成你自己的行程即可。
- * post 指向站内文章；这里先链到现有的一篇，方便看链接长什么样。
  */
 export const travels: TravelPlace[] = [
-  {
-    city: '杭州',
-    province: '浙江',
-    visited: '2024-06',
-    note: '雨停之后，沿着西湖走到断桥。',
-    post: '/posts/leave-hometown/',
-  },
-  {
-    city: '武汉',
-    visited: '2024-03',
-    note: '江风很大，黄鹤楼只远远看了一眼。',
-  },
-  {
-    province: '安徽',
-    visited: '2023-11',
-    note: '在宏村待了一个下午，没再往山里走。',
-  },
+  { city: '临海', province: '浙江', lng: 121.14, lat: 28.86 },
+  { city: '嘉兴' },
+  { city: '杭州' },
+  { city: '乌镇', province: '浙江', lng: 120.49, lat: 30.74, visited: '2023-10' },
+  { city: '金华', visited: '2025-07' },
+  { city: '南京', visited: '2025-10' },
+  { city: '南昌', visited: '2024-04' },
+  { city: '澳门', visited: '2019-07' },
+  { city: '深圳', visited: '2019-07' },
+  { city: '珠海', visited: '2019-07' },
+  { city: '武汉', visited: '2024-07' },
+  { city: '合肥', visited: '2025-07' },
+  { city: '上海', visited: '2019-10' },
 ]
