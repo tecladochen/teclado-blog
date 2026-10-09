@@ -1,0 +1,451 @@
+---
+import { getCollection } from 'astro:content'
+import LibraryImage from '~/components/LibraryImage.astro'
+import SiteSeo from '~/components/SiteSeo.astro'
+import LayoutDefault from '~/layouts/LayoutDefault.astro'
+import { getCompletionYears, getMusicAlbums, getMusicStats, sortWorks, workStatuses, workTypes } from '~/utils/library'
+
+const [workEntries, artists, songEntries] = await Promise.all([
+  getCollection('library'),
+  getCollection('musicArtists'),
+  getCollection('musicSongs'),
+])
+const works = sortWorks(workEntries)
+const music = getMusicStats(artists, songEntries)
+const albumCount = getMusicAlbums(songEntries).filter(album => album.isAlbum).length
+const songs = [...songEntries].sort((a, b) => b.data.addedOn.localeCompare(a.data.addedOn))
+const artistDistribution = [...music.artists].filter(artist => artist.songCount > 0).sort((a, b) => b.songCount - a.songCount || a.data.rank - b.data.rank)
+const maxArtistCount = Math.max(1, ...artistDistribution.map(artist => artist.songCount))
+const maxMusicYearCount = Math.max(1, ...music.years.map(([, count]) => count))
+const shelfGroups = [
+  ...getCompletionYears(works).map(([year]) => ({ key: year, label: year, status: 'completed', works: works.filter(work => work.data.completedOn?.startsWith(year)) })),
+  ...['in-progress', 'planned'].map(status => ({ key: status, label: status === 'in-progress' ? '正在读与看' : '留待以后', status, works: works.filter(work => work.data.status === status) })),
+]
+const years = getCompletionYears(works)
+const artistNames = new Map(artists.map(artist => [artist.id, artist.data.name]))
+const categories = { all: '全部', ...workTypes, music: '音乐' }
+const workIcons = { book: 'i-tabler-book', movie: 'i-tabler-movie', series: 'i-tabler-device-tv' }
+const completedCount = works.filter(work => work.data.status === 'completed').length
+const maxYearCount = Math.max(1, ...years.map(([, counts]) => counts.book + counts.movie + counts.series))
+---
+
+<LayoutDefault>
+  <SiteSeo slot="seo" title="书影音" desc="Teclado 的书架、观看记录，以及喜欢的歌手和歌曲。" />
+
+  <section class="library-page" data-library-page>
+    <header class="library-header">
+      <h1>书影音</h1>
+      <p class="library-summary" data-view-summary aria-live="polite">{completedCount} 条记录</p>
+    </header>
+
+    <div class="library-toolbar">
+      <div class="library-categories" role="tablist" aria-label="作品分类">
+        {Object.entries(categories).map(([category, label]) => (
+          <button id={`category-${category}`} type="button" role="tab" aria-selected={category === 'all' ? 'true' : 'false'} aria-controls={category === 'music' ? 'music-panel' : 'shelf-panel'} tabindex={category === 'all' ? 0 : -1} data-category={category}>{label}</button>
+        ))}
+      </div>
+      <label class="toolbar-select" data-status-control>
+        <select data-work-status aria-label="观看状态">
+          {Object.entries(workStatuses).map(([status, label]) => <option value={status}>{label}</option>)}
+        </select>
+        <span class="i-tabler-chevron-down h-3 w-3" aria-hidden="true" />
+      </label>
+    </div>
+
+    <section id="shelf-panel" role="tabpanel" aria-labelledby="category-all" tabindex="0" data-panel="shelf">
+      <div class="active-year" data-active-year hidden><span data-active-year-label></span><button type="button" data-clear-year aria-label="清除年份筛选">所有年份 <span aria-hidden="true">×</span></button></div>
+      <div class="shelf-archive">
+        {shelfGroups.map(group => (
+          <section class="shelf-group" data-shelf-group data-group-status={group.status} hidden={group.status !== 'completed'}>
+            <header class="shelf-year-heading"><h2>{group.label}</h2><span data-group-count>{group.works.length} 条记录</span></header>
+            <ul class="shelf-grid" aria-label={`${group.label}的记录`}>
+              {group.works.map(({ id, data }) => (
+                <li id={`work-${id}`} class="work-card" data-work data-type={data.type} data-status={data.status} data-year={data.completedOn?.slice(0, 4)}>
+                  <LibraryImage image={data.cover} title={`${data.title}封面`} icon={workIcons[data.type]} />
+                  <h3>{data.title}</h3>
+                  {data.creator && <p class="work-creator">{data.creator}</p>}
+                  <p class="work-meta"><span>{workTypes[data.type]}</span>{data.completedOn && <time datetime={data.completedOn}>{data.completedOn.replaceAll('-', '.')}</time>}</p>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ))}
+      </div>
+      <div class="library-empty" data-work-empty hidden={completedCount > 0}><span class="i-tabler-books h-7 w-7" aria-hidden="true" /><p>这里还没有记录。</p></div>
+
+      {years.length > 0 && (
+        <section class="library-recap" data-work-recap aria-labelledby="recap-title">
+          <div class="section-heading"><h2 id="recap-title">按完成年份回看</h2><span data-recap-label>书籍、电影与剧集</span></div>
+          <p class="recap-totals" data-recap-totals>
+            {Object.entries(workTypes).map(([type, label]) => <span data-total-type={type}><strong>{works.filter(work => work.data.type === type && work.data.status === 'completed').length}</strong> {label}</span>)}
+          </p>
+          <ul class="year-chart" aria-label="点击年份查看对应的已看记录">
+            {years.map(([year, counts]) => (
+              <li>
+                <button type="button" class="year-row" data-year={year} data-counts={JSON.stringify(counts)} aria-pressed="false" aria-label={`${year} 年，书籍 ${counts.book} 本、电影 ${counts.movie} 部、剧集 ${counts.series} 条，点击查看`}>
+                  <span class="chart-year">{year}</span>
+                  <span class="year-track" aria-hidden="true">{Object.entries(counts).map(([type, count]) => <span data-segment={type} class={`is-${type}`} style={`width: ${count / maxYearCount * 100}%`} />)}</span>
+                  <span class="chart-count" data-year-count>{counts.book + counts.movie + counts.series}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+          <p class="chart-legend">{Object.entries(workTypes).map(([type, label]) => <span data-legend-type={type}><i class={`is-${type}`} aria-hidden="true" />{label}</span>)}</p>
+        </section>
+      )}
+    </section>
+
+    <section id="music-panel" role="tabpanel" aria-labelledby="category-music" tabindex="0" data-panel="music" hidden>
+      <div class="music-overview" aria-label="音乐收藏概览">
+        <div><strong>{songs.length}</strong><span>首精选歌曲</span></div>
+        <div><strong>{artists.length}</strong><span>位喜欢的歌手</span></div>
+        <div><strong>{albumCount}</strong><span>张专辑有收藏</span></div>
+      </div>
+      {songs.length > 0 && (
+<div class="music-charts">
+        <section aria-labelledby="distribution-title">
+          <div class="section-heading"><h2 id="distribution-title">歌手收藏分布</h2><span>按收录歌曲数</span></div>
+          <ul class="distribution-chart">
+            {artistDistribution.map(({ id, data, songCount }) => (
+              <li><button type="button" class="distribution-row" data-music-filter="artist" data-filter-value={id} data-filter-label={data.name} aria-pressed="false" aria-label={`${data.name}，收藏 ${songCount} 首，查看歌曲`}>
+                <span>{data.name}</span><span class="distribution-track" aria-hidden="true"><i style={`width: ${songCount / maxArtistCount * 100}%`} /></span><span>{songCount}</span>
+              </button></li>
+            ))}
+          </ul>
+          <p class="chart-note">合作歌曲计入各位歌手的收藏。</p>
+        </section>
+        <section aria-labelledby="growth-title">
+          <div class="section-heading"><h2 id="growth-title">每年新收藏</h2><span>按收录时间</span></div>
+          <ul class="growth-chart">
+            {music.years.map(([year, count]) => (
+              <li><button type="button" data-music-filter="year" data-filter-value={year} data-filter-label={`${year} 年收藏`} aria-pressed="false" aria-label={`${year} 年新增 ${count} 首，查看歌曲`}>
+                <span class="growth-number">{count}</span><span class="growth-track" aria-hidden="true"><i style={`height: ${count / maxMusicYearCount * 100}%`} /></span><span class="growth-year">{year}</span>
+              </button></li>
+            ))}
+          </ul>
+          <p class="chart-note">把每一年留下的喜欢，慢慢收进这里。</p>
+        </section>
+      </div>
+      )}
+      {music.artists.length > 0 && (
+        <section class="music-artists" aria-labelledby="artist-title">
+          <div class="section-heading"><h2 id="artist-title">喜欢的歌手</h2><span>我的个人排序</span></div>
+          <ol class="artist-list">
+            {music.artists.map(({ id, data, songCount }) => (
+              <li><button type="button" class="artist-row" data-music-filter="artist" data-filter-value={id} data-filter-label={data.name} aria-pressed="false" aria-label={`第 ${data.rank} 位，${data.name}，收录 ${songCount} 首，查看歌曲`}>
+                <span class="artist-rank">{String(data.rank).padStart(2, '0')}</span>
+                <LibraryImage image={data.avatar} title={`${data.name}头像`} shape="avatar" icon="i-tabler-user" />
+                <span class="artist-name">{data.name}</span><span class="artist-count">{songCount} 首收藏</span>
+              </button></li>
+            ))}
+          </ol>
+        </section>
+      )}
+      <section class="music-collection" aria-labelledby="song-title">
+        <div class="section-heading song-heading">
+          <div class="song-heading-copy"><h2 id="song-title" data-song-heading>精选歌曲</h2><button type="button" class="clear-filter" data-clear-music hidden>全部歌曲 ×</button></div>
+          <label class="music-search"><span class="i-tabler-search h-3 w-3 shrink-0" aria-hidden="true" /><input type="search" placeholder="搜索收藏" aria-label="搜索歌名、歌手或专辑" data-song-search /></label>
+        </div>
+        <ul class="song-list">
+          {songs.map(({ id, data }) => (
+            <li id={`song-${id}`} class="song-row" data-song data-artists={JSON.stringify(data.artists.map(artist => artist.id))} data-added-year={data.addedOn.slice(0, 4)} data-search={[data.title, data.album, ...data.artists.map(artist => artistNames.get(artist.id))].filter(Boolean).join(' ').toLocaleLowerCase()}>
+              <LibraryImage image={data.cover} title={`${data.title}封面`} shape="square" icon="i-tabler-disc" />
+              <div class="song-copy"><h3>{data.title}</h3><p>{data.artists.map(artist => artistNames.get(artist.id)).join(' / ')}</p></div>
+              <span class="song-album">{data.album}</span>
+              <time class="song-date" datetime={data.addedOn}>{data.addedOn.slice(0, 4)}</time>
+              {data.url ? <a href={data.url} target="_blank" rel="noopener noreferrer" class="song-link not-underline-hover" aria-label={`收听${data.title}（新窗口）`}><span class="i-tabler-arrow-up-right h-4 w-4" aria-hidden="true" /></a> : <span />}
+            </li>
+          ))}
+        </ul>
+        <div class="library-empty" data-song-empty hidden={songs.length > 0}><span class="i-tabler-music h-7 w-7" aria-hidden="true" /><p>这里还没有歌曲。</p></div>
+      </section>
+    </section>
+
+    <script is:inline>
+;(() => {
+  const page = document.querySelector('[data-library-page]')
+  if (!page || page.dataset.ready === 'true')
+    return
+  page.dataset.ready = 'true'
+  const tabs = [...page.querySelectorAll('[data-category]')]
+  const cards = [...page.querySelectorAll('[data-work]')]
+  const statusSelect = page.querySelector('[data-work-status]')
+  const recap = page.querySelector('[data-work-recap]')
+  const yearButtons = [...page.querySelectorAll('button[data-year]')]
+  const summary = page.querySelector('[data-view-summary]')
+  let category = 'all'
+  let year = null
+
+  function updateShelf() {
+    const status = statusSelect.value
+    let visible = 0
+    cards.forEach((card) => {
+      card.hidden = (category !== 'all' && card.dataset.type !== category)
+        || card.dataset.status !== status || (year && card.dataset.year !== year)
+      if (!card.hidden)
+        visible++
+    })
+    page.querySelectorAll('[data-shelf-group]').forEach((group) => {
+      const count = group.querySelectorAll('[data-work]:not([hidden])').length
+      group.hidden = count === 0
+      group.querySelector('[data-group-count]').textContent = `${count} 条记录`
+    })
+    summary.textContent = `${visible} 条记录`
+    page.querySelector('[data-work-empty]').hidden = visible > 0
+    page.querySelector('[data-active-year]').hidden = !year
+    page.querySelector('[data-active-year-label]').textContent = year ? `${year} 年` : ''
+    if (recap) {
+      recap.hidden = status !== 'completed' || !cards.some(card => card.dataset.status === 'completed' && (category === 'all' || card.dataset.type === category))
+      page.querySelector('[data-recap-label]').textContent = category === 'all' ? '书籍、电影与剧集' : tabs.find(tab => tab.dataset.category === category).textContent
+      page.querySelectorAll('[data-total-type], [data-legend-type]').forEach((item) => {
+        item.hidden = category !== 'all' && (item.dataset.totalType || item.dataset.legendType) !== category
+      })
+      const totalFor = counts => category === 'all' ? Object.values(counts).reduce((sum, count) => sum + count, 0) : counts[category]
+      const max = Math.max(1, ...yearButtons.map(button => totalFor(JSON.parse(button.dataset.counts))))
+      yearButtons.forEach((button) => {
+        const counts = JSON.parse(button.dataset.counts)
+        const total = totalFor(counts)
+        button.parentElement.hidden = total === 0
+        button.setAttribute('aria-pressed', String(button.dataset.year === year))
+        button.setAttribute('aria-label', `${button.dataset.year} 年，${total} 条记录，点击查看`)
+        button.querySelector('[data-year-count]').textContent = total
+        button.querySelectorAll('[data-segment]').forEach((segment) => {
+          const selected = category === 'all' || segment.dataset.segment === category
+          segment.style.width = `${selected ? counts[segment.dataset.segment] / max * 100 : 0}%`
+        })
+      })
+    }
+  }
+
+  const musicFilters = [...page.querySelectorAll('[data-music-filter]')]
+  const songRows = [...page.querySelectorAll('[data-song]')]
+  const search = page.querySelector('[data-song-search]')
+  let musicFilter = null
+  function updateMusic() {
+    const query = search.value.trim().toLocaleLowerCase()
+    let songCount = 0
+    songRows.forEach((row) => {
+      const matches = !musicFilter || (musicFilter.type === 'artist'
+        ? JSON.parse(row.dataset.artists).includes(musicFilter.value)
+        : row.dataset.addedYear === musicFilter.value)
+      row.hidden = !matches || !row.dataset.search.includes(query)
+      if (!row.hidden)
+        songCount++
+    })
+    musicFilters.forEach(button => button.setAttribute('aria-pressed', String(musicFilter?.type === button.dataset.musicFilter && musicFilter?.value === button.dataset.filterValue)))
+    page.querySelector('[data-clear-music]').hidden = !musicFilter
+    page.querySelector('[data-song-heading]').textContent = musicFilter ? `${musicFilter.label} · ${songCount} 首` : `精选歌曲 · ${songCount} 首`
+    summary.textContent = '音乐收藏'
+    const empty = page.querySelector('[data-song-empty]')
+    empty.hidden = songCount > 0
+    empty.querySelector('p').textContent = songRows.length ? '没有找到匹配的歌曲。' : '这里还没有歌曲。'
+  }
+
+  function selectCategory(tab) {
+    if (category !== tab.dataset.category)
+      year = null
+    category = tab.dataset.category
+    const musicView = category === 'music'
+    tabs.forEach((button) => {
+      button.setAttribute('aria-selected', String(button === tab))
+      button.tabIndex = button === tab ? 0 : -1
+    })
+    page.querySelector('[data-panel="shelf"]').hidden = musicView
+    page.querySelector('[data-panel="music"]').hidden = !musicView
+    page.querySelector('[data-panel="shelf"]').setAttribute('aria-labelledby', tab.id)
+    page.querySelector('[data-status-control]').hidden = musicView
+    if (musicView)
+      updateMusic()
+    else updateShelf()
+  }
+  tabs.forEach((tab, index) => {
+    tab.addEventListener('click', () => selectCategory(tab))
+    tab.addEventListener('keydown', (event) => {
+      let next
+      if (event.key === 'ArrowRight')
+        next = (index + 1) % tabs.length
+      if (event.key === 'ArrowLeft')
+        next = (index + tabs.length - 1) % tabs.length
+      if (event.key === 'Home')
+        next = 0
+      if (event.key === 'End')
+        next = tabs.length - 1
+      if (next === undefined)
+        return
+      event.preventDefault()
+      selectCategory(tabs[next])
+      tabs[next].focus()
+    })
+  })
+  statusSelect.addEventListener('change', () => {
+    year = null
+    updateShelf()
+  })
+  yearButtons.forEach(button => button.addEventListener('click', () => {
+    year = year === button.dataset.year ? null : button.dataset.year
+    updateShelf()
+    page.querySelector('[data-panel="shelf"]').focus({ preventScroll: true })
+    page.querySelector('.library-toolbar').scrollIntoView({ behavior: 'instant', block: 'start' })
+  }))
+  page.querySelector('[data-clear-year]').addEventListener('click', () => {
+    year = null
+    updateShelf()
+  })
+  musicFilters.forEach(button => button.addEventListener('click', () => {
+    const type = button.dataset.musicFilter
+    const value = button.dataset.filterValue
+    musicFilter = musicFilter?.type === type && musicFilter?.value === value ? null : { type, value, label: button.dataset.filterLabel }
+    search.value = ''
+    updateMusic()
+    page.querySelector('.music-collection').scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth', block: 'start' })
+  }))
+  page.querySelector('[data-clear-music]').addEventListener('click', () => {
+    musicFilter = null
+    updateMusic()
+  })
+  search.addEventListener('input', () => {
+    musicFilter = null
+    updateMusic()
+  })
+  updateShelf()
+})()
+</script>
+  </section>
+</LayoutDefault>
+
+<style>
+  .library-page {
+    --library-book: var(--theme-accent);
+    --library-movie: var(--theme-interactive);
+    --library-series: #9b854f;
+    margin-top: clamp(-1.5rem, -2.6vw, -0.8rem);
+    font-family: var(--uno-fonts-ui);
+  }
+  .library-page [hidden] { display: none !important; }
+  .library-header { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 13px; }
+  h1 { margin: 0; font-size: 18px; font-weight: 500; letter-spacing: 0.03em; }
+  .library-summary { margin: 0; color: var(--theme-muted); font-size: 10px; }
+  .library-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 43px; margin-bottom: 25px; border-bottom: 1px solid var(--theme-border); }
+  .library-categories { display: flex; align-items: center; gap: 24px; }
+  .library-categories button { position: relative; padding: 12px 0 13px; border: 0; background: transparent; color: var(--theme-muted); font: inherit; font-size: 12px; cursor: pointer; white-space: nowrap; }
+  .library-categories button::after { position: absolute; right: 0; bottom: -1px; left: 0; height: 1px; background: currentColor; content: ''; transform: scaleX(0); transition: transform 180ms ease; }
+  .library-categories button[aria-selected='true'], .library-categories button:hover { color: var(--uno-colors-primary); }
+  .library-categories button[aria-selected='true']::after { transform: scaleX(1); }
+  .toolbar-select { display: flex; align-items: center; gap: 7px; color: var(--theme-sub); }
+  .toolbar-select select { appearance: none; padding: 8px 0 8px 6px; border: 0; background: transparent; color: inherit; font: inherit; font-size: 11px; cursor: pointer; }
+  .toolbar-select option { background: var(--uno-colors-background); color: var(--uno-colors-primary); }
+  .music-search { display: flex; align-items: center; gap: 7px; color: var(--theme-muted); }
+  .music-search input { width: 145px; min-width: 0; padding: 7px 0; border: 0; background: transparent; color: var(--uno-colors-primary); font: inherit; font-size: 11px; }
+  .music-search input::placeholder { color: var(--theme-muted); }
+  .active-year { display: flex; align-items: center; justify-content: space-between; margin: -8px 0 20px; color: var(--theme-sub); font-size: 12px; }
+  .active-year button, .clear-filter { padding: 4px 0 4px 8px; border: 0; background: transparent; color: var(--theme-accent); font: inherit; font-size: 10px; cursor: pointer; }
+  .shelf-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 30px 26px; margin: 0; padding: 0; list-style: none; }
+  .work-card { min-width: 0; }
+  .work-card h3 { margin: 13px 0 0; font-size: 14px; font-weight: 500; line-height: 1.6; overflow-wrap: anywhere; }
+  .work-creator { margin: 4px 0 0; color: var(--theme-sub); font-size: 12px; line-height: 1.6; overflow-wrap: anywhere; }
+  .work-meta { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 4px; margin: 7px 0 0; color: var(--theme-muted); font-size: 11px; }
+  .work-meta time { font-family: 'JetBrains Mono Variable', monospace; font-size: 10px; }
+  .library-empty { display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 14px; min-height: 220px; color: var(--theme-muted); }
+  .library-empty p { margin: 0; font-size: 12px; }
+  .section-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+  .section-heading h2 { margin: 0; color: var(--theme-sub); font-size: 13px; font-weight: 500; }
+  .section-heading > span { color: var(--theme-muted); font-size: 10px; }
+  .library-recap { margin-top: 35px; padding-top: 20px; border-top: 1px solid var(--theme-border); }
+  .recap-totals { display: flex; flex-wrap: wrap; gap: 22px; margin: 13px 0; color: var(--theme-muted); font-size: 10px; }
+  .recap-totals strong { color: var(--theme-sub); font-family: 'JetBrains Mono Variable', monospace; font-weight: 400; }
+  .year-chart { display: grid; gap: 3px; margin: 0; padding: 0; list-style: none; }
+  .year-row { display: grid; grid-template-columns: 40px 1fr 25px; align-items: center; gap: 18px; width: 100%; padding: 10px 0; border: 0; background: transparent; text-align: left; cursor: pointer; }
+  .chart-year, .chart-count { color: var(--theme-muted); font-family: 'JetBrains Mono Variable', monospace; font-size: 10px; }
+  .chart-count { text-align: right; }
+  .year-row[aria-pressed='true'] .chart-year, .year-row:hover .chart-year { color: var(--theme-accent); text-decoration: underline; text-underline-offset: 4px; }
+  .year-track { display: flex; height: 6px; }
+  .year-track > span { height: 100%; }
+  .is-book { background: var(--library-book); }
+  .is-movie { background: var(--library-movie); }
+  .is-series { background: var(--library-series); }
+  .chart-legend { display: flex; gap: 18px; margin: 10px 0 0; color: var(--theme-muted); font-size: 9px; }
+  .chart-legend > span { display: flex; align-items: center; gap: 5px; }
+  .chart-legend i { width: 6px; height: 6px; }
+  .shelf-archive { display: grid; gap: 40px; }
+  .shelf-year-heading { display: flex; align-items: baseline; gap: 13px; margin-bottom: 19px; }
+  .shelf-year-heading h2 { margin: 0; font-family: var(--uno-fonts-header); font-size: 22px; font-weight: 400; }
+  .shelf-year-heading span { color: var(--theme-muted); font-size: 10px; }
+  .music-overview { display: flex; gap: 65px; padding: 7px 0 28px; }
+  .music-overview > div { display: flex; align-items: baseline; gap: 12px; }
+  .music-overview strong { font-family: var(--uno-fonts-header); font-size: 36px; font-weight: 400; line-height: 1; }
+  .music-overview span { color: var(--theme-muted); font-size: 11px; }
+  .music-charts { display: grid; grid-template-columns: 1.25fr 1fr; gap: 46px; padding: 23px 0 26px; border-top: 1px solid var(--theme-border); border-bottom: 1px solid var(--theme-border); }
+  .distribution-chart { display: grid; gap: 2px; margin: 17px 0 0; padding: 0; list-style: none; }
+  .distribution-row { display: grid; grid-template-columns: 88px minmax(0, 1fr) 18px; align-items: center; gap: 14px; width: 100%; padding: 8px 0; border: 0; background: transparent; color: var(--theme-sub); font: inherit; font-size: 12px; text-align: left; cursor: pointer; }
+  .distribution-row > span:last-child { color: var(--theme-muted); text-align: right; font-family: 'JetBrains Mono Variable', monospace; }
+  .distribution-track { height: 7px; background: var(--theme-border-subtle); }
+  .distribution-track i { display: block; height: 100%; background: var(--theme-accent); opacity: 0.65; }
+  .distribution-row:hover, .distribution-row[aria-pressed='true'] { color: var(--theme-accent); }
+  .distribution-row[aria-pressed='true'] i { opacity: 1; }
+  .chart-note { margin: 12px 0 0; color: var(--theme-muted); font-size: 10px; line-height: 1.7; }
+  .growth-chart { display: flex; gap: 27px; height: 171px; margin: 17px 0 0; padding: 0; list-style: none; }
+  .growth-chart li { flex: 1; min-width: 0; }
+  .growth-chart button { display: flex; align-items: center; flex-direction: column; gap: 8px; width: 100%; height: 100%; padding: 0; border: 0; background: transparent; color: var(--theme-muted); font: inherit; font-size: 10px; cursor: pointer; }
+  .growth-number, .growth-year { font-family: 'JetBrains Mono Variable', monospace; }
+  .growth-track { display: flex; align-items: end; justify-content: center; flex: 1; width: 100%; border-bottom: 1px solid var(--theme-border); }
+  .growth-track i { display: block; width: 32px; max-width: 80%; background: var(--theme-interactive); opacity: 0.55; }
+  .growth-chart button:hover, .growth-chart button[aria-pressed='true'] { color: var(--theme-accent); }
+  .growth-chart button[aria-pressed='true'] i { opacity: 1; }
+  .music-artists { margin-top: 27px; }
+  .artist-list { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 15px; margin: 20px 0 0; padding: 0; list-style: none; }
+  .artist-row { position: relative; display: flex; align-items: center; flex-direction: column; gap: 7px; width: 100%; padding: 9px 3px; border: 0; background: transparent; color: inherit; font: inherit; cursor: pointer; }
+  .artist-rank { position: absolute; top: 9px; left: 12px; color: var(--theme-muted); font-family: 'JetBrains Mono Variable', monospace; font-size: 10px; }
+  .artist-row :global(.is-avatar) { width: 54px; height: 54px; margin-bottom: 5px; }
+  .artist-name { font-size: 12px; text-align: center; overflow-wrap: anywhere; }
+  .artist-count { color: var(--theme-muted); font-size: 10px; }
+  .artist-row:hover .artist-name, .artist-row[aria-pressed='true'] .artist-name { color: var(--theme-accent); }
+  .music-collection { margin-top: 32px; scroll-margin-top: 25px; }
+  .song-heading { padding-bottom: 14px; border-bottom: 1px solid var(--theme-border); }
+  .song-heading-copy { display: flex; align-items: baseline; gap: 10px; }
+  .song-list { margin: 0; padding: 0; list-style: none; }
+  .song-row { display: grid; grid-template-columns: 40px minmax(0, 1fr) 170px 45px 22px; align-items: center; gap: 15px; padding: 13px 0; border-bottom: 1px solid var(--theme-border-subtle); }
+  .song-copy h3 { margin: 0; font-size: 13px; font-weight: 400; overflow-wrap: anywhere; }
+  .song-copy p { margin: 5px 0 0; color: var(--theme-muted); font-size: 11px; line-height: 1.5; overflow-wrap: anywhere; }
+  .song-album { color: var(--theme-muted); font-size: 11px; overflow-wrap: anywhere; }
+  .song-date { color: var(--theme-muted); font-family: 'JetBrains Mono Variable', monospace; font-size: 10px; text-align: right; }
+  .song-link { display: flex; align-items: center; justify-content: center; width: 22px; height: 32px; color: var(--theme-accent); }
+  @media (max-width: 760px) {
+    .shelf-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 27px 23px; }
+    .music-overview { gap: 35px; }
+    .music-overview > div { flex-direction: column; gap: 8px; }
+    .music-charts { gap: 25px; }
+    .song-row { grid-template-columns: 40px minmax(0, 1fr) 110px 35px 20px; gap: 12px; }
+    .artist-rank { left: 0; }
+  }
+  @media (max-width: 560px) {
+    .library-toolbar { margin-bottom: 24px; }
+    .library-categories { gap: 18px; }
+    .library-categories button { font-size: 11px; }
+    .shelf-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 27px 24px; }
+    .shelf-year-heading h2 { font-size: 21px; }
+    .work-card h3 { font-size: 13px; }
+    .work-creator { font-size: 11px; }
+    .work-meta { font-size: 10px; }
+    .work-meta time { font-size: 9px; }
+    .music-overview { justify-content: space-between; gap: 12px; padding: 4px 0 24px; }
+    .music-overview strong { font-size: 32px; }
+    .music-overview span { font-size: 10px; }
+    .music-charts { grid-template-columns: 1fr; gap: 25px; }
+    .growth-chart { height: 145px; }
+    .artist-list { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+    .artist-rank { left: 3px; }
+    .song-heading-copy { gap: 5px; }
+    .music-search input { width: 92px; }
+    .song-row { grid-template-columns: 36px minmax(0, 1fr) 32px 20px; gap: 11px; }
+    .song-album { display: none; }
+  }
+  @media (max-width: 380px) {
+    .library-categories { gap: 14px; }
+    .library-summary { font-size: 9px; }
+    .song-heading-copy { align-items: start; flex-direction: column; }
+    .song-heading-copy .clear-filter { padding-left: 0; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .library-categories button::after { transition: none; }
+  }
+</style>

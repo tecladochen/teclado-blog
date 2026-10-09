@@ -1,0 +1,118 @@
+[
+  {
+    "id": "demo-evening-breeze",
+    "title": "晚风经过",
+    "artists": [
+      "demo-lin-ye"
+    ],
+    "album": "暮色之间",
+    "cover": "../../assets/library/demo/evening-breeze.webp",
+    "language": "华语",
+    "addedOn": "2026-09-30",
+    "url": "https://example.com/"
+  },
+  {
+    "id": "demo-before-rain-stops",
+    "title": "在雨停之前",
+    "artists": [
+      "demo-chen-yinan"
+    ],
+    "album": "雨天手记",
+    "cover": "../../assets/library/demo/before-rain-stops.webp",
+    "language": "华语",
+    "addedOn": "2026-08-12"
+  },
+  {
+    "id": "demo-to-the-sea",
+    "title": "走向海边",
+    "artists": [
+      "demo-lin-ye",
+      "demo-paper-plane"
+    ],
+    "album": "夏日回声",
+    "albumArtist": "demo-paper-plane",
+    "cover": "../../assets/library/demo/to-the-sea.webp",
+    "language": "华语",
+    "addedOn": "2026-06-28"
+  },
+  {
+    "id": "demo-unsent-letter",
+    "title": "未寄出的信",
+    "artists": [
+      "demo-chen-yinan"
+    ],
+    "album": "雨天手记",
+    "cover": "../../assets/library/demo/unsent-letter.webp",
+    "language": "华语",
+    "addedOn": "2026-03-17",
+    "url": "https://example.com/"
+  },
+  {
+    "id": "demo-slow-morning",
+    "title": "Slow Morning",
+    "artists": [
+      "demo-june-harbor"
+    ],
+    "album": "Rooms of Light",
+    "cover": "../../assets/library/demo/slow-morning.webp",
+    "language": "英语",
+    "addedOn": "2026-01-26"
+  },
+  {
+    "id": "demo-same-sky",
+    "title": "Under the Same Sky",
+    "artists": [
+      "demo-june-harbor"
+    ],
+    "album": "Rooms of Light",
+    "cover": "../../assets/library/demo/same-sky.webp",
+    "language": "英语",
+    "addedOn": "2025-11-25"
+  },
+  {
+    "id": "demo-night-stroll",
+    "title": "夜の散歩",
+    "artists": [
+      "demo-aoi-rin"
+    ],
+    "album": "月の庭",
+    "cover": "../../assets/library/demo/night-stroll.webp",
+    "language": "日语",
+    "addedOn": "2025-08-24",
+    "url": "https://example.com/"
+  },
+  {
+    "id": "demo-echo",
+    "title": "回声",
+    "artists": [
+      "demo-paper-plane"
+    ],
+    "album": "夏日回声",
+    "cover": "../../assets/library/demo/echo.webp",
+    "language": "华语",
+    "addedOn": "2025-04-23"
+  },
+  {
+    "id": "demo-empty-platform",
+    "title": "无人站台",
+    "artists": [
+      "demo-lin-ye"
+    ],
+    "album": "暮色之间",
+    "cover": "../../assets/library/demo/empty-platform.webp",
+    "language": "纯音乐",
+    "addedOn": "2024-09-22"
+  },
+  {
+    "id": "demo-leave-a-light",
+    "title": "留一盏灯",
+    "artists": [
+      "demo-chen-yinan"
+    ],
+    "album": "雨天手记",
+    "cover": "../../assets/library/demo/leave-a-light.webp",
+    "language": "华语",
+    "addedOn": "2024-02-21",
+    "url": "https://example.com/"
+  }
+]

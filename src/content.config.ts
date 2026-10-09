@@ -1,6 +1,7 @@
-import { glob } from 'astro/loaders'
+import { file, glob } from 'astro/loaders'
 import { z } from 'astro/zod'
-import { defineCollection } from 'astro:content'
+import { defineCollection, reference } from 'astro:content'
+import { isLibraryDate } from './utils/library'
 
 const posts = defineCollection({
   loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/posts' }),
@@ -60,7 +61,66 @@ const journey = defineCollection({
     }),
 })
 
+const libraryDate = z.string().refine(isLibraryDate, '日期须为有效的 YYYY、YYYY-MM 或 YYYY-MM-DD')
+const entryId = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'id 须使用小写字母、数字和连字符')
+const label = z.string().trim().min(1)
+const listeningUrl = z.url().refine(value => /^https?:\/\//.test(value), '链接须为 HTTP 或 HTTPS')
+
+const library = defineCollection({
+  loader: file('src/data/library/works.json'),
+  schema: ({ image }) => z.object({
+    id: entryId,
+    type: z.enum(['book', 'movie', 'series']),
+    title: label,
+    creator: label.optional(),
+    cover: image().optional(),
+    status: z.enum(['completed', 'in-progress', 'planned']),
+    addedOn: libraryDate,
+    completedOn: libraryDate.optional(),
+  }).superRefine((entry, ctx) => {
+    if (entry.status === 'completed' && !entry.completedOn) {
+      ctx.addIssue({ code: 'custom', path: ['completedOn'], message: '已看记录须填写完成日期' })
+    }
+    if (entry.status !== 'completed' && entry.completedOn) {
+      ctx.addIssue({ code: 'custom', path: ['completedOn'], message: '只有已看记录可以填写完成日期' })
+    }
+  }),
+})
+
+const musicArtists = defineCollection({
+  loader: file('src/data/library/artists.json', {
+    parser: text => JSON.parse(text).map((entry: Record<string, unknown>, index: number) => ({ ...entry, rank: index + 1 })),
+  }),
+  schema: ({ image }) => z.object({
+    id: entryId,
+    name: label,
+    avatar: image().optional(),
+    rank: z.number().int().positive(),
+  }),
+})
+
+const musicSongs = defineCollection({
+  loader: file('src/data/library/songs.json'),
+  schema: ({ image }) => z.object({
+    id: entryId,
+    title: label,
+    artists: z.array(reference('musicArtists')).min(1).refine(
+      artists => new Set(artists.map(artist => artist.id)).size === artists.length,
+      '同一首歌曲不能重复关联同一位歌手',
+    ),
+    album: label.optional(),
+    albumArtist: reference('musicArtists').optional(),
+    cover: image().optional(),
+    language: label.optional(),
+    addedOn: libraryDate,
+    url: listeningUrl.optional(),
+  }),
+})
+
 export const collections = {
+  library,
+  musicArtists,
+  musicSongs,
   journey,
   posts,
   spec,

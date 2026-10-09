@@ -1,0 +1,38 @@
+---
+import type { ImageMetadata } from 'astro'
+import { Image } from 'astro:assets'
+
+interface Props {
+  image?: ImageMetadata
+  title: string
+  shape?: 'portrait' | 'square' | 'avatar'
+  icon?: string
+}
+
+const { image, title, shape = 'portrait', icon = 'i-tabler-book' } = Astro.props
+const width = shape === 'avatar' ? 96 : 240
+---
+
+<div class:list={['library-image', `is-${shape}`]}>
+  {image
+    ? <Image src={image} alt={title} width={width} format="webp" quality={65} loading="lazy" decoding="async" />
+    : <span class:list={[icon, 'h-7 w-7']} aria-hidden="true" />}
+</div>
+
+<style>
+  .library-image {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border: 1px solid var(--theme-border-subtle);
+    background: var(--theme-accent-soft);
+    color: var(--theme-muted);
+    border-radius: 3px;
+  }
+  .is-portrait { aspect-ratio: 2 / 3; }
+  .is-square { aspect-ratio: 1; }
+  .is-avatar { width: 42px; height: 42px; border-radius: 50%; }
+  .library-image :global(img) { width: 100%; height: 100%; object-fit: cover; }
+  .is-portrait :global(img) { object-fit: contain; }
+</style>

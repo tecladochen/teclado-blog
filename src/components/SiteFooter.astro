@@ -26,6 +26,10 @@ function parseFooter(str: string) {
             <span>Footprints</span>
           </a>
         )}
+        <a class="footer-travel not-underline-hover" href="/library" aria-label="书影音">
+          <span class="i-tabler-books h-3 w-3 shrink-0" aria-hidden="true" />
+          <span>Library</span>
+        </a>
       </div>
       {footer.slice(1).map(str => (
         <p class="footer-record" set:html={parseFooter(str)} />

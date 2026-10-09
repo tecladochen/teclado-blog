@@ -1,0 +1,174 @@
+[
+  {
+    "id": "demo-mountain-letters",
+    "type": "book",
+    "title": "远山来信",
+    "creator": "沈知秋",
+    "cover": "../../assets/library/demo/mountain-letters.webp",
+    "status": "completed",
+    "addedOn": "2026-09-20",
+    "completedOn": "2026-10-06"
+  },
+  {
+    "id": "demo-last-tram",
+    "type": "movie",
+    "title": "最后一班电车",
+    "creator": "许之洲",
+    "cover": "../../assets/library/demo/last-tram.webp",
+    "status": "completed",
+    "addedOn": "2026-09-27",
+    "completedOn": "2026-09-27"
+  },
+  {
+    "id": "demo-city-lights",
+    "type": "series",
+    "title": "城市灯火 · 第一季",
+    "creator": "陈见川",
+    "cover": "../../assets/library/demo/city-lights.webp",
+    "status": "completed",
+    "addedOn": "2026-08-03",
+    "completedOn": "2026-09-15"
+  },
+  {
+    "id": "demo-slow-days",
+    "type": "book",
+    "title": "缓慢生活的练习",
+    "creator": "林澄",
+    "cover": "../../assets/library/demo/slow-days.webp",
+    "status": "completed",
+    "addedOn": "2026-05-11",
+    "completedOn": "2026-07-12"
+  },
+  {
+    "id": "demo-summer-island",
+    "type": "movie",
+    "title": "夏日岛屿",
+    "creator": "陆声",
+    "cover": "../../assets/library/demo/summer-island.webp",
+    "status": "completed",
+    "addedOn": "2026-06-08",
+    "completedOn": "2026-06-08"
+  },
+  {
+    "id": "demo-ordinary-days",
+    "type": "series",
+    "title": "平凡日子 · 第二季",
+    "creator": "周慕青",
+    "cover": "../../assets/library/demo/ordinary-days.webp",
+    "status": "completed",
+    "addedOn": "2025-11",
+    "completedOn": "2025-12"
+  },
+  {
+    "id": "demo-night-walk",
+    "type": "book",
+    "title": "夜行笔记",
+    "creator": "顾白",
+    "cover": "../../assets/library/demo/night-walk.webp",
+    "status": "completed",
+    "addedOn": "2025-06",
+    "completedOn": "2025-08"
+  },
+  {
+    "id": "demo-before-rain",
+    "type": "movie",
+    "title": "雨落之前",
+    "creator": "秦远",
+    "cover": "../../assets/library/demo/before-rain.webp",
+    "status": "completed",
+    "addedOn": "2025-04-10",
+    "completedOn": "2025-04-10"
+  },
+  {
+    "id": "demo-small-universe",
+    "type": "book",
+    "title": "一间房里的宇宙",
+    "creator": "程夏",
+    "cover": "../../assets/library/demo/small-universe.webp",
+    "status": "completed",
+    "addedOn": "2024-09",
+    "completedOn": "2024-11"
+  },
+  {
+    "id": "demo-north-wind",
+    "type": "series",
+    "title": "北风吹过的街道",
+    "creator": "沈青",
+    "cover": "../../assets/library/demo/north-wind.webp",
+    "status": "completed",
+    "addedOn": "2024",
+    "completedOn": "2024"
+  },
+  {
+    "id": "demo-forest-notes",
+    "type": "book",
+    "title": "森林观察手记",
+    "creator": "叶序",
+    "cover": "../../assets/library/demo/forest-notes.webp",
+    "status": "in-progress",
+    "addedOn": "2026-10-07"
+  },
+  {
+    "id": "demo-long-weekend",
+    "type": "series",
+    "title": "漫长周末 · 第一季",
+    "creator": "林初",
+    "cover": "../../assets/library/demo/long-weekend.webp",
+    "status": "in-progress",
+    "addedOn": "2026-10-02"
+  },
+  {
+    "id": "demo-light-and-shadow",
+    "type": "book",
+    "title": "光与影之间",
+    "creator": "苏禾",
+    "cover": "../../assets/library/demo/light-and-shadow.webp",
+    "status": "in-progress",
+    "addedOn": "2026-09-18"
+  },
+  {
+    "id": "demo-ocean-story",
+    "type": "series",
+    "title": "海的另一边",
+    "creator": "夏见",
+    "cover": "../../assets/library/demo/ocean-story.webp",
+    "status": "in-progress",
+    "addedOn": "2026-09-06"
+  },
+  {
+    "id": "demo-quiet-corner",
+    "type": "book",
+    "title": "安静的角落",
+    "creator": "许墨",
+    "cover": "../../assets/library/demo/quiet-corner.webp",
+    "status": "planned",
+    "addedOn": "2026-10-08"
+  },
+  {
+    "id": "demo-winter-letter",
+    "type": "movie",
+    "title": "冬日来信",
+    "creator": "何未",
+    "cover": "../../assets/library/demo/winter-letter.webp",
+    "status": "planned",
+    "addedOn": "2026-10-05"
+  },
+  {
+    "id": "demo-after-sunset",
+    "type": "movie",
+    "title": "日落以后",
+    "creator": "乔川",
+    "cover": "../../assets/library/demo/after-sunset.webp",
+    "status": "planned",
+    "addedOn": "2026-09-26"
+  },
+  {
+    "id": "demo-library-stories",
+    "type": "series",
+    "title": "书店里的故事",
+    "creator": "顾初",
+    "cover": "../../assets/library/demo/library-stories.webp",
+    "status": "planned",
+    "addedOn": "2026-09-12"
+  }
+]
