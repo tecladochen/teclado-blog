@@ -20,7 +20,12 @@ function parseFooter(str: string) {
     <div class="footer-colophon">
       <div class="footer-lead">
         <p class="footer-owner" set:html={parseFooter(footer[0])} />
-        {showTravels && <a class="footer-travel not-underline-hover" href="/travels" aria-label="足迹">Footprints</a>}
+        {showTravels && (
+          <a class="footer-travel not-underline-hover" href="/travels" aria-label="足迹">
+            <span class="i-tabler-map-pin h-3 w-3 shrink-0" aria-hidden="true" />
+            <span>Footprints</span>
+          </a>
+        )}
       </div>
       {footer.slice(1).map(str => (
         <p class="footer-record" set:html={parseFooter(str)} />
@@ -55,12 +60,15 @@ function parseFooter(str: string) {
     letter-spacing: 0.025em;
   }
   .footer-travel {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
     padding-left: 12px;
     border-left: 1px solid var(--theme-border);
     color: var(--theme-muted);
     font-family: 'Inter Variable', 'PingFang SC', sans-serif;
     font-size: 11px;
-    letter-spacing: 0.025em;
+    letter-spacing: 0.01em;
     line-height: 1.5;
     white-space: nowrap;
     transition: color 180ms ease;
