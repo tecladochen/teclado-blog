@@ -1,4 +1,17 @@
 import type { UserConfig } from '~/types'
+import type { CalendarSettings } from '~/utils/calendar'
+
+export const calendarConfig: CalendarSettings = {
+  timeZone: 'America/Los_Angeles',
+  waitSince: '2025-07-18',
+  events: [
+    { id: 'new-year', title: '元旦', kind: 'holiday', recurrence: 'solar', month: 1, day: 1 },
+    { id: 'spring-festival', title: '春节', kind: 'holiday', recurrence: 'lunar', month: 1, day: 1 },
+    { id: 'dragon-boat', title: '端午', kind: 'holiday', recurrence: 'lunar', month: 5, day: 5 },
+    { id: 'mid-autumn', title: '中秋', kind: 'holiday', recurrence: 'lunar', month: 8, day: 15 },
+    { id: 'national-day', title: '国庆', kind: 'holiday', recurrence: 'solar', month: 10, day: 1 },
+  ],
+}
 
 export const userConfig: Partial<UserConfig> = {
   site: {

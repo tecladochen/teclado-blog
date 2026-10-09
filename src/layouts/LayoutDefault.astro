@@ -7,6 +7,7 @@ import SiteFooter from '~/components/SiteFooter.astro'
 import SiteNavigation from '~/components/SiteNavigation.astro'
 import SiteSeo from '~/components/SiteSeo.astro'
 import ThemeScript from '~/components/ThemeScript.astro'
+import TodayCalendar from '~/components/TodayCalendar.astro'
 import '@fontsource-variable/inter/wght.css'
 import '@fontsource-variable/jetbrains-mono/wght.css'
 import '~/styles/global.css'
@@ -56,6 +57,8 @@ const dark = themeConfig.appearance.theme === 'dark'
     <footer class="page-intro mt-16 pb-7 sm:mt-20 sm:pb-9">
       <SiteFooter />
     </footer>
+
+    <TodayCalendar />
 
     <script>
       import type Swup from '@swup/astro/client/Swup'

@@ -1,0 +1,274 @@
+---
+import { Image } from 'astro:assets'
+import { calendarConfig } from '~/.config/user'
+import wallpaper from '~/assets/calendar/luo-xiaohei-forest.webp'
+import { calendarDate, getCalendarElapsedDays, getCalendarHighlights, getCalendarMonth, getCalendarMonthEvents, getCalendarToday, getLunarLabel, getUpcomingCalendarEvents, getYearRemainingDays } from '~/utils/calendar'
+
+const today = getCalendarToday(new Date(), calendarConfig.timeZone)
+const events = getCalendarHighlights(getUpcomingCalendarEvents(calendarConfig.events, today))
+const monthEvents = getCalendarMonthEvents(calendarConfig.events, today.year, today.month)
+const weekdays = ['一', '二', '三', '四', '五', '六', '日']
+const weekday = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'][new Date(`${calendarDate(today)}T00:00:00Z`).getUTCDay()]
+---
+
+<aside class="today-calendar" aria-label="随身小日历" data-today-calendar>
+  <details class="calendar-details" data-calendar-details>
+    <summary class="calendar-mini" role="button" aria-label="展开小日历" aria-expanded="false" aria-controls="calendar-panel">
+      <span class="mini-picture"><Image src={wallpaper} alt="罗小黑躺在森林中" width={360} format="webp" quality={82} loading="lazy" decoding="async" /></span>
+      <span class="mini-date"><time datetime={calendarDate(today)} data-mini-date>{String(today.month).padStart(2, '0')}.{String(today.day).padStart(2, '0')}</time><span data-mini-weekday>{weekday.replace('星期', '周')}</span><span class="i-tabler-chevron-left mini-arrow h-3 w-3" aria-hidden="true" /></span>
+      <span class="mini-counts"><span class="mini-year">今年还剩<strong data-year-left>{getYearRemainingDays(today)}</strong><span>天</span></span><span class="mini-wait" title={`等待《罗小黑战记》第三部，自 ${calendarConfig.waitSince} 起`}>小黑 3 已等<strong data-wait-days>{getCalendarElapsedDays(calendarConfig.waitSince, today)}</strong><span>天</span></span></span>
+    </summary>
+    <div class="calendar-expanded" id="calendar-panel">
+      <header class="expanded-header">
+        <p><time datetime={calendarDate(today)} data-full-date>{today.month} 月 {today.day} 日</time><span data-mini-weekday>{weekday.replace('星期', '周')}</span><span data-today-lunar>{getLunarLabel(today)}</span></p>
+        <button type="button" data-calendar-close aria-label="收起小日历"><span class="i-tabler-x h-4 w-4" aria-hidden="true" /></button>
+      </header>
+      <section class="month-calendar" aria-label="月历">
+        <header class="month-navigation">
+          <h2 data-month-title>{today.year} 年 {today.month} 月</h2>
+          <div><button type="button" class="calendar-return" data-month-today>今天</button><button type="button" data-month-prev aria-label="上个月"><span class="i-tabler-chevron-left h-4 w-4" aria-hidden="true" /></button><button type="button" data-month-next aria-label="下个月"><span class="i-tabler-chevron-right h-4 w-4" aria-hidden="true" /></button></div>
+        </header>
+        <div class="month-weekdays" aria-hidden="true">{weekdays.map(day => <span>{day}</span>)}</div>
+        <div class="month-days" data-month-days>
+          {getCalendarMonth(today.year, today.month).map((day) => {
+            const event = monthEvents.find(event => event.date === calendarDate({ ...today, day: day ?? 0 }))
+            return <span class:list={['month-day', { 'is-today': day === today.day }]} title={event?.title} aria-current={day === today.day ? 'date' : undefined}>{day}{event && <i class={event.kind === 'custom' ? 'is-custom' : 'is-holiday'} aria-hidden="true" />}</span>
+          })}
+        </div>
+        <p class="month-note" data-month-note hidden aria-live="polite" />
+      </section>
+      <section class="calendar-agenda" aria-labelledby="calendar-agenda-title" hidden={events.length === 0}>
+        <h2 id="calendar-agenda-title">最近的日子</h2>
+        <ul data-calendar-agenda>
+          {events.map(event => <li><time datetime={event.date} title={event.date}>{event.date.slice(5).replace('-', '.')}</time><span title={event.title}>{event.title}</span><span class="agenda-distance">{event.daysLeft === 0 ? '今天' : `${event.daysLeft} 天后`}</span></li>)}
+        </ul>
+      </section>
+      <div class="mobile-counts"><p>今年还剩 <strong data-year-left>{getYearRemainingDays(today)}</strong> 天</p><p title={`自 ${calendarConfig.waitSince} 起`}>小黑 3 已等 <strong data-wait-days>{getCalendarElapsedDays(calendarConfig.waitSince, today)}</strong> 天</p></div>
+    </div>
+  </details>
+  <script is:inline type="application/json" data-calendar-settings set:html={JSON.stringify(calendarConfig).replaceAll('<', '\\u003c')} />
+</aside>
+
+<script>
+  import type { CalendarSettings } from '~/utils/calendar'
+  import { calendarDate, getCalendarElapsedDays, getCalendarHighlights, getCalendarMonth, getCalendarMonthEvents, getCalendarToday, getLunarLabel, getUpcomingCalendarEvents, getYearRemainingDays } from '~/utils/calendar'
+
+  let refreshTimer: ReturnType<typeof setInterval> | undefined
+  let activeRoot: HTMLElement | null = null
+  let listeners: AbortController | undefined
+  let refreshCurrent: (() => void) | undefined
+
+  function initializeCalendar() {
+    const root = document.querySelector<HTMLElement>('[data-today-calendar]')
+    if (root && root === activeRoot) {
+      refreshCurrent?.()
+      return
+    }
+    clearInterval(refreshTimer)
+    listeners?.abort()
+    listeners = new AbortController()
+    const { signal } = listeners
+    activeRoot = root
+    refreshCurrent = undefined
+    if (!root)
+      return
+    const widget = root
+    const settings = JSON.parse(root.querySelector('[data-calendar-settings]')!.textContent!) as CalendarSettings
+    const find = <T extends HTMLElement>(selector: string) => root.querySelector<T>(selector)!
+    let today = getCalendarToday(new Date(), settings.timeZone)
+    let upcoming = getCalendarHighlights(getUpcomingCalendarEvents(settings.events, today))
+    let view = { year: today.year, month: today.month }
+    const details = find<HTMLDetailsElement>('[data-calendar-details]')
+
+    function renderMonth() {
+      find('[data-month-title]').textContent = `${view.year} 年 ${view.month} 月`
+      find('[data-month-note]').hidden = true
+      const monthEvents = getCalendarMonthEvents(settings.events, view.year, view.month)
+      const days = getCalendarMonth(view.year, view.month).map((day) => {
+        const date = day ? calendarDate({ ...view, day }) : ''
+        const events = monthEvents.filter(event => event.date === date)
+        const cell = document.createElement(events.length ? 'button' : 'span')
+        cell.className = 'month-day'
+        if (!day)
+          return cell
+        cell.textContent = String(day)
+        const isToday = date === calendarDate(today)
+        if (isToday) {
+          cell.classList.add('is-today')
+          cell.setAttribute('aria-current', 'date')
+        }
+        cell.setAttribute('aria-label', `${view.month} 月 ${day} 日${isToday ? '，今天' : ''}${events.length ? `，${events.map(event => event.title).join('、')}` : ''}`)
+        if (events.length) {
+          cell.setAttribute('type', 'button')
+          cell.title = events.map(event => event.title).join('、')
+          cell.addEventListener('click', () => {
+            const note = find('[data-month-note]')
+            note.textContent = `${view.month} 月 ${day} 日 · ${events.map(event => event.title).join('、')}`
+            note.hidden = false
+          })
+          const marker = document.createElement('i')
+          marker.className = events.some(event => event.kind === 'custom') ? 'is-custom' : 'is-holiday'
+          marker.setAttribute('aria-hidden', 'true')
+          cell.append(marker)
+        }
+        return cell
+      })
+      find('[data-month-days]').replaceChildren(...days)
+    }
+
+    function refresh() {
+      const next = getCalendarToday(new Date(), settings.timeZone)
+      const followingToday = view.year === today.year && view.month === today.month
+      today = next
+      if (followingToday)
+        view = { year: today.year, month: today.month }
+      upcoming = getCalendarHighlights(getUpcomingCalendarEvents(settings.events, today))
+      const dateText = `${String(today.month).padStart(2, '0')}.${String(today.day).padStart(2, '0')}`
+      const number = find<HTMLTimeElement>('[data-mini-date]')
+      number.textContent = dateText
+      number.dateTime = calendarDate(today)
+      const fullDate = find<HTMLTimeElement>('[data-full-date]')
+      fullDate.textContent = `${today.month} 月 ${today.day} 日`
+      fullDate.dateTime = calendarDate(today)
+      const weekday = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'][new Date(`${calendarDate(today)}T00:00:00Z`).getUTCDay()]
+      widget.querySelectorAll('[data-mini-weekday]').forEach(item => item.textContent = weekday.replace('星期', '周'))
+      find('[data-today-lunar]').textContent = getLunarLabel(today)
+      widget.querySelectorAll('[data-year-left]').forEach(item => item.textContent = String(getYearRemainingDays(today)))
+      widget.querySelectorAll('[data-wait-days]').forEach(item => item.textContent = String(getCalendarElapsedDays(settings.waitSince, today)))
+      const agenda = upcoming.map((event) => {
+        const item = document.createElement('li')
+        const date = document.createElement('time')
+        date.dateTime = event.date
+        date.title = event.date
+        date.textContent = event.date.slice(5).replace('-', '.')
+        const title = document.createElement('span')
+        title.textContent = event.title
+        title.title = event.title
+        const distance = document.createElement('span')
+        distance.className = 'agenda-distance'
+        distance.textContent = event.daysLeft === 0 ? '今天' : `${event.daysLeft} 天后`
+        item.append(date, title, distance)
+        return item
+      })
+      find('.calendar-agenda').hidden = agenda.length === 0
+      find('[data-calendar-agenda]').replaceChildren(...agenda)
+      renderMonth()
+    }
+
+    function moveMonth(offset: number) {
+      const date = new Date(Date.UTC(view.year, view.month - 1 + offset, 1))
+      view = { year: date.getUTCFullYear(), month: date.getUTCMonth() + 1 }
+      renderMonth()
+    }
+    find('[data-month-prev]').addEventListener('click', () => moveMonth(-1), { signal })
+    find('[data-month-next]').addEventListener('click', () => moveMonth(1), { signal })
+    find('[data-month-today]').addEventListener('click', () => {
+      view = { year: today.year, month: today.month }
+      renderMonth()
+    }, { signal })
+    details.addEventListener('toggle', () => {
+      find('summary').setAttribute('aria-label', details.open ? '收起小日历' : '展开小日历')
+      find('summary').setAttribute('aria-expanded', String(details.open))
+      if (details.open)
+        refresh()
+    }, { signal })
+    find('[data-calendar-close]').addEventListener('click', () => {
+      details.open = false
+      find('summary').focus()
+    }, { signal })
+    root.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && details.open) {
+        details.open = false
+        find('summary').focus()
+      }
+    }, { signal })
+    document.addEventListener('pointerdown', (event) => {
+      if (details.open && event.target instanceof Node && !root.contains(event.target))
+        details.open = false
+    }, { signal })
+    refreshCurrent = refresh
+    refresh()
+    refreshTimer = setInterval(() => {
+      if (!root.isConnected) {
+        clearInterval(refreshTimer)
+        return
+      }
+      if (calendarDate(getCalendarToday(new Date(), settings.timeZone)) !== calendarDate(today))
+        refresh()
+    }, 60000)
+  }
+
+  initializeCalendar()
+  document.addEventListener('astro:page-load', initializeCalendar)
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible')
+      initializeCalendar()
+  })
+</script>
+
+<style>
+  .today-calendar { position: fixed; z-index: 35; top: 152px; right: max(16px, calc((100vw - 1192px) / 2)); width: 132px; color: var(--theme-sub); font-family: var(--uno-fonts-ui); }
+  .calendar-mini { display: block; overflow: hidden; border: 1px solid var(--theme-border); border-radius: 4px; background: var(--uno-colors-background); list-style: none; cursor: pointer; }
+  .calendar-mini::-webkit-details-marker { display: none; }
+  .calendar-mini:hover { border-color: var(--theme-interactive); }
+  .calendar-mini:focus-visible, .calendar-expanded button:focus-visible { outline: 2px solid var(--theme-interactive); outline-offset: 3px; }
+  .mini-picture { display: block; height: 58px; overflow: hidden; }
+  .mini-picture img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 65%; }
+  .mini-date { display: flex; align-items: center; gap: 7px; padding: 10px 10px 9px; }
+  .mini-date time { font-family: 'JetBrains Mono Variable', monospace; font-size: 15px; letter-spacing: -0.05em; }
+  .mini-date > span { color: var(--theme-muted); font-size: 10px; }
+  .mini-date .mini-arrow { margin-left: auto; }
+  .calendar-details[open] .mini-arrow { transform: rotate(180deg); }
+  .mini-counts { display: grid; gap: 7px; margin: 0 10px; padding: 9px 0 11px; border-top: 1px solid var(--theme-border-subtle); color: var(--theme-muted); font-size: 10px; }
+  .mini-counts > span { display: flex; align-items: baseline; gap: 3px; }
+  .mini-counts strong { margin-left: auto; color: var(--theme-interactive); font-size: 13px; font-weight: 500; font-variant-numeric: tabular-nums; }
+  .calendar-expanded { position: absolute; top: 0; right: calc(100% + 12px); width: 300px; max-height: calc(100dvh - 176px); padding: 16px; overflow-y: auto; border: 1px solid var(--theme-border); border-radius: 4px; background: var(--uno-colors-background); box-shadow: 0 6px 24px var(--uno-colors-shadow); }
+  .expanded-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding-bottom: 12px; border-bottom: 1px solid var(--theme-border-subtle); }
+  .expanded-header p { display: flex; flex-wrap: wrap; align-items: baseline; gap: 7px; margin: 0; color: var(--theme-muted); font-size: 10px; }
+  .expanded-header time { color: var(--theme-sub); font-size: 12px; }
+  .calendar-expanded button { display: flex; flex-shrink: 0; align-items: center; justify-content: center; width: 28px; height: 28px; padding: 0; border: 0; border-radius: 3px; background: transparent; color: var(--theme-muted); font: inherit; cursor: pointer; }
+  .calendar-expanded button:hover { background: var(--theme-interactive-soft); color: var(--theme-interactive); }
+  .expanded-header button { margin: -4px -5px -4px 0; }
+  .month-navigation { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 11px 0 12px; }
+  .month-navigation h2 { margin: 0; font-size: 13px; font-weight: 500; }
+  .month-navigation > div { display: flex; align-items: center; gap: 2px; }
+  .month-navigation .calendar-return { width: auto; padding: 0 6px; margin-right: 3px; font: inherit; font-size: 11px; }
+  .month-weekdays, .month-days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); text-align: center; }
+  .month-weekdays { margin-bottom: 5px; color: var(--theme-muted); font-size: 11px; }
+  .today-calendar :global(.month-day) { position: relative; display: flex; align-items: center; justify-content: center; justify-self: center; width: 30px; height: 30px; margin: 2px 0; font-size: 12px; font-variant-numeric: tabular-nums; }
+  .today-calendar :global(.month-day:nth-child(7n)), .today-calendar :global(.month-day:nth-child(7n - 1)) { color: var(--theme-muted); }
+  .today-calendar :global(.month-day.is-today) { border-radius: 50%; background: var(--theme-interactive); color: var(--uno-colors-background); }
+  .today-calendar :global(.month-day i) { position: absolute; bottom: 1px; width: 3px; height: 3px; border-radius: 50%; background: var(--theme-accent); }
+  .today-calendar :global(.month-day .is-custom) { background: var(--theme-interactive); }
+  .today-calendar :global(.month-day.is-today i) { background: var(--uno-colors-background); }
+  .month-note { margin: 9px 0 0; color: var(--theme-sub); font-size: 11px; }
+  .calendar-agenda { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--theme-border-subtle); }
+  .calendar-agenda h2 { margin: 0 0 10px; color: var(--theme-muted); font-size: 10px; font-weight: 400; }
+  .calendar-agenda ul { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+  .calendar-agenda :global(li) { display: grid; grid-template-columns: 36px minmax(0, 1fr) auto; align-items: baseline; gap: 9px; font-size: 12px; }
+  .calendar-agenda :global(li > span:not(.agenda-distance)) { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .calendar-agenda :global(time) { color: var(--theme-muted); font-size: 10px; font-family: 'JetBrains Mono Variable', monospace; }
+  .calendar-agenda :global(.agenda-distance) { color: var(--theme-interactive); font-size: 11px; font-variant-numeric: tabular-nums; }
+  .mobile-counts { display: none; }
+  @media (max-width: 1191px) {
+    .today-calendar { top: auto; right: 18px; bottom: 20px; width: 152px; }
+    .calendar-mini { display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 3px 9px; padding: 8px; }
+    .mini-picture { grid-row: 1 / 3; align-self: center; width: 34px; height: 34px; border-radius: 2px; }
+    .mini-date { gap: 5px; padding: 0; }
+    .mini-date time { font-size: 12px; }
+    .mini-date > span { font-size: 9px; }
+    .mini-date .mini-arrow { display: none; }
+    .mini-counts { display: block; margin: 0; padding: 0; border: 0; font-size: 9px; }
+    .mini-counts .mini-wait { display: none; }
+    .mini-counts .mini-year { display: block; }
+    .mini-counts strong { margin: 0 3px; font-size: 10px; }
+    .calendar-expanded { top: auto; right: 0; bottom: calc(100% + 10px); width: min(300px, calc(100vw - 32px)); max-height: calc(100dvh - 102px); }
+    .mobile-counts { display: flex; justify-content: space-between; gap: 10px; margin-top: 13px; padding-top: 12px; border-top: 1px solid var(--theme-border-subtle); color: var(--theme-muted); font-size: 10px; }
+    .mobile-counts p { margin: 0; }
+    .mobile-counts strong { color: var(--theme-interactive); font-size: 12px; font-weight: 500; font-variant-numeric: tabular-nums; }
+  }
+  @media (max-width: 639px) {
+    .today-calendar { right: 12px; bottom: max(16px, env(safe-area-inset-bottom)); }
+    .calendar-expanded { width: min(300px, calc(100vw - 24px)); }
+  }
+</style>
