@@ -58,20 +58,15 @@ const artistSeeds: [string, string][] = [
   ['paper-plane', '纸飞机乐队'],
 ]
 
-const songSeeds: [string, string, string[], string, string][] = [
-  ['evening-breeze', '晚风经过', ['lin-ye'], '暮色之间', '华语'],
-  ['before-rain-stops', '在雨停之前', ['chen-yinan'], '雨天手记', '华语'],
-  ['to-the-sea', '走向海边', ['lin-ye', 'paper-plane'], '夏日回声', '华语'],
-  ['unsent-letter', '未寄出的信', ['chen-yinan'], '雨天手记', '华语'],
-  ['slow-morning', 'Slow Morning', ['june-harbor'], 'Rooms of Light', '英语'],
-  ['same-sky', 'Under the Same Sky', ['june-harbor'], 'Rooms of Light', '英语'],
-  ['night-stroll', '夜の散歩', ['aoi-rin'], '月の庭', '日语'],
-  ['echo', '回声', ['paper-plane'], '夏日回声', '华语'],
-  ['empty-platform', '无人站台', ['lin-ye'], '暮色之间', '纯音乐'],
-  ['leave-a-light', '留一盏灯', ['chen-yinan'], '雨天手记', '华语'],
+const albumSeeds: [string, string, string[], string, string, string][] = [
+  ['dusk-between', '暮色之间', ['lin-ye'], '华语', '2024-09-22', 'evening-breeze'],
+  ['rain-notes', '雨天手记', ['chen-yinan'], '华语', '2024-02-21', 'before-rain-stops'],
+  ['summer-echo', '夏日回声', ['paper-plane', 'lin-ye'], '华语', '2025-04-23', 'to-the-sea'],
+  ['rooms-of-light', 'Rooms of Light', ['june-harbor'], '英语', '2025-11-25', 'slow-morning'],
+  ['moon-garden', '月の庭', ['aoi-rin'], '日语', '2025-08-24', 'night-stroll'],
 ]
 
-for (const name of ['works', 'artists', 'songs']) {
+for (const name of ['works', 'artists', 'albums']) {
   const entries = JSON.parse(await fs.readFile(`${dataDir}/${name}.json`, 'utf8')) as { id: string }[]
   if (entries.some(entry => !entry.id.startsWith('demo-')))
     throw new Error(`${name}.json 已包含非示例记录，停止生成以保留已有内容。`)
@@ -92,14 +87,13 @@ for (const [index, [id, name]] of artistSeeds.entries()) {
   artists.push({ id: `demo-${id}`, name, avatar: `../../assets/library/demo/${id}.webp` })
 }
 
-const songs = []
-const songDates = ['2026-09-30', '2026-08-12', '2026-06-28', '2026-03-17', '2026-01-26', '2025-11-25', '2025-08-24', '2025-04-23', '2024-09-22', '2024-02-21']
-for (const [index, [id, title, singerIds, album, language]] of songSeeds.entries()) {
-  await sharp(Buffer.from(artwork(index + 1, album, true))).webp({ quality: 80 }).toFile(`${assetDir}/${id}.webp`)
-  songs.push({ id: `demo-${id}`, title, artists: singerIds.map(id => `demo-${id}`), album, ...(id === 'to-the-sea' ? { albumArtist: 'demo-paper-plane' } : {}), cover: `../../assets/library/demo/${id}.webp`, language, addedOn: songDates[index], ...(index % 3 === 0 ? { url: 'https://example.com/' } : {}) })
+const albums = []
+for (const [index, [id, title, artistIds, language, addedOn, coverId]] of albumSeeds.entries()) {
+  await sharp(Buffer.from(artwork(index + 1, title, true))).webp({ quality: 80 }).toFile(`${assetDir}/${coverId}.webp`)
+  albums.push({ id: `demo-${id}`, title, artists: artistIds.map(id => `demo-${id}`), cover: `../../assets/library/demo/${coverId}.webp`, language, addedOn })
 }
 
-for (const [name, records] of Object.entries({ works, artists, songs }))
+for (const [name, records] of Object.entries({ works, artists, albums }))
   await fs.writeFile(`${dataDir}/${name}.json`, `${JSON.stringify(records, null, 2)}\n`)
 
-console.log(`已生成示例：${works.length} 部作品、${artists.length} 位歌手、${songs.length} 首歌曲。`)
+console.log(`已生成示例：${works.length} 部作品、${artists.length} 位歌手、${albums.length} 张专辑。`)

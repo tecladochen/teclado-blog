@@ -1,0 +1,8 @@
+[
+  {
+    "id": "album-your-title",
+    "title": "专辑名称",
+    "artists": ["artist-your-name"],
+    "language": "华语"
+  }
+]

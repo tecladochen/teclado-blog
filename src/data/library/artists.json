@@ -1,27 +1,6 @@
 [
   {
-    "id": "demo-lin-ye",
-    "name": "林野",
-    "avatar": "../../assets/library/demo/lin-ye.webp"
-  },
-  {
-    "id": "demo-chen-yinan",
-    "name": "陈亦南",
-    "avatar": "../../assets/library/demo/chen-yinan.webp"
-  },
-  {
-    "id": "demo-june-harbor",
-    "name": "June Harbor",
-    "avatar": "../../assets/library/demo/june-harbor.webp"
-  },
-  {
-    "id": "demo-aoi-rin",
-    "name": "青井凛",
-    "avatar": "../../assets/library/demo/aoi-rin.webp"
-  },
-  {
-    "id": "demo-paper-plane",
-    "name": "纸飞机乐队",
-    "avatar": "../../assets/library/demo/paper-plane.webp"
+    "id": "xusong",
+    "name": "许嵩"
   }
 ]

@@ -1,0 +1,48 @@
+[
+  {
+    "id": "xusong-zidingyi",
+    "title": "自定义",
+    "artists": [
+      "xusong"
+    ],
+    "cover": "../../assets/library/albums/xusong-zidingyi.webp",
+    "language": "华语"
+  },
+  {
+    "id": "xusong-xunwuqishi",
+    "title": "寻雾启示",
+    "artists": [
+      "xusong"
+    ],
+    "cover": "../../assets/library/albums/xusong-xunwuqishi.webp",
+    "language": "华语"
+  },
+  {
+    "id": "xusong-sugelameiyoudi",
+    "title": "苏格拉没有底",
+    "artists": [
+      "xusong"
+    ],
+    "cover": "../../assets/library/albums/xusong-sugelameiyoudi-square.webp",
+    "language": "华语"
+  },
+  {
+    "id": "xusong-mengyouji",
+    "title": "梦游计",
+    "artists": [
+      "xusong"
+    ],
+    "cover": "../../assets/library/albums/xusong-mengyouji.webp",
+    "coverScale": 1.16,
+    "language": "华语"
+  },
+  {
+    "id": "xusong-buruchichaqu",
+    "title": "不如吃茶去",
+    "artists": [
+      "xusong"
+    ],
+    "cover": "../../assets/library/albums/xusong-buruchichaqu.webp",
+    "language": "华语"
+  }
+]

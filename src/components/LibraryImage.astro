@@ -5,17 +5,21 @@ import { Image } from 'astro:assets'
 interface Props {
   image?: ImageMetadata
   title: string
-  shape?: 'portrait' | 'square' | 'avatar'
+  shape?: 'portrait' | 'square'
   icon?: string
+  loading?: 'eager' | 'lazy'
+  scale?: number
 }
 
-const { image, title, shape = 'portrait', icon = 'i-tabler-book' } = Astro.props
-const width = shape === 'avatar' ? 96 : 240
+const { image, title, shape = 'portrait', icon = 'i-tabler-book', loading = 'lazy', scale = 1 } = Astro.props
+// Keep smaller catalog covers at their original resolution.
+const widths = image ? [...new Set([160, 240, 360, 480].map(width => Math.min(width, image.width)))] : []
+const sizes = '(max-width: 560px) calc((100vw - 52px) / 2), (max-width: 639px) calc((100vw - 72px) / 3), (max-width: 760px) calc((100vw - 88px) / 3), (max-width: 880px) calc((100vw - 144px) / 5), 148px'
 ---
 
 <div class:list={['library-image', `is-${shape}`]}>
   {image
-    ? <Image src={image} alt={title} width={width} format="webp" quality={65} loading="lazy" decoding="async" />
+    ? <Image src={image} alt={title} width={widths[widths.length - 1]} widths={widths} sizes={sizes} format="webp" quality={65} loading={loading} decoding="async" style={scale !== 1 ? `transform: scale(${scale})` : undefined} />
     : <span class:list={[icon, 'h-7 w-7']} aria-hidden="true" />}
 </div>
 
@@ -32,7 +36,5 @@ const width = shape === 'avatar' ? 96 : 240
   }
   .is-portrait { aspect-ratio: 2 / 3; }
   .is-square { aspect-ratio: 1; }
-  .is-avatar { width: 42px; height: 42px; border-radius: 50%; }
   .library-image :global(img) { width: 100%; height: 100%; object-fit: cover; }
-  .is-portrait :global(img) { object-fit: contain; }
 </style>

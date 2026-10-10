@@ -1,24 +1,23 @@
 /* eslint test/no-import-node-test: off */
-import type { LibraryWork, MusicArtist, MusicSong } from './library'
+import type { LibraryWork, MusicAlbum, MusicArtist } from './library'
 import assert from 'node:assert/strict'
 import { it } from 'node:test'
-import { formatLibraryDate, getCompletionYears, getMusicAlbums, getMusicStats, isLibraryDate, sortWorks } from './library'
+import { formatLibraryDate, getMusicArtists, getWorkCountLabel, getWorkDate, getWorkYears, isLibraryDate, parseLibraryEntries, sortMusicAlbums, sortWorks } from './library'
 
 function work(id: string, data: Partial<LibraryWork['data']> = {}): LibraryWork {
   return { id, collection: 'library', data: { id, title: id, type: 'book', status: 'planned', addedOn: '2026-10-08', ...data } }
 }
 
-function artist(id: string, rank: number): MusicArtist {
-  return { id, collection: 'musicArtists', data: { id, name: id, rank } }
+function artist(id: string): MusicArtist {
+  return { id, collection: 'musicArtists', data: { id, name: id } }
 }
 
-function song(id: string, artists: string[], language?: string): MusicSong {
-  return { id, collection: 'musicSongs', data: {
+function album(id: string, artists: string[], data: Partial<MusicAlbum['data']> = {}): MusicAlbum {
+  return { id, collection: 'musicAlbums', data: {
     id,
     title: id,
     artists: artists.map(id => ({ collection: 'musicArtists', id })),
-    addedOn: '2026-10-08',
-    language,
+    ...data,
   } }
 }
 
@@ -51,47 +50,59 @@ it('annual counts use completion year and exclude unfinished works', () => {
     work('watching', { status: 'in-progress' }),
     work('wishlist'),
   ]
-  assert.deepEqual(getCompletionYears(works), [
+  assert.deepEqual(getWorkYears(works), [
     ['2026', { book: 1, movie: 1, series: 0 }],
     ['2025', { book: 0, movie: 0, series: 1 }],
   ])
-  assert.deepEqual(getCompletionYears([]), [])
+  assert.deepEqual(getWorkYears([]), [])
 })
 
-it('personal artist order is preserved and collaborations remain findable under each artist', () => {
-  const stats = getMusicStats([artist('first', 1), artist('second', 2), artist('empty', 3)], [
-    song('collaboration', ['first', 'second'], '华语'),
-    song('solo', ['second'], '英语'),
-    song('unknown-language', ['second']),
-  ])
-  assert.deepEqual(stats.artists.map(artist => [artist.id, artist.songCount]), [['first', 1], ['second', 3], ['empty', 0]])
-  assert.throws(() => getMusicStats([], [song('missing', ['missing'])]), /不存在的歌手/)
+it('historical imports use release dates until a personal completion date is supplied', () => {
+  const historical = work('historical', { status: 'completed', releasedOn: '2009-03' })
+  const recent = work('recent', { status: 'completed', releasedOn: '2025-07-25' })
+  const personal = work('personal', { status: 'completed', releasedOn: '2005-10-22', completedOn: '2026-10-09' })
+  const entries = [historical, personal, recent]
+  assert.equal(getWorkDate(historical.data), '2009-03')
+  assert.equal(getWorkDate(personal.data), '2026-10-09')
+  assert.deepEqual(sortWorks(entries).map(work => work.id), ['personal', 'recent', 'historical'])
+  assert.deepEqual(getWorkYears(entries).map(([year]) => year), ['2026', '2025', '2009'])
 })
 
-it('album grouping joins collaborations using the credited artist and keeps same-title albums separate', () => {
-  const first = song('solo', ['first'])
-  first.data.album = '同名专辑'
-  const collaboration = song('duet', ['second', 'first'])
-  collaboration.data.album = '同名专辑'
-  collaboration.data.albumArtist = { collection: 'musicArtists', id: 'first' }
-  const other = song('other-album', ['second'])
-  other.data.album = '同名专辑'
-  const single = song('single', ['first'])
-  const albums = getMusicAlbums([first, collaboration, other, single])
-  assert.equal(albums.filter(album => album.isAlbum).length, 2)
-  assert.deepEqual(albums.find(album => album.artistId === 'first')?.songs.map(song => song.id), ['duet', 'solo'])
-  assert.equal(albums.find(album => !album.isAlbum)?.songs[0].id, 'single')
-  assert.deepEqual(getMusicAlbums([]), [])
+it('batch imports retain the source-file order when completion dates are equal', () => {
+  const works = [work('a-book', { status: 'completed', completedOn: '2026-10-10' }), work('z-movie', { status: 'completed', type: 'movie', completedOn: '2026-10-10' })]
+  assert.deepEqual(sortWorks(works, ['z-movie', 'a-book']).map(work => work.id), ['z-movie', 'a-book'])
+  assert.deepEqual(sortWorks(works).map(work => work.id), ['a-book', 'z-movie'])
 })
 
-it('collection growth counts each song once in its addition year, including collaborations', () => {
-  const duet = song('duet', ['first', 'second'])
-  duet.data.addedOn = '2024'
-  const solo = song('solo', ['first'])
-  solo.data.addedOn = '2025-03'
-  const latest = song('latest', ['second'])
-  const stats = getMusicStats([artist('first', 1), artist('second', 2)], [latest, duet, solo])
-  assert.deepEqual(stats.years, [['2024', 1], ['2025', 1], ['2026', 1]])
-  assert.equal(stats.artists.reduce((sum, artist) => sum + artist.songCount, 0), 4)
-  assert.deepEqual(getMusicStats([], []).years, [])
+it('all album artist references must resolve, including collaborators', () => {
+  const artists = [artist('second'), artist('first')]
+  assert.deepEqual(getMusicArtists(artists, [album('duet', ['first', 'second'])]).map(artist => artist.id), ['second', 'first'])
+  assert.throws(() => getMusicArtists(artists, [album('missing', ['missing'])]), /不存在的歌手/)
+})
+
+it('album dates may be imprecise or absent, with dated albums first and stable order', () => {
+  const albums = [album('z-no-date', ['first']), album('year', ['first'], { addedOn: '2026' }), album('a-no-date', ['first']), album('day', ['first'], { addedOn: '2026-03-08' })]
+  assert.deepEqual(sortMusicAlbums(albums).map(album => album.id), ['day', 'year', 'z-no-date', 'a-no-date'])
+  assert.equal(albums[0].id, 'z-no-date')
+  assert.deepEqual(sortMusicAlbums(albums, ['a-no-date', 'z-no-date']).map(album => album.id), ['day', 'year', 'a-no-date', 'z-no-date'])
+})
+
+it('work summaries count only the supplied types, with clear units and an empty state', () => {
+  assert.equal(getWorkCountLabel(['book', 'movie', 'book', 'series']), '2 本书 · 1 部电影 · 1 部剧集')
+  assert.equal(getWorkCountLabel(['series']), '1 部剧集')
+  assert.equal(getWorkCountLabel([]), '暂无作品')
+})
+
+it('JSON data rejects duplicate or missing IDs instead of silently losing entries', () => {
+  assert.deepEqual(parseLibraryEntries('[{"id":"book-one"}]'), [{ id: 'book-one' }])
+  assert.deepEqual(parseLibraryEntries('[]'), [])
+  assert.throws(() => parseLibraryEntries('[{"id":"one"},{"id":"one"}]'), /id 重复/)
+  for (const input of ['[{}]', '[null]', '[{"id":" "}]', '[{"id":42}]'])
+    assert.throws(() => parseLibraryEntries(input), /须填写/)
+  assert.throws(() => parseLibraryEntries('{"id":"one"}'), /JSON 数组/)
+})
+
+it('legacy unfinished works can omit added dates and sort behind dated works', () => {
+  const entries = [work('no-date', { addedOn: undefined }), work('dated', { addedOn: '2025' })]
+  assert.deepEqual(sortWorks(entries).map(work => work.id), ['dated', 'no-date'])
 })

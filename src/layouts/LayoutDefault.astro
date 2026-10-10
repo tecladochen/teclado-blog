@@ -39,7 +39,7 @@ const dark = themeConfig.appearance.theme === 'dark'
   <body class="mx-auto max-w-[880px] min-h-100vh w-full flex flex-col px-4 py-5 sm:px-6 sm:py-10">
     <!-- 极简现代顶栏 -->
     <header
-      class="page-intro mb-8 w-full flex items-center justify-between gap-1 border-b border-black/[0.06] pb-5 sm:mb-12 sm:gap-4 dark:border-white/[0.08] sm:pb-6"
+      class="page-intro mb-4 w-full flex items-center justify-between gap-1 border-b border-black/[0.06] pb-5 sm:gap-4 dark:border-white/[0.08] sm:pb-6"
     >
       <a href="/" class="not-underline-hover inline-flex shrink-0 items-center" title="Teclado - 首页" data-nav-logo>
         <Signature />
@@ -62,20 +62,21 @@ const dark = themeConfig.appearance.theme === 'dark'
 
       document.addEventListener('animationend', removeAnimation, false)
       document.addEventListener('astro:page-load', animatePageContent)
-      document.addEventListener('DOMContentLoaded', setupTravelTransition)
-      document.addEventListener('astro:page-load', setupTravelTransition)
+      document.addEventListener('DOMContentLoaded', setupCollectionTransition)
+      document.addEventListener('astro:page-load', setupCollectionTransition)
 
-      function setupTravelTransition() {
+      function setupCollectionTransition() {
         const transitionWindow = window as Window & {
           swup?: Swup
-          __tecladoTravelTransitionReady?: boolean
+          __tecladoCollectionTransitionReady?: boolean
         }
-        if (!transitionWindow.swup || transitionWindow.__tecladoTravelTransitionReady)
+        if (!transitionWindow.swup || transitionWindow.__tecladoCollectionTransitionReady)
           return
 
-        transitionWindow.__tecladoTravelTransitionReady = true
+        transitionWindow.__tecladoCollectionTransitionReady = true
         transitionWindow.swup.hooks.before('content:scroll', (visit) => {
-          if (visit.to.url.replace(/\/$/, '') !== '/travels' || visit.history.popstate || visit.to.hash)
+          const path = new URL(visit.to.url, window.location.origin).pathname.replace(/\/$/, '')
+          if (!['/travels', '/library'].includes(path) || visit.history.popstate || visit.to.hash)
             return
 
           // Scroll Plugin schedules scrolling after content replacement; skip its long ascent.
@@ -84,7 +85,7 @@ const dark = themeConfig.appearance.theme === 'dark'
         })
       }
 
-      setupTravelTransition()
+      setupCollectionTransition()
 
       function removeAnimation(event: AnimationEvent) {
         if (event.animationName !== 'page-content-enter')
@@ -107,6 +108,11 @@ const dark = themeConfig.appearance.theme === 'dark'
       }
     </script>
     <style>
+      /* The shared header sets the content gap; contain child margins here. */
+      .page-content {
+        display: flow-root;
+      }
+
       /* 页面首次加载动画 */
       html.animation-prepared .page-intro {
         animation: fade-in-down 0.22s ease-out 1 both;
@@ -120,11 +126,13 @@ const dark = themeConfig.appearance.theme === 'dark'
         animation: page-content-enter 0.2s cubic-bezier(0.22, 1, 0.36, 1) 1 both;
       }
 
-      :global(html:has(.travel-page)) {
+      :global(html:has(.travel-page)),
+      :global(html:has(.library-page)) {
         scroll-behavior: auto;
       }
 
-      .page-content.is-entering:has(:global(.travel-page)) {
+      .page-content.is-entering:has(:global(.travel-page)),
+      .page-content.is-entering:has(:global(.library-page)) {
         animation-name: page-content-fade;
       }
 

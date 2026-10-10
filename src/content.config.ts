@@ -1,7 +1,7 @@
 import { file, glob } from 'astro/loaders'
 import { z } from 'astro/zod'
 import { defineCollection, reference } from 'astro:content'
-import { isLibraryDate } from './utils/library'
+import { isLibraryDate, parseLibraryEntries } from './utils/library'
 
 const posts = defineCollection({
   loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/posts' }),
@@ -67,52 +67,52 @@ const label = z.string().trim().min(1)
 const listeningUrl = z.url().refine(value => /^https?:\/\//.test(value), '链接须为 HTTP 或 HTTPS')
 
 const library = defineCollection({
-  loader: file('src/data/library/works.json'),
+  loader: file('src/data/library/works.json', { parser: parseLibraryEntries }),
   schema: ({ image }) => z.object({
     id: entryId,
     type: z.enum(['book', 'movie', 'series']),
     title: label,
     creator: label.optional(),
     cover: image().optional(),
-    status: z.enum(['completed', 'in-progress', 'planned']),
-    addedOn: libraryDate,
+    note: label.optional(),
+    url: listeningUrl.optional(),
+    status: z.enum(['completed', 'in-progress', 'planned']).default('completed'),
+    addedOn: libraryDate.optional(),
     completedOn: libraryDate.optional(),
+    releasedOn: libraryDate.optional(),
   }).superRefine((entry, ctx) => {
-    if (entry.status === 'completed' && !entry.completedOn) {
-      ctx.addIssue({ code: 'custom', path: ['completedOn'], message: '已看记录须填写完成日期' })
+    if (entry.status === 'completed' && !entry.completedOn && !entry.releasedOn) {
+      ctx.addIssue({ code: 'custom', path: ['completedOn'], message: '已完成作品须填写完成日期；历史补录可填写发布时间 releasedOn' })
     }
     if (entry.status !== 'completed' && entry.completedOn) {
-      ctx.addIssue({ code: 'custom', path: ['completedOn'], message: '只有已看记录可以填写完成日期' })
+      ctx.addIssue({ code: 'custom', path: ['completedOn'], message: '只有已完成作品可以填写完成日期' })
     }
   }),
 })
 
 const musicArtists = defineCollection({
-  loader: file('src/data/library/artists.json', {
-    parser: text => JSON.parse(text).map((entry: Record<string, unknown>, index: number) => ({ ...entry, rank: index + 1 })),
-  }),
+  loader: file('src/data/library/artists.json', { parser: parseLibraryEntries }),
   schema: ({ image }) => z.object({
     id: entryId,
     name: label,
     avatar: image().optional(),
-    rank: z.number().int().positive(),
   }),
 })
 
-const musicSongs = defineCollection({
-  loader: file('src/data/library/songs.json'),
+const musicAlbums = defineCollection({
+  loader: file('src/data/library/albums.json', { parser: parseLibraryEntries }),
   schema: ({ image }) => z.object({
     id: entryId,
     title: label,
     artists: z.array(reference('musicArtists')).min(1).refine(
       artists => new Set(artists.map(artist => artist.id)).size === artists.length,
-      '同一首歌曲不能重复关联同一位歌手',
+      '同一张专辑不能重复关联同一位歌手',
     ),
-    album: label.optional(),
-    albumArtist: reference('musicArtists').optional(),
     cover: image().optional(),
+    coverScale: z.number().min(1).max(2).optional(),
     language: label.optional(),
-    addedOn: libraryDate,
+    note: label.optional(),
+    addedOn: libraryDate.optional(),
     url: listeningUrl.optional(),
   }),
 })
@@ -120,7 +120,7 @@ const musicSongs = defineCollection({
 export const collections = {
   library,
   musicArtists,
-  musicSongs,
+  musicAlbums,
   journey,
   posts,
   spec,

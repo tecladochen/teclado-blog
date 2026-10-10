@@ -1,0 +1,23 @@
+[
+  {
+    "id": "book-your-title",
+    "type": "book",
+    "title": "书籍名称",
+    "creator": "作者姓名",
+    "completedOn": "2026-10"
+  },
+  {
+    "id": "movie-your-title",
+    "type": "movie",
+    "title": "电影名称",
+    "creator": "导演姓名",
+    "completedOn": "2025"
+  },
+  {
+    "id": "series-your-title-season-1",
+    "type": "series",
+    "title": "剧集名称 · 第一季",
+    "creator": "导演姓名",
+    "completedOn": "2026-09-30"
+  }
+]
