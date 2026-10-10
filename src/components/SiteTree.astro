@@ -1,0 +1,221 @@
+---
+import { siteLifetimeConfig } from '~/.config/user'
+import { getSiteDays, renderSiteTree } from '~/utils/siteTree'
+
+const siteDays = getSiteDays(siteLifetimeConfig.startedOn, new Date(), siteLifetimeConfig.timeZone)
+---
+
+<!-- 此处保留固定树景，未来可作为「前往理想中的生活」的入口。 -->
+<figure class="site-tree" data-site-tree aria-label="站点的小庭院">
+  <svg viewBox="0 0 360 290" aria-hidden="true" focusable="false">
+    <!-- 同一块平缓的地面承接树根、矮植被与花盆。 -->
+    <path d="M68 273 Q89 268 112 270 Q143 267 170 270 Q196 267 221 271 Q256 267 281 272 Q296 272 300 276 Q278 281 250 278 Q215 282 184 278 Q146 281 117 277 Q87 279 68 275Z" fill="var(--garden-earth)" opacity=".2" />
+    <g set:html={renderSiteTree()} />
+
+    <!-- 树荫边缘的小花，尺度保持在脚边。 -->
+    <g class="garden-breeze garden-flowers">
+    <g fill="none" stroke="var(--tree-leaf-1)" stroke-width=".9" stroke-linecap="round">
+      <path d="M95 274 Q94 261 91 250 M99 274 Q102 266 106 258 M104 275 Q111 262 115 253" />
+      <path d="M95 267 Q88 267 86 263 M100 269 Q105 266 109 267 M110 262 Q113 257 118 257" />
+    </g>
+    <g fill="var(--garden-petal)">
+      {[{ x: 91, y: 249 }, { x: 107, y: 257 }, { x: 115, y: 252 }].map(({ x, y }) => (
+        <g>
+          <ellipse cx={x} cy={y - 2} rx="1.6" ry="2.4" />
+          <ellipse cx={x - 2.1} cy={y} rx="2.3" ry="1.6" transform={`rotate(25 ${x - 2.1} ${y})`} />
+          <ellipse cx={x + 2} cy={y + 0.5} rx="2.2" ry="1.6" transform={`rotate(-30 ${x + 2} ${y + 0.5})`} />
+          <ellipse cx={x} cy={y + 2} rx="1.5" ry="2" />
+          <circle cx={x} cy={y} r="1.1" fill="var(--tree-flower)" />
+        </g>
+      ))}
+    </g>
+
+    </g>
+
+    <!-- 低矮叶簇连接树与盆栽，保留树干两侧的留白。 -->
+    <g class="garden-breeze garden-leaves">
+    <g fill="var(--tree-leaf-2)">
+      <path d="M193 274 Q179 269 179 261 Q190 262 193 274Z" />
+      <path d="M194 273 Q184 257 190 253 Q198 261 194 273Z" />
+      <path d="M194 274 Q195 254 203 254 Q206 265 194 274Z" />
+      <path d="M196 275 Q205 260 214 262 Q213 271 196 275Z" />
+    </g>
+    <path d="M192 275 Q190 265 185 261 M196 275 Q201 264 207 261" stroke="var(--tree-leaf-0)" stroke-width=".7" opacity=".45" fill="none" />
+    </g>
+
+    <!-- 一只矮陶盆，盆底与树根处在同一个地面。 -->
+    <ellipse cx="253" cy="276" rx="21" ry="3.2" fill="var(--tree-ground)" opacity=".23" />
+    <path d="M237 251 L268 251 L263.5 270 Q263 275 253 275 Q243 275 242 271Z" fill="var(--garden-clay)" />
+    <path d="M238 253 L243 271 Q247 274 253 274 L250 253Z" fill="var(--garden-clay-shadow)" opacity=".32" />
+    <path d="M242 272 Q253 276 264 272" stroke="var(--garden-clay-shadow)" stroke-width="1.3" opacity=".4" fill="none" />
+    <ellipse cx="252.5" cy="251.5" rx="16" ry="3.2" fill="var(--garden-clay-light)" />
+    <ellipse cx="252.5" cy="251" rx="12.5" ry="1.9" fill="var(--garden-soil)" />
+    <g class="garden-breeze garden-herbs">
+      <g fill="none" stroke="var(--tree-leaf-1)" stroke-width="1" stroke-linecap="round">
+        <path d="M253 251 Q251 233 254 218 M252 245 Q246 236 240 230 M254 244 Q262 233 264 223" />
+      </g>
+      {[
+        [251, 224, -35],
+[257, 227, 40],
+[247, 234, -48],
+[257, 238, 43],
+        [240, 228, -36],
+[244, 238, -55],
+[263, 224, 35],
+[263, 234, 47],
+      ].map(([x, y, angle], index) => (
+        <ellipse cx={x} cy={y} rx="2" ry="5.2" transform={`rotate(${angle} ${x} ${y})`} fill={`var(--tree-leaf-${index % 2 + 1})`} />
+      ))}
+    </g>
+    <!-- 前沿轻轻遮住茎底，盆身与土壤保持静止。 -->
+    <path d="M237 252 Q252.5 257 268 252 L267.5 254 Q252.5 259 237.5 254Z" fill="var(--garden-clay-light)" />
+    <path d="M259 260 L257.5 269" stroke="var(--garden-clay-light)" stroke-width="1.2" stroke-linecap="round" opacity=".35" />
+    <g fill="var(--garden-stone)">
+      <path d="M173 278 Q176 273 181 276 Q184 279 173 278Z" />
+      <path d="M220 277 Q223 274 226 276 Q228 279 220 277Z" />
+    </g>
+    <path d="M75 275 Q77 271 76 268 M78 275 Q80 272 83 271 M284 277 Q286 273 285 270 M286 277 Q289 274 292 275" stroke="var(--tree-leaf-1)" stroke-width=".8" stroke-linecap="round" opacity=".45" fill="none" />
+  </svg>
+  {siteDays !== null && (
+    <figcaption class="garden-caption">
+      <span class="garden-days">在这里 <span data-site-days>{String(siteDays)}</span> 天</span>
+      <span class="garden-since">始于 <time datetime={siteLifetimeConfig.startedOn}>{siteLifetimeConfig.startedOn.replaceAll('-', '.')}</time></span>
+    </figcaption>
+  )}
+</figure>
+
+<script>
+  import { setupSiteTrees } from '~/scripts/siteTree'
+
+  setupSiteTrees()
+</script>
+
+<style>
+  .site-tree {
+    --tree-leaf-0: #4e6545;
+    --tree-leaf-1: #61754d;
+    --tree-leaf-2: #819361;
+    --tree-leaf-3: #a0ac77;
+    --tree-vein: #c0c598;
+    --tree-bark: #8b7255;
+    --tree-bark-light: #b09a76;
+    --tree-twig: #8a885b;
+    --tree-flower: #d0ae64;
+    --tree-ground: #aaa88e;
+    --garden-earth: #abb297;
+    --garden-petal: #e9e5cf;
+    --garden-clay: #b79880;
+    --garden-clay-light: #cfb49a;
+    --garden-clay-shadow: #8b715c;
+    --garden-soil: #79735c;
+    --garden-stone: #b9b5a2;
+    --garden-ink: #69715c;
+    --garden-caption: #898a7d;
+    --tree-sway: 1.2deg;
+    --tree-period: 6s;
+    --tree-tempo: .6;
+    --tree-branch-sway: 1.56deg;
+    display: none;
+    position: fixed;
+    z-index: 10;
+    right: max(18px, calc((100vw - 880px) / 4 - 135px));
+    bottom: 20px;
+    width: 270px;
+    margin: 0;
+    pointer-events: none;
+  }
+  :global(.dark) .site-tree {
+    --tree-leaf-0: #52684a;
+    --tree-leaf-1: #72855b;
+    --tree-leaf-2: #91a172;
+    --tree-leaf-3: #b1ba89;
+    --tree-vein: #c7cdaa;
+    --tree-bark: #ac9472;
+    --tree-bark-light: #c5b18e;
+    --tree-twig: #a6a079;
+    --tree-flower: #dec183;
+    --tree-ground: #7a745a;
+    --garden-earth: #8c9875;
+    --garden-petal: #d9d7ba;
+    --garden-clay: #9f806b;
+    --garden-clay-light: #b7997e;
+    --garden-clay-shadow: #715b49;
+    --garden-soil: #5b5848;
+    --garden-stone: #8d8d7a;
+    --garden-ink: #bcc5a6;
+    --garden-caption: #989c8c;
+  }
+  svg { display: block; width: 100%; height: auto; margin: 0 auto; overflow: visible; }
+  .garden-caption {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    margin: 0 22px 0 0;
+    color: var(--garden-ink);
+    font-family: 'Songti SC', serif;
+  }
+  .garden-days { font-size: 11px; line-height: 1.3; letter-spacing: .08em; white-space: nowrap; }
+  .garden-days [data-site-days] {
+    display: inline-block;
+    min-width: 2.6ch;
+    margin: 0 3px;
+    font-family: Georgia, serif;
+    font-size: 19px;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: .025em;
+    text-align: center;
+  }
+  .garden-since {
+    color: var(--garden-caption);
+    font-family: 'JetBrains Mono Variable', monospace;
+    font-size: 9px;
+    line-height: 1.4;
+    letter-spacing: .04em;
+  }
+  @media (min-width: 1480px) and (min-height: 640px) {
+    .site-tree { display: block; }
+  }
+  /* main 会被 Swup 替换；跟随文章标记隐藏，前进、返回也即时生效。 */
+  :global(body:has(.article-sheet)) .site-tree { display: none; }
+  .garden-breeze {
+    transform-box: view-box;
+    animation: site-tree-sway var(--tree-period) ease-in-out infinite;
+  }
+  .garden-herbs {
+    --tree-sway: 2.6deg;
+    transform-origin: 253px 251px;
+    animation-delay: .18s;
+  }
+  .garden-flowers {
+    --tree-sway: 1.6deg;
+    transform-origin: 101px 275px;
+    animation-delay: .1s;
+  }
+  .garden-leaves {
+    --tree-sway: .8deg;
+    transform-origin: 195px 275px;
+    animation-delay: .12s;
+  }
+  .site-tree :global(.tree-sway) {
+    transform-origin: 160px 269px;
+    animation: site-tree-sway var(--tree-period) ease-in-out infinite;
+  }
+  .site-tree :global(.tree-branch) { animation: site-tree-branch calc(var(--branch-period) * var(--tree-tempo)) ease-in-out var(--branch-delay) infinite; }
+  .site-tree[data-paused='true'] .garden-breeze,
+  .site-tree[data-paused='true'] :global(.tree-sway),
+  .site-tree[data-paused='true'] :global(.tree-branch) { animation-play-state: paused; }
+  @keyframes site-tree-sway {
+    0%, 100% { transform: rotate(calc(var(--tree-sway) * -.55)); }
+    37% { transform: rotate(var(--tree-sway)); }
+    73% { transform: rotate(calc(var(--tree-sway) * -.15)); }
+  }
+  @keyframes site-tree-branch {
+    0%, 100% { transform: rotate(calc(var(--tree-branch-sway) * -.45)); }
+    46% { transform: rotate(var(--tree-branch-sway)); }
+    78% { transform: rotate(calc(var(--tree-branch-sway) * .1)); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .garden-breeze, .site-tree :global(.tree-sway), .site-tree :global(.tree-branch) { animation: none !important; }
+  }
+</style>

@@ -1,4 +1,9 @@
 import type { UserConfig } from '~/types'
+// 项目初始提交在站点时区（上海）的日期，仅用于站点存活时间。
+export const siteLifetimeConfig = {
+  startedOn: '2026-06-25',
+  timeZone: 'Asia/Shanghai',
+}
 
 export const userConfig: Partial<UserConfig> = {
   site: {
