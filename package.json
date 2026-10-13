@@ -17,8 +17,8 @@
     "lint:fix": "eslint . --fix",
     "typecheck": "tsc --noEmit",
     "world:dev": "astro check && astro dev --port 4330 --open /world/",
-    "world:assets": "tsx world/scripts/prepare-assets.ts",
-    "world:sample-assets": "tsx world/scripts/prepare-sample.ts",
+    "world:panorama": "node --import tsx world/scripts/prepare-panorama.ts",
+    "world:village": "node --import tsx world/scripts/prepare-village-tiles.ts",
     "theme:create": "tsx scripts/create-post.ts",
     "theme:check": "tsx scripts/check-post.ts",
     "theme:update": "tsx scripts/update-theme.ts"
@@ -38,6 +38,7 @@
     "d3-geo": "^3.1.1",
     "giscus": "^1.6.0",
     "katex": "^0.16.47",
+    "pixi.js": "^8.22.0",
     "rehype-katex": "^7.0.1",
     "remark-math": "^6.0.0",
     "sharp": "^0.35.4"

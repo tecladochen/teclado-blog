@@ -1,19 +1,33 @@
 ---
+import type { PanoramaManifest, PanoramaSection } from '../viewer/types'
 import reference from '../assets/art-direction/courtyard-style-study.png'
+import oldManifest from '../data/panorama-v1.json'
+import villageManifest from '../data/village-tiles-v3.json'
 
-const description = '一方田园的画风参考：瓦房院落、菜园与水渠，安静而朴素的乡村生活。'
-const canonical = new URL('/world/', Astro.site ?? Astro.url)
+interface Props { legacy?: boolean }
+const { legacy = false } = Astro.props
+const manifest: PanoramaManifest = legacy ? oldManifest : villageManifest
+const description = legacy ? '一幅可以安静漫游的初夏田园长卷：院落、菜园、果茶坡、稻田、塘岸与村口生活。' : '初夏村落：后巷邻里、院落日常与前方田渠，展开上下空间。'
+const canonical = new URL(Astro.url.pathname, Astro.site ?? Astro.url)
+const regions = manifest.views?.map(view => view.name) ?? ['村居日常', '菜园与林缘', '田间与果茶坡', '塘岸与草地', '村务与出口']
+const worldStyle = `width:calc(100dvh * ${manifest.width / manifest.height});`
+function sectionStyle(section: PanoramaSection) {
+  const top = section.top ?? 0
+  const height = section.height ?? manifest.height
+  const polygon = section.outline.map(point => `${(point[0]! - section.start) / section.width * 100}% ${(point[1]! - top) / height * 100}%`).join(',')
+  return `left:${section.start / manifest.width * 100}%;top:${top / manifest.height * 100}%;width:${section.width / manifest.width * 100}%;height:${height / manifest.height * 100}%;clip-path:polygon(${polygon});`
+}
 ---
 <!doctype html>
 <html lang="zh-CN">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>一方田园 · 画风参考</title>
+    <title>一方田园 · 初夏长卷</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <meta property="og:title" content="一方田园 · 画风参考" />
+    <meta property="og:title" content="一方田园 · 初夏长卷" />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
     <meta property="og:url" content={canonical} />
@@ -21,27 +35,145 @@ const canonical = new URL('/world/', Astro.site ?? Astro.url)
     <meta name="theme-color" content="#e8e3d4" />
   </head>
   <body>
-    <main aria-label="田园画风参考">
-      <img src={reference.src} width={reference.width} height={reference.height} alt="田园画风参考：瓦房院落通过小径连着菜园与水渠，居民在工作台旁整理蔬菜。" />
+    <main data-panorama data-manifest={JSON.stringify(manifest)} data-mode="loading">
+      <section data-viewport tabindex="0" role="region" aria-label="初夏田园长卷" aria-describedby="panorama-description" aria-busy="true">
+        <div data-fallback class="fallback">
+          <div class="fallback-world" style={worldStyle}>
+            {manifest.sections.map((section, index) => (
+              <img
+                src={!legacy || index === 0 ? section.src : undefined}
+                data-src={section.src}
+                width={section.pixelWidth}
+                height={section.pixelHeight}
+                loading={!legacy || index === 0 ? 'eager' : 'lazy'}
+                decoding="async"
+                alt={legacy ? regions[index]! : section.id === 'rear' ? '后巷两户邻居、共用取水点与林缘' : section.id === 'core' ? '完整院落、菜园、育苗和竹林作业' : '前方田渠、石桥、草岸与菜地'}
+                style={sectionStyle(section)}
+              />
+            ))}
+          </div>
+        </div>
+      </section>
+      <header>
+        <div class="title"><h1>一方田园</h1><span>初夏 · 晴日上午</span></div>
+        <a href="/" data-no-swup aria-label="离开田园，返回博客">返回博客 <span aria-hidden="true">↗</span></a>
+      </header>
+      <details class="draft-note">
+        <summary>{legacy ? '原长卷工作稿' : '村落空间试看'}</summary>
+        <p>{legacy ? '农村首轮静态长卷，用于内容对照。' : '先看村落这一段：后巷、院落与田渠连续展开。缩小可看全上下，放大后可自由拖动观察。'}居民与动物尚未加入。</p>
+        <a href={legacy ? '/world/' : '/world/previous/'} data-no-swup>{legacy ? '查看新的村落空间' : '查看原长卷'}</a>
+      </details>
       <footer>
-        <p>画风参考 · 动态画卷规划中</p>
-        <a href="/" data-no-swup aria-label="离开田园，返回博客">返回博客</a>
+        <div class="navigation">
+          <label class="sr-only" for="panorama-region">选择观察区域</label>
+          <select id="panorama-region" data-region>
+            {regions.map((name, index) => <option value={index}>{name}</option>)}
+          </select>
+          <label class="sr-only" for="panorama-position">沿长卷浏览</label>
+          <input id="panorama-position" data-position type="range" min="0" max="1000" step="1" value="0" aria-label="沿长卷浏览" />
+          <button data-reset title={legacy ? '回到起始院落' : '缩小到完整展示上下空间'}>{legacy ? '回到院落' : '看全上下'}</button>
+          <div class="zoom-controls" role="group" aria-label="调整观看尺度">
+            <button data-zoom="-0.1" aria-label="缩小">−</button>
+            <output data-zoom-label aria-label="当前观看尺度">…</output>
+            <button data-zoom="0.1" aria-label="放大">＋</button>
+          </div>
+        </div>
+        <div class="status-row">
+          <p data-status role="status">正在展开画卷…</p>
+          <button data-retry hidden>重试</button>
+          <button data-static>静态浏览</button>
+        </div>
       </footer>
+      <p id="panorama-description" class="sr-only">{description}拖动画面或用方向键移动；加减键调整尺度，Home 看全上下，End 到右侧。放大受清晰度限制，缩小到完整高度即停止。当前为静态工作稿。</p>
+      <noscript>
+        <div class="noscript-art" aria-label="田园静态长卷">
+          <div class="fallback-world" style={worldStyle}>
+            {manifest.sections.map(section => (
+<img
+  src={section.src}
+  width={section.pixelWidth}
+  height={section.pixelHeight}
+  loading="lazy"
+  alt={section.id}
+  style={sectionStyle(section)}
+/>
+))}
+          </div>
+        </div>
+        <p class="no-script">左右滑动画卷浏览。<a href="/" data-no-swup>返回博客</a></p>
+        <style>footer, [data-viewport] { display:none }</style>
+      </noscript>
     </main>
+    <script>
+      const root = document.querySelector<HTMLElement>('[data-panorama]')
+      if (root) {
+        import('../viewer/panorama').then(({ mountPanorama }) => mountPanorama(root)).catch(() => {
+          root.dataset.mode = 'static'
+          root.querySelector<HTMLElement>('[data-status]')!.textContent = '静态浏览 · 左右滑动'
+          root.querySelectorAll<HTMLImageElement>('[data-fallback] img').forEach(img => img.src = img.dataset.src!)
+          root.querySelectorAll<HTMLButtonElement>('footer button').forEach(button => button.disabled = true)
+          root.querySelectorAll<HTMLInputElement | HTMLSelectElement>('footer input, footer select').forEach(control => control.disabled = true)
+          root.querySelector('[data-viewport]')!.setAttribute('aria-busy', 'false')
+        })
+      }
+    </script>
   </body>
 </html>
 <style>
-
-  :global(html), :global(body) { width: 100%; height: 100%; margin: 0; overflow: hidden; background: #e8e3d4; }
-  :global(*) { box-sizing: border-box; }
-  :global(astro-dev-toolbar) { display: none; }
-  main { position: relative; width: 100%; height: 100vh; height: 100dvh; font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif; color: #3f513e; }
-  img { display: block; width: 100%; height: 100%; object-fit: contain; }
-  footer { position: absolute; right: max(16px, env(safe-area-inset-right)); bottom: max(16px, env(safe-area-inset-bottom)); display: flex; align-items: center; gap: 16px; padding: 10px 14px; border: 1px solid #ffffff70; border-radius: 8px; background: #f6f2e7ed; font-size: 12px; }
-  p { margin: 0; }
-  a { color: inherit; text-underline-offset: 4px; }
-  a:focus-visible { outline: 2px solid #607652; outline-offset: 4px; }
-  @media (max-width: 420px) {
-    footer { left: max(12px, env(safe-area-inset-left)); right: max(12px, env(safe-area-inset-right)); justify-content: space-between; gap: 10px; }
+  :global(html), :global(body) { width:100%; height:100%; margin:0; overflow:hidden; background:#d9dec8; }
+  :global(*) { box-sizing:border-box; }
+  :global(astro-dev-toolbar) { display:none; }
+  [hidden] { display:none!important; }
+  main { position:relative; width:100%; height:100vh; height:100dvh; color:#35432f; font-family:-apple-system,BlinkMacSystemFont,'PingFang SC',sans-serif; }
+  [data-viewport] { position:absolute; inset:0; overflow:hidden; touch-action:none; cursor:grab; outline:none; }
+  [data-viewport]:focus-visible { outline:3px solid #f7f4e2; outline-offset:-4px; }
+  .is-dragging { cursor:grabbing; }
+  :global(.panorama-canvas) { position:absolute; inset:0; display:block; opacity:0; }
+  [data-mode="panorama"] :global(.panorama-canvas) { opacity:1; }
+  .fallback { height:100%; overflow:hidden; scrollbar-width:thin; scrollbar-color:#728368 #edf0dc; }
+  .fallback-world { position:relative; height:100%; margin-inline:auto; }
+  .fallback img, .noscript-art img { position:absolute; top:0; height:100%; max-width:none; object-fit:fill; }
+  .noscript-art { position:absolute; inset:0; overflow-x:auto; }
+  [data-mode="static"] [data-viewport] { touch-action:pan-x; cursor:auto; }
+  [data-mode="static"] .fallback { overflow-x:auto; }
+  header { position:absolute; top:max(20px,env(safe-area-inset-top)); left:max(24px,env(safe-area-inset-left)); right:max(24px,env(safe-area-inset-right)); display:flex; justify-content:space-between; align-items:flex-start; pointer-events:none; gap:20px; }
+  .title, header a, footer, .draft-note { background:#f7f4e8ee; box-shadow:0 2px 14px #273c2414; border:1px solid #fff9; border-radius:8px; }
+  .title { padding:12px 16px; }
+  h1 { margin:0 0 4px; font-family:serif; font-size:20px; letter-spacing:3px; font-weight:600; }
+  .title span { font-size:11px; letter-spacing:1px; }
+  header a { pointer-events:auto; padding:10px 13px; color:inherit; font-size:12px; text-decoration:none; }
+  header a span { margin-left:10px; }
+  .draft-note { position:absolute; top:max(108px,calc(env(safe-area-inset-top) + 88px)); left:max(24px,env(safe-area-inset-left)); max-width:min(340px,calc(100vw - 48px)); font-size:12px; }
+  summary { padding:8px 12px; cursor:pointer; }
+  .draft-note p { margin:0; padding:0 12px 12px; line-height:1.8; }
+  .draft-note a { display:block; margin:0 12px 12px; color:inherit; text-underline-offset:3px; }
+  footer { position:absolute; bottom:max(20px,env(safe-area-inset-bottom)); left:50%; transform:translateX(-50%); width:min(720px,calc(100% - 48px)); padding:10px 12px 8px; }
+  .navigation { display:flex; gap:12px; align-items:center; }
+  select, button { font:inherit; color:inherit; font-size:12px; }
+  select { min-width:120px; padding:7px 24px 7px 6px; border:0; border-radius:4px; background:#e7ebda; }
+  button { border:0; border-radius:4px; padding:7px 9px; background:#e7ebda; cursor:pointer; white-space:nowrap; }
+  button:hover { background:#d9e1ca; }
+  button:disabled { opacity:.5; cursor:default; }
+  button:focus-visible, select:focus-visible, input:focus-visible, a:focus-visible, summary:focus-visible { outline:2px solid #5f7550; outline-offset:3px; }
+  input { flex:1; min-width:50px; accent-color:#637f4f; cursor:pointer; }
+  .zoom-controls { display:flex; align-items:center; gap:4px; }
+  output { min-width:40px; text-align:center; font-size:11px; font-variant-numeric:tabular-nums; }
+  .zoom-controls button { font-size:16px; padding:4px 8px; }
+  .status-row { margin-top:5px; display:flex; align-items:center; gap:8px; }
+  .status-row p { flex:1; font-size:11px; color:#627058; margin:0; }
+  .status-row button { font-size:11px; padding:4px 7px; background:transparent; text-decoration:underline; text-underline-offset:3px; }
+  .sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+  .no-script { position:absolute; bottom:16px; left:16px; padding:12px; background:#f7f4e8; font-size:12px; }
+  @media(max-width:600px) {
+    header { top:max(12px,env(safe-area-inset-top)); left:max(12px,env(safe-area-inset-left)); right:max(12px,env(safe-area-inset-right)); }
+    .title { padding:10px 12px; }
+    h1 { font-size:18px; }
+    .draft-note { top:max(94px,calc(env(safe-area-inset-top) + 82px)); left:max(12px,env(safe-area-inset-left)); }
+    footer { width:calc(100% - 24px); bottom:max(12px,env(safe-area-inset-bottom)); padding:10px; }
+    .navigation { flex-wrap:wrap; gap:10px; }
+    select { flex:1; }
+    input { order:4; flex-basis:100%; width:100%; margin:0; }
+    .zoom-controls { gap:2px; }
+    button { padding:7px; }
   }
 </style>
