@@ -1,0 +1,930 @@
+{
+  "world": {
+    "widthM": 420,
+    "heightM": 240,
+    "areaHa": 10.08
+  },
+  "roads": [
+    {
+      "id": "main-road",
+      "label": "共同通路",
+      "points": [
+        [
+          0,
+          118
+        ],
+        [
+          48,
+          120
+        ],
+        [
+          105,
+          128
+        ],
+        [
+          139,
+          122
+        ],
+        [
+          177,
+          132
+        ],
+        [
+          225,
+          121
+        ],
+        [
+          277,
+          127
+        ],
+        [
+          332,
+          132
+        ],
+        [
+          420,
+          127
+        ]
+      ],
+      "lengthM": 424.4,
+      "widthM": 3
+    },
+    {
+      "id": "grain-road",
+      "label": "运谷：田头—晒场—院落",
+      "points": [
+        [
+          190,
+          48
+        ],
+        [
+          215,
+          68
+        ],
+        [
+          202,
+          92
+        ],
+        [
+          200,
+          102
+        ],
+        [
+          200,
+          106
+        ],
+        [
+          207,
+          110
+        ],
+        [
+          207,
+          119
+        ],
+        [
+          215,
+          123.292
+        ]
+      ],
+      "lengthM": 99.6,
+      "widthM": 3
+    },
+    {
+      "id": "mill-road",
+      "label": "晒场—磨房",
+      "points": [
+        [
+          192,
+          100
+        ],
+        [
+          166,
+          99
+        ],
+        [
+          144,
+          101
+        ],
+        [
+          128,
+          108
+        ]
+      ],
+      "lengthM": 65.6,
+      "widthM": 2
+    },
+    {
+      "id": "garden-road",
+      "label": "侧院—苗圃—菜畦",
+      "points": [
+        [
+          177,
+          132
+        ],
+        [
+          181,
+          135
+        ],
+        [
+          190,
+          135
+        ],
+        [
+          196,
+          137
+        ],
+        [
+          200,
+          145
+        ],
+        [
+          208,
+          155
+        ]
+      ],
+      "lengthM": 42.1,
+      "widthM": 1.5
+    },
+    {
+      "id": "dry-road",
+      "label": "旱地—共用运输路—晒场",
+      "points": [
+        [
+          239,
+          210
+        ],
+        [
+          242,
+          178
+        ],
+        [
+          236,
+          145
+        ],
+        [
+          232,
+          130
+        ],
+        [
+          226,
+          121.125
+        ],
+        [
+          225,
+          121
+        ],
+        [
+          215,
+          123.292
+        ],
+        [
+          207,
+          119
+        ],
+        [
+          207,
+          110
+        ]
+      ],
+      "lengthM": 121.3,
+      "widthM": 2
+    },
+    {
+      "id": "fruit-road",
+      "label": "果树—分拣—共同通路",
+      "points": [
+        [
+          320,
+          111
+        ],
+        [
+          305,
+          118
+        ],
+        [
+          296,
+          122
+        ],
+        [
+          290,
+          126
+        ],
+        [
+          277,
+          127
+        ],
+        [
+          225,
+          121
+        ]
+      ],
+      "lengthM": 99.0,
+      "widthM": 2
+    },
+    {
+      "id": "tea-road",
+      "label": "茶坡—坡脚摊叶棚",
+      "points": [
+        [
+          347,
+          39
+        ],
+        [
+          337,
+          58
+        ],
+        [
+          328,
+          76
+        ]
+      ],
+      "lengthM": 41.6,
+      "widthM": 1
+    },
+    {
+      "id": "tea-store-road",
+      "label": "干茶—果茶服务路—干仓",
+      "points": [
+        [
+          328,
+          76
+        ],
+        [
+          311,
+          97
+        ],
+        [
+          296,
+          110
+        ],
+        [
+          292,
+          120
+        ],
+        [
+          290,
+          126
+        ],
+        [
+          277,
+          127
+        ],
+        [
+          225,
+          121
+        ],
+        [
+          215,
+          123.292
+        ],
+        [
+          207,
+          119
+        ]
+      ],
+      "lengthM": 148.7,
+      "widthM": 2
+    },
+    {
+      "id": "pond-road",
+      "label": "院落—塘边",
+      "points": [
+        [
+          177,
+          132
+        ],
+        [
+          166,
+          149
+        ],
+        [
+          153,
+          163
+        ],
+        [
+          163,
+          172
+        ],
+        [
+          162,
+          186
+        ]
+      ],
+      "lengthM": 66.8,
+      "widthM": 1.5
+    },
+    {
+      "id": "lotus-road",
+      "label": "塘路—浅塘岸",
+      "points": [
+        [
+          153,
+          163
+        ],
+        [
+          119,
+          157
+        ],
+        [
+          89,
+          168
+        ],
+        [
+          75,
+          183
+        ]
+      ],
+      "lengthM": 87.0,
+      "widthM": 1.5
+    },
+    {
+      "id": "pasture-road",
+      "label": "院落—棚舍—草场",
+      "points": [
+        [
+          277,
+          127
+        ],
+        [
+          276,
+          153
+        ],
+        [
+          276,
+          185
+        ],
+        [
+          296,
+          185
+        ],
+        [
+          309,
+          185
+        ],
+        [
+          349,
+          190
+        ]
+      ],
+      "lengthM": 131.3,
+      "widthM": 3
+    },
+    {
+      "id": "bee-road",
+      "label": "分拣侧路—蜂箱",
+      "points": [
+        [
+          292,
+          120
+        ],
+        [
+          290,
+          111
+        ],
+        [
+          278,
+          104
+        ],
+        [
+          286,
+          87
+        ]
+      ],
+      "lengthM": 41.9,
+      "widthM": 1
+    },
+    {
+      "id": "forest-road",
+      "label": "院落—跨溪—材料棚—林下与竹林",
+      "points": [
+        [
+          177,
+          132
+        ],
+        [
+          139,
+          122
+        ],
+        [
+          105,
+          128
+        ],
+        [
+          48,
+          120
+        ],
+        [
+          60,
+          127
+        ],
+        [
+          62,
+          135
+        ],
+        [
+          60,
+          150
+        ],
+        [
+          42,
+          174
+        ]
+      ],
+      "lengthM": 198.6,
+      "widthM": 2
+    },
+    {
+      "id": "mushroom-road",
+      "label": "材料棚—菌菇养护",
+      "points": [
+        [
+          62,
+          135
+        ],
+        [
+          60,
+          112
+        ],
+        [
+          63,
+          100
+        ],
+        [
+          59,
+          71
+        ]
+      ],
+      "lengthM": 64.7,
+      "widthM": 1
+    },
+    {
+      "id": "service-entry",
+      "label": "主路至服务前场",
+      "points": [
+        [
+          215,
+          123.292
+        ],
+        [
+          207,
+          119
+        ],
+        [
+          207,
+          110
+        ]
+      ],
+      "widthM": 3
+    },
+    {
+      "id": "barn-return",
+      "label": "余料小车回旱地",
+      "points": [
+        [
+          296,
+          185
+        ],
+        [
+          276,
+          185
+        ],
+        [
+          242,
+          185
+        ],
+        [
+          239,
+          210
+        ]
+      ],
+      "widthM": 1.5
+    }
+  ],
+  "water": [
+    {
+      "id": "creek",
+      "label": "主溪，上游至下游",
+      "points": [
+        [
+          95,
+          0
+        ],
+        [
+          94,
+          35
+        ],
+        [
+          104,
+          63
+        ],
+        [
+          110,
+          86
+        ],
+        [
+          120,
+          104
+        ],
+        [
+          107,
+          125
+        ],
+        [
+          103,
+          150
+        ],
+        [
+          95,
+          169
+        ],
+        [
+          93,
+          207
+        ],
+        [
+          83,
+          240
+        ]
+      ],
+      "relativeWaterLevelsM": [
+        5.7,
+        4.9,
+        4.1,
+        3.3,
+        2.1,
+        1.2,
+        0.75,
+        0.5,
+        0.25,
+        0
+      ],
+      "gravityAudit": "pass except explicitly powered lift"
+    },
+    {
+      "id": "field-supply",
+      "label": "分水口 → 田块供水",
+      "points": [
+        [
+          104,
+          63
+        ],
+        [
+          124,
+          58
+        ],
+        [
+          143,
+          23
+        ],
+        [
+          195,
+          18
+        ],
+        [
+          222,
+          36
+        ]
+      ],
+      "relativeWaterLevelsM": [
+        4.1,
+        4.0,
+        3.95,
+        3.8,
+        3.65
+      ],
+      "gravityAudit": "pass except explicitly powered lift"
+    },
+    {
+      "id": "field-drain",
+      "label": "排水沟 → 草沟沉缓 → 下游主溪，绕开鱼塘",
+      "points": [
+        [
+          238,
+          80
+        ],
+        [
+          243,
+          107
+        ],
+        [
+          234,
+          146
+        ],
+        [
+          224,
+          168
+        ],
+        [
+          171,
+          202
+        ],
+        [
+          132,
+          224
+        ],
+        [
+          87.24,
+          226
+        ]
+      ],
+      "relativeWaterLevelsM": [
+        3.1,
+        2.8,
+        2.3,
+        1.8,
+        0.85,
+        0.4,
+        0.106
+      ],
+      "gravityAudit": "pass except explicitly powered lift"
+    },
+    {
+      "id": "mill-race",
+      "label": "短引水渠 → 水轮 → 尾水回溪",
+      "points": [
+        [
+          104,
+          63
+        ],
+        [
+          115,
+          70
+        ],
+        [
+          121,
+          102
+        ],
+        [
+          116,
+          114
+        ],
+        [
+          107,
+          125
+        ]
+      ],
+      "relativeWaterLevelsM": [
+        4.1,
+        4.0,
+        3.95,
+        1.35,
+        1.2
+      ],
+      "gravityAudit": "pass except explicitly powered lift"
+    },
+    {
+      "id": "pond-inlet",
+      "label": "独立可控塘口",
+      "points": [
+        [
+          103,
+          150
+        ],
+        [
+          115,
+          157
+        ],
+        [
+          130,
+          167
+        ]
+      ],
+      "relativeWaterLevelsM": [
+        0.75,
+        0.6,
+        0.55
+      ],
+      "gravityAudit": "pass except explicitly powered lift"
+    },
+    {
+      "id": "pond-outlet",
+      "label": "独立出口 → 主溪",
+      "points": [
+        [
+          129,
+          205
+        ],
+        [
+          105,
+          209
+        ],
+        [
+          93,
+          207
+        ]
+      ],
+      "relativeWaterLevelsM": [
+        0.43,
+        0.35,
+        0.25
+      ],
+      "gravityAudit": "pass except explicitly powered lift"
+    },
+    {
+      "id": "lotus-feed",
+      "label": "浅塘单独供排",
+      "points": [
+        [
+          95,
+          169
+        ],
+        [
+          82,
+          172
+        ],
+        [
+          75,
+          177
+        ]
+      ],
+      "relativeWaterLevelsM": [
+        0.5,
+        0.47,
+        0.44
+      ],
+      "gravityAudit": "pass except explicitly powered lift"
+    },
+    {
+      "id": "lotus-outlet",
+      "label": "浅塘出口 → 下游",
+      "points": [
+        [
+          74,
+          206
+        ],
+        [
+          74,
+          225
+        ],
+        [
+          87.24,
+          226
+        ]
+      ],
+      "relativeWaterLevelsM": [
+        0.32,
+        0.2,
+        0.106
+      ],
+      "gravityAudit": "pass except explicitly powered lift"
+    },
+    {
+      "id": "garden-water",
+      "label": "专用灌溉支渠 → 风车提水 → 菜园小槽（不取田排）",
+      "points": [
+        [
+          222,
+          36
+        ],
+        [
+          228,
+          73
+        ],
+        [
+          226,
+          108
+        ],
+        [
+          226,
+          146
+        ],
+        [
+          220,
+          142
+        ],
+        [
+          215,
+          145
+        ]
+      ],
+      "relativeWaterLevelsM": [
+        3.65,
+        3.2,
+        2.9,
+        2.45,
+        4.0,
+        3.9
+      ],
+      "pumpEdgeIndex": 3,
+      "gravityAudit": "pass except explicitly powered lift"
+    }
+  ],
+  "waterBodies": [
+    {
+      "id": "pond",
+      "center": [
+        130,
+        186
+      ],
+      "radii": [
+        29,
+        19
+      ],
+      "budgetHa": 0.18
+    },
+    {
+      "id": "lotus",
+      "center": [
+        75,
+        196
+      ],
+      "radii": [
+        14,
+        12
+      ],
+      "budgetHa": 0.055
+    }
+  ],
+  "crossings": [
+    {
+      "water": "creek",
+      "point": [
+        106.564,
+        127.724
+      ],
+      "sharedRoads": [
+        "main-road",
+        "forest-road"
+      ],
+      "widthReferenceM": 3,
+      "treatment": "桥"
+    },
+    {
+      "water": "field-drain",
+      "point": [
+        239.386,
+        122.66
+      ],
+      "sharedRoads": [
+        "main-road",
+        "fruit-road",
+        "tea-store-road"
+      ],
+      "widthReferenceM": 3,
+      "treatment": "小涵或槽桥"
+    },
+    {
+      "water": "garden-water",
+      "point": [
+        226.0,
+        121.115
+      ],
+      "sharedRoads": [
+        "main-road",
+        "dry-road",
+        "fruit-road",
+        "tea-store-road"
+      ],
+      "widthReferenceM": 3,
+      "treatment": "小涵或槽桥"
+    },
+    {
+      "water": "field-drain",
+      "point": [
+        235.052,
+        141.443
+      ],
+      "sharedRoads": [
+        "dry-road"
+      ],
+      "widthReferenceM": 2,
+      "treatment": "小涵或槽桥"
+    },
+    {
+      "water": "creek",
+      "point": [
+        96.593,
+        165.216
+      ],
+      "sharedRoads": [
+        "lotus-road"
+      ],
+      "widthReferenceM": 1.5,
+      "treatment": "桥"
+    },
+    {
+      "water": "pond-inlet",
+      "point": [
+        116.419,
+        157.946
+      ],
+      "sharedRoads": [
+        "lotus-road"
+      ],
+      "widthReferenceM": 1.5,
+      "treatment": "小涵或槽桥"
+    },
+    {
+      "water": "lotus-feed",
+      "point": [
+        86.163,
+        171.039
+      ],
+      "sharedRoads": [
+        "lotus-road"
+      ],
+      "widthReferenceM": 1.5,
+      "treatment": "小涵或槽桥"
+    }
+  ]
+}

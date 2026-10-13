@@ -21,3 +21,6 @@ pnpm-debug.log*
 .DS_Store
 
 Markdown style guide.md
+
+# Local backup of retired world prototypes (never shipped or used as active context)
+world/.archive/

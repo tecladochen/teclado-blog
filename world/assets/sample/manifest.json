@@ -1,0 +1,86 @@
+{
+  "revision": "092e3beca7a7",
+  "size": {
+    "width": 1672,
+    "height": 941
+  },
+  "background": "/world/living-sample/092e3beca7a7/landscape.webp",
+  "actors": {
+    "hen": [
+      {
+        "url": "/world/living-sample/092e3beca7a7/hen-0.webp",
+        "width": 448,
+        "height": 468,
+        "foot": [
+          215,
+          465
+        ]
+      },
+      {
+        "url": "/world/living-sample/092e3beca7a7/hen-1.webp",
+        "width": 453,
+        "height": 461,
+        "foot": [
+          206,
+          458
+        ]
+      },
+      {
+        "url": "/world/living-sample/092e3beca7a7/hen-2.webp",
+        "width": 449,
+        "height": 453,
+        "foot": [
+          224,
+          450
+        ]
+      },
+      {
+        "url": "/world/living-sample/092e3beca7a7/hen-3.webp",
+        "width": 471,
+        "height": 424,
+        "foot": [
+          222,
+          421
+        ]
+      }
+    ],
+    "resident": [
+      {
+        "url": "/world/living-sample/092e3beca7a7/resident-0.webp",
+        "width": 239,
+        "height": 591,
+        "foot": [
+          95,
+          588
+        ]
+      },
+      {
+        "url": "/world/living-sample/092e3beca7a7/resident-1.webp",
+        "width": 227,
+        "height": 591,
+        "foot": [
+          86,
+          588
+        ]
+      },
+      {
+        "url": "/world/living-sample/092e3beca7a7/resident-2.webp",
+        "width": 229,
+        "height": 591,
+        "foot": [
+          85,
+          588
+        ]
+      },
+      {
+        "url": "/world/living-sample/092e3beca7a7/resident-3.webp",
+        "width": 237,
+        "height": 591,
+        "foot": [
+          97,
+          588
+        ]
+      }
+    ]
+  }
+}

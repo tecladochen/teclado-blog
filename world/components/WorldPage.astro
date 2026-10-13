@@ -1,0 +1,47 @@
+---
+import reference from '../assets/art-direction/courtyard-style-study.png'
+
+const description = '一方田园的画风参考：瓦房院落、菜园与水渠，安静而朴素的乡村生活。'
+const canonical = new URL('/world/', Astro.site ?? Astro.url)
+---
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>一方田园 · 画风参考</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta property="og:title" content="一方田园 · 画风参考" />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={new URL(reference.src, canonical)} />
+    <meta name="theme-color" content="#e8e3d4" />
+  </head>
+  <body>
+    <main aria-label="田园画风参考">
+      <img src={reference.src} width={reference.width} height={reference.height} alt="田园画风参考：瓦房院落通过小径连着菜园与水渠，居民在工作台旁整理蔬菜。" />
+      <footer>
+        <p>画风参考 · 动态画卷规划中</p>
+        <a href="/" data-no-swup aria-label="离开田园，返回博客">返回博客</a>
+      </footer>
+    </main>
+  </body>
+</html>
+<style>
+
+  :global(html), :global(body) { width: 100%; height: 100%; margin: 0; overflow: hidden; background: #e8e3d4; }
+  :global(*) { box-sizing: border-box; }
+  :global(astro-dev-toolbar) { display: none; }
+  main { position: relative; width: 100%; height: 100vh; height: 100dvh; font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif; color: #3f513e; }
+  img { display: block; width: 100%; height: 100%; object-fit: contain; }
+  footer { position: absolute; right: max(16px, env(safe-area-inset-right)); bottom: max(16px, env(safe-area-inset-bottom)); display: flex; align-items: center; gap: 16px; padding: 10px 14px; border: 1px solid #ffffff70; border-radius: 8px; background: #f6f2e7ed; font-size: 12px; }
+  p { margin: 0; }
+  a { color: inherit; text-underline-offset: 4px; }
+  a:focus-visible { outline: 2px solid #607652; outline-offset: 4px; }
+  @media (max-width: 420px) {
+    footer { left: max(12px, env(safe-area-inset-left)); right: max(12px, env(safe-area-inset-right)); justify-content: space-between; gap: 10px; }
+  }
+</style>

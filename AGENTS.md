@@ -20,6 +20,9 @@
 - 样式：`src/styles/`
 - 配置：`src/.config/`
 - 内容：`src/content/`
+- 独立世界：`world/`；修改前阅读 `world/AGENTS.md` 和 `world/README.md`。
+  其页面、运行时、源素材、工具与文档在模块内维护；`src/pages/world.astro`
+  只负责路由，`public/world/` 只放发布资源。
 
 ## 常用命令
 

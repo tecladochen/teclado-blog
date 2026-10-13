@@ -16,6 +16,9 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "typecheck": "tsc --noEmit",
+    "world:dev": "astro check && astro dev --port 4330 --open /world/",
+    "world:assets": "tsx world/scripts/prepare-assets.ts",
+    "world:sample-assets": "tsx world/scripts/prepare-sample.ts",
     "theme:create": "tsx scripts/create-post.ts",
     "theme:check": "tsx scripts/check-post.ts",
     "theme:update": "tsx scripts/update-theme.ts"
