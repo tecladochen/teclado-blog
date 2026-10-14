@@ -1,0 +1,15 @@
+{
+  "file": "c0-r0-v1.png",
+  "width": 2172,
+  "height": 724,
+  "bytes": 4148375,
+  "sha256": "e1a6824c9e2b060f4a29af7c28b75eb6bd6e8c781e0526f2a0b1d6826ee98fcb",
+  "source": "/Users/wangchen/.codex/generated_images/01a13848-92b6-73d0-8528-8b39bee0d6de/exec-5a6dbed7-37e0-45ea-bc67-abc073e7743d.png",
+  "tool": "builtin-imagegen",
+  "references": [
+    "soft-village-style-study-v3.png",
+    "livestock-style-study-v3.png"
+  ],
+  "status": "not-selected-first-frame-roof-too-close-to-top-and-oversized-home",
+  "noResize": true
+}

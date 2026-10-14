@@ -1,0 +1,12 @@
+{
+  "id": "S-L2",
+  "file": "sl2-v1.png",
+  "width": 2172,
+  "height": 724,
+  "bytes": 3614701,
+  "sha256": "ac8e2673700b117747b7b08f19614f21241a3e803795d8e40a0aa84d9e2619f6",
+  "source": "/Users/wangchen/.codex/generated_images/01a13848-92b6-73d0-8528-8b39bee0d6de/exec-1c3ccb24-4a37-416c-aae2-5481efcc00c3.png",
+  "status": "not-selected-for-production-adjacency-failed",
+  "tool": "builtin-imagegen",
+  "review": "Shown only in independent development route /world/pilot/ for failed adjacency evidence; no crop, stretch, upscale, re-encoding or third row."
+}

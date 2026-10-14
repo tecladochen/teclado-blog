@@ -1,0 +1,31 @@
+{
+  "world": [
+    1536,
+    1888
+  ],
+  "translations": [
+    [
+      0,
+      0
+    ],
+    [
+      0,
+      864
+    ]
+  ],
+  "selectedBoundaryY": 1024,
+  "secondSourceRows": [
+    160,
+    1024
+  ],
+  "carryInMAE": 15.632050238715278,
+  "resize": false,
+  "blend": false,
+  "generatedRepair": false,
+  "visualReview": {
+    "scope": "native-entire-seam-and-separate-path-hill-crops",
+    "result": "provisionally-usable-no-large-cut-or-displaced-path",
+    "limitations": "Repainted foliage texture differs in carry-in; browser and east edges still untested."
+  },
+  "note": "MAE only checks carry-in reproduction; it cannot prove seam continuity."
+}

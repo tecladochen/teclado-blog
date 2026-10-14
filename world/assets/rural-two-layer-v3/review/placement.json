@@ -1,0 +1,138 @@
+{
+  "sourceDimensions": [
+    1536,
+    1024
+  ],
+  "worldDimensions": [
+    2880,
+    1888
+  ],
+  "images": [
+    {
+      "id": "c0-r0-v2",
+      "x": 0,
+      "y": 0,
+      "clip": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "c0-r1-v1",
+      "x": 0,
+      "y": 864,
+      "clip": [
+        160,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "c1-r0-v3",
+      "x": 1344,
+      "y": 0,
+      "clip": [
+        0,
+        0,
+        0,
+        192
+      ]
+    },
+    {
+      "id": "c1-r1-v1",
+      "x": 1344,
+      "y": 864,
+      "clip": [
+        160,
+        0,
+        0,
+        192
+      ]
+    }
+  ],
+  "selectedBoundaries": {
+    "x": 1536,
+    "y": 1024
+  },
+  "carryIn": {
+    "vertical": 160,
+    "horizontal": 192
+  },
+  "scale": 1,
+  "resize": false,
+  "blend": false,
+  "generatedRepair": false,
+  "browserReview": {
+    "viewport": [
+      1280,
+      720
+    ],
+    "defaultScale": 0.3813559322033898,
+    "nativeScale": 1,
+    "cameraSamples": [
+      {
+        "file": "page-junction-native.png",
+        "left": 800,
+        "top": 584
+      },
+      {
+        "file": "page-west-hill-seam-native.png",
+        "left": 0,
+        "top": 584
+      },
+      {
+        "file": "page-east-lane-seam-native.png",
+        "left": 1600,
+        "top": 584
+      },
+      {
+        "file": "page-upper-west-seam-native.png",
+        "left": 1200,
+        "top": 0
+      },
+      {
+        "file": "page-lower-west-seam-native.png",
+        "left": 1200,
+        "top": 1168
+      }
+    ],
+    "checks": {
+      "allFourSeamsAndJunction": "provisionally-usable-no-obvious-large-structural-cut",
+      "detail": "readable-native-props-and-roof-tiles",
+      "dragBounds": true,
+      "zoomQualityCap": 1,
+      "wheelScaleAfterDown": 0.4867522559599717,
+      "resetScale": 0.3813559322033898,
+      "imagesLoaded": 4,
+      "consoleErrors": 0
+    },
+    "limitations": [
+      "Small foliage texture changes remain",
+      "Trellises and flowers repeat too much for final full-village design",
+      "No formal people or independent animal assets",
+      "Only western residential scene; other industries and water not tested"
+    ]
+  },
+  "authorAcceptance": "pending",
+  "engineering": {
+    "pnpmLintAndBuild": "wrapper-failed-unable-to-open-database-file",
+    "directEslint": "passed",
+    "directAstroCheck": {
+      "files": 85,
+      "errors": 0,
+      "warnings": 0,
+      "hints": 0
+    },
+    "directAstroBuild": {
+      "pages": 12,
+      "result": "passed"
+    },
+    "existingCameraAndPlatformTests": {
+      "passed": 7,
+      "failed": 0
+    }
+  }
+}

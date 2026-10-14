@@ -1,0 +1,14 @@
+{
+  "stage": "vertical-middle",
+  "basePath": "world/assets/rural-pilot-v3/validation/pilot-retained-v1.png",
+  "offsets": [
+    1086,
+    724
+  ],
+  "frame": [
+    2172,
+    724
+  ],
+  "pixelSha256": "25556f3fa131db4b057a39e5f5dd806736e8a81b1c9c31cf4c3e911ef0ecfa8a",
+  "noResize": true
+}

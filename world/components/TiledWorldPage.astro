@@ -1,0 +1,109 @@
+---
+import manifest from '../data/rural-v2.json'
+
+const canonical = new URL(Astro.url.pathname, Astro.site ?? Astro.url)
+---
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>一方田园 · 村居与林缘</title>
+    <meta name="description" content="初夏田园的村居与林缘：安静浏览生活院落、独立竹林、菜园和田渠。" />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  </head>
+  <body>
+    <main data-tiled-world data-manifest={JSON.stringify(manifest)} data-mode="waiting">
+      <section data-tiled-viewport tabindex="0" role="region" aria-label="初夏田园，可拖动画面，用滚轮或加减键缩放，Home 回到院落">
+        <div data-preview-world class="preview-world"></div>
+      </section>
+      <nav aria-label="田园控制">
+        <span data-load-error role="status" hidden>这一处加载失败 <button data-retry>重试</button></span>
+        <button data-reset title="回到院落，看全上下" aria-label="回到院落，看全上下">↺</button>
+        <a href="/" data-no-swup title="返回博客" aria-label="返回博客">↗</a>
+      </nav>
+      <section class="unsupported" data-unsupported hidden>
+        <p>请在电脑上观看这片田园。</p>
+        <a href="/" data-no-swup>返回博客</a>
+      </section>
+      <noscript><p class="unsupported">请开启 JavaScript 后观看。<a href="/" data-no-swup>返回博客</a></p><style>nav, [data-tiled-viewport] { display:none }</style></noscript>
+    </main>
+    <script>
+      import { PanoramaCamera } from '../viewer/camera'
+      import { supportsWorld } from '../viewer/platform'
+      import { visiblePreviewIndices } from '../viewer/tiled-cache'
+
+      const root = document.querySelector<HTMLElement>('[data-tiled-world]')
+      if (root) {
+        if (!supportsWorld()) {
+          root.dataset.mode = 'unsupported'
+          root.querySelector<HTMLElement>('[data-unsupported]')!.hidden = false
+        }
+        else {
+          // Start the first view before the larger PixiJS module finishes loading.
+          const dimensions = JSON.parse(root.dataset.manifest!)
+          const host = root.querySelector<HTMLElement>('[data-tiled-viewport]')!
+          const preview = root.querySelector<HTMLElement>('[data-preview-world]')!
+          const camera = new PanoramaCamera(dimensions.width, dimensions.height, dimensions.initialCenter, dimensions.maxScale)
+          camera.resize(host.clientWidth, host.clientHeight)
+          preview.style.width = `${dimensions.width * camera.scale}px`
+          preview.style.height = `${dimensions.height * camera.scale}px`
+          preview.style.transform = `translate(${-camera.left * camera.scale}px,${-camera.top * camera.scale}px)`
+          for (const index of visiblePreviewIndices(camera, dimensions.previews, 1024)) {
+            const strip = dimensions.previews[index]
+            const image = document.createElement('img')
+            image.alt = ''
+            image.decoding = 'async'
+            image.dataset.previewIndex = String(index)
+            image.style.left = `${strip.x / dimensions.width * 100}%`
+            image.style.width = `${strip.width / dimensions.width * 100}%`
+            image.src = strip.src
+            preview.appendChild(image)
+          }
+          import('../viewer/tiled').then(({ mountTiledWorld }) => mountTiledWorld(root)).catch(() => {
+            root.dataset.mode = 'preview'
+            preview.replaceChildren()
+            preview.style.transform = ''
+            root.querySelector<HTMLButtonElement>('[data-reset]')!.disabled = true
+            for (const strip of dimensions.previews) {
+              const image = document.createElement('img')
+              image.alt = ''
+              image.loading = 'lazy'
+              image.decoding = 'async'
+              image.style.left = `${strip.x / dimensions.width * 100}%`
+              image.style.width = `${strip.width / dimensions.width * 100}%`
+              image.src = strip.src
+              preview.appendChild(image)
+            }
+            preview.style.width = `calc(100dvh * ${Number(dimensions.width) / Number(dimensions.height)})`
+            preview.style.height = '100dvh'
+            preview.parentElement!.style.overflowX = 'auto'
+          })
+        }
+      }
+    </script>
+  </body>
+</html>
+<style>
+  :global(html), :global(body) { margin:0; width:100%; height:100%; overflow:hidden; background:#e4e6d7; }
+  :global(*) { box-sizing:border-box; }
+  :global(astro-dev-toolbar) { display:none; }
+  [hidden] { display:none!important; }
+  main { width:100%; height:100dvh; position:relative; color:#35432f; font-family:-apple-system,BlinkMacSystemFont,'PingFang SC',sans-serif; }
+  [data-tiled-viewport] { position:absolute; inset:0; overflow:hidden; cursor:grab; touch-action:none; outline:none; }
+  [data-tiled-viewport]:focus-visible { outline:2px solid #f7f4e2; outline-offset:-2px; }
+  .dragging { cursor:grabbing; }
+  .preview-world { position:absolute; left:0; top:0; transform-origin:0 0; }
+  .preview-world :global(img) { position:absolute; top:0; height:100%; display:block; }
+  :global(.tiled-canvas) { position:absolute; inset:0; display:block; pointer-events:none; }
+  nav { position:absolute; right:20px; bottom:20px; display:flex; align-items:center; gap:8px; }
+  nav button, nav a { display:inline-grid; place-items:center; width:38px; height:38px; border:1px solid #fff9; border-radius:7px; background:#f7f4e8ed; color:inherit; text-decoration:none; font:22px/1 serif; cursor:pointer; box-shadow:0 2px 10px #273c2414; }
+  nav button:hover, nav a:hover { background:#fffaf0; }
+  nav button:focus-visible, nav a:focus-visible { outline:2px solid #5f7550; outline-offset:3px; }
+  [data-load-error] { background:#f7f4e8; border-radius:7px; padding:6px 12px; font-size:12px; }
+  [data-load-error] button { display:inline; width:auto; height:auto; margin-left:5px; padding:4px; font:inherit; text-decoration:underline; box-shadow:none; }
+  .unsupported { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; font-size:15px; margin:0; padding:24px; text-align:center; }
+  .unsupported a { color:inherit; text-underline-offset:4px; }
+  [data-mode="unsupported"] nav, [data-mode="unsupported"] [data-tiled-viewport] { display:none; }
+</style>

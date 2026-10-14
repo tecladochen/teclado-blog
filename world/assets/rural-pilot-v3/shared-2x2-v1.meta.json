@@ -1,0 +1,15 @@
+{
+  "file": "shared-2x2-v1.png",
+  "width": 2172,
+  "height": 724,
+  "bytes": 3970270,
+  "sha256": "0d21181c29e9c986bd9ddd67edca9a23f39b4cb3f97d99ac4b1f4a3a599c24ff",
+  "source": "/Users/wangchen/.codex/generated_images/01a13848-92b6-73d0-8528-8b39bee0d6de/exec-b5ef231e-c330-4fbd-b7e2-77880f91ebbf.png",
+  "requested_native_dimensions": [
+    3840,
+    1280
+  ],
+  "status": "not-selected-native-resolution-and-layout-inadequate",
+  "reason": "Actual output 2172x724 cannot replace four 2172x724 native tiles without losing local pixel density; composition also merges service/retail uses. No upscale applied.",
+  "tool": "builtin-imagegen"
+}

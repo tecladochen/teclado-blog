@@ -1,0 +1,32 @@
+{
+  "status": "awaiting-local-edit",
+  "sourceNames": [
+    "sl1-v1",
+    "sr1-v1",
+    "sl2-v1",
+    "sr2-v1"
+  ],
+  "world": [
+    4344,
+    1448
+  ],
+  "windowRect": {
+    "left": 2172,
+    "top": 362,
+    "width": 2172,
+    "height": 724
+  },
+  "seamInWindow": 362,
+  "requestedEditBand": [
+    200,
+    490
+  ],
+  "inputPixelSha256": "754fc48129ebecf6f600083e5c0f09c3174002e326943223cbcf698bb27bdec0",
+  "noResize": true,
+  "evaluation": [
+    "geometry at former seam",
+    "new patch perimeter",
+    "native sharpness",
+    "unchanged pixels outside accepted region"
+  ]
+}

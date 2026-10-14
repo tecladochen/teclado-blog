@@ -1,0 +1,41 @@
+{
+  "version": "v3-serial-west-start-first-two",
+  "status": "first-column-two-rows-registration-under-review",
+  "width": 2171,
+  "height": 1358,
+  "initialCenter": [
+    1085.5,
+    679
+  ],
+  "maxScale": 1,
+  "images": [
+    {
+      "id": "c0-r0-v2",
+      "src": "/world/rural-start-v3/c0-r0-v2.png",
+      "x": 0,
+      "y": 0,
+      "width": 2172,
+      "height": 724,
+      "clip": [
+        0,
+        1,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "c0-r1-v1",
+      "src": "/world/rural-start-v3/c0-r1-v1.png",
+      "x": 0,
+      "y": 634,
+      "width": 2171,
+      "height": 724,
+      "clip": [
+        90,
+        0,
+        0,
+        0
+      ]
+    }
+  ]
+}

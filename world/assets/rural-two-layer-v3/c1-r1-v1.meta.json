@@ -1,0 +1,24 @@
+{
+  "width": 1536,
+  "height": 1024,
+  "status": "selected-two-layer-pilot-provisionally-self-reviewed-awaiting-author",
+  "prompt": "prompts/c1-r1-v1.txt",
+  "mode": "built-in",
+  "noResize": true,
+  "context": "context/c1-r1-L-native.png",
+  "neighbors": [
+    "c0-r1-v1.png",
+    "c1-r0-v3.png"
+  ],
+  "requestedCarryIn": {
+    "top": 160,
+    "left": 192
+  },
+  "review": {
+    "newContent": "shared-shade-tree-with-grounded-bench-table-and-small-bicycle",
+    "buildings": "no-new-house",
+    "leftTopAndJunction": "pending-native-and-browser-check"
+  },
+  "authorAcceptance": "pending",
+  "browserReview": "review/placement.json"
+}

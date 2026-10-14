@@ -1,0 +1,14 @@
+{
+  "stage": "junction",
+  "basePath": "world/assets/rural-pilot-v3/validation/pilot-vertical-middle-retained-v2.png",
+  "offsets": [
+    1086,
+    362
+  ],
+  "frame": [
+    2172,
+    724
+  ],
+  "pixelSha256": "8efa8d836602a90c9f0ff04d4cb72a3b82e48d891a38b24d2c26c7c92161fc6c",
+  "noResize": true
+}

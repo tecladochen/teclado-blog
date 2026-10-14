@@ -1,0 +1,19 @@
+{
+  "width": 1536,
+  "height": 1024,
+  "status": "selected-two-layer-pilot-provisionally-self-reviewed-awaiting-author",
+  "prompt": "prompts/c0-r0-v2.txt",
+  "mode": "built-in",
+  "noResize": true,
+  "review": {
+    "westernHill": "continuous-sloping-natural-ground",
+    "house": "main-roof-and-kitchen-complete-with-ground-clearance",
+    "detail": "native-tile-groups-paving-bicycle-garden-clear",
+    "bottom": "stone-household-approach-at-about-80-percent-width",
+    "east": "garden-and-village-ground-require-real-continuation",
+    "adjacency": "not-yet-generated",
+    "authorAcceptance": "pending"
+  },
+  "authorAcceptance": "pending",
+  "browserReview": "review/placement.json"
+}

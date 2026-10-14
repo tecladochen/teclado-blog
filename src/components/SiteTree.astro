@@ -6,7 +6,7 @@ const siteDays = getSiteDays(siteLifetimeConfig.startedOn, new Date(), siteLifet
 ---
 
 <!-- 一方田园的轻量入口；场景资源仅在进入独立页面后加载。 -->
-<figure class="site-tree" data-site-tree aria-label="站点的小庭院">
+<figure class="site-tree" data-site-tree aria-label="站点的小庭院" hidden>
   <a class="garden-portal" href="/world/" data-no-swup data-no-swup-preload aria-label="走进一方田园，看看理想中的生活">
   <svg viewBox="0 0 360 290" aria-hidden="true" focusable="false">
     <!-- 同一块平缓的地面承接树根、矮植被与花盆。 -->
@@ -186,6 +186,11 @@ const siteDays = getSiteDays(siteLifetimeConfig.startedOn, new Date(), siteLifet
   @media (max-width: 1479px), (max-height: 639px) {
     .site-tree { display: block; position: relative; right: auto; bottom: auto; width: 180px; margin: 45px auto 0; }
   }
+  @media (pointer: coarse) and (hover: none) {
+    .site-tree { display: none; }
+    .site-tree[data-world-supported='true'] { display: block; }
+  }
+  .site-tree[hidden] { display: none; }
   /* main 会被 Swup 替换；跟随文章标记隐藏，前进、返回也即时生效。 */
   :global(body:has(.article-sheet)) .site-tree { display: none; }
   .garden-breeze {

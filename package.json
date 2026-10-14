@@ -19,6 +19,8 @@
     "world:dev": "astro check && astro dev --port 4330 --open /world/",
     "world:panorama": "node --import tsx world/scripts/prepare-panorama.ts",
     "world:village": "node --import tsx world/scripts/prepare-village-tiles.ts",
+    "world:proof": "node --import tsx world/scripts/prepare-rural-proof.ts",
+    "world:rural": "node --import tsx world/scripts/prepare-rural.ts",
     "theme:create": "tsx scripts/create-post.ts",
     "theme:check": "tsx scripts/check-post.ts",
     "theme:update": "tsx scripts/update-theme.ts"

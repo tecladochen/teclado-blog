@@ -1,0 +1,57 @@
+---
+import manifest from '../data/rural-pilot-v3.json'
+---
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>一方田园 · 新样段</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  </head>
+  <body>
+    <main data-pilot-world data-manifest={JSON.stringify(manifest)} data-mode="waiting">
+      <section data-pilot-viewport tabindex="0" role="region" aria-label="乡村样段，可拖动画面，用滚轮或加减键缩放，Home复位">
+        <div data-pilot-scene></div>
+      </section>
+      <nav aria-label="田园控制">
+        <button data-reset title="复位，看全上下" aria-label="复位，看全上下">↺</button>
+        <a href="/" data-no-swup title="返回博客" aria-label="返回博客">↗</a>
+      </nav>
+      <p data-pilot-error role="status" hidden>图片暂时未能载入，请刷新后重试。</p>
+      <section class="unsupported" data-unsupported hidden>
+        <p>请在电脑上观看这片田园。</p>
+        <a href="/" data-no-swup>返回博客</a>
+      </section>
+      <noscript><p>请开启 JavaScript 后观看。<a href="/">返回博客</a></p></noscript>
+    </main>
+    <script>
+      import { mountPilotWorld } from '../viewer/pilot'
+
+      const root = document.querySelector<HTMLElement>('[data-pilot-world]')
+      if (root)
+        mountPilotWorld(root)
+    </script>
+  </body>
+</html>
+<style>
+  :global(html), :global(body) { margin:0; width:100%; height:100%; overflow:hidden; background:#e4e6d7; }
+  :global(*) { box-sizing:border-box; }
+  :global(astro-dev-toolbar) { display:none; }
+  [hidden] { display:none!important; }
+  main { width:100%; height:100dvh; position:relative; color:#35432f; font-family:-apple-system,BlinkMacSystemFont,'PingFang SC',sans-serif; }
+  [data-pilot-viewport] { position:absolute; inset:0; overflow:hidden; cursor:grab; touch-action:none; }
+  [data-pilot-viewport]:focus-visible { outline:2px solid #f7f4e2; outline-offset:-2px; }
+  [data-pilot-viewport].dragging { cursor:grabbing; }
+  [data-pilot-scene] { position:absolute; left:0; top:0; transform-origin:0 0; pointer-events:none; }
+  [data-pilot-scene] :global(img) { position:absolute; display:block; max-width:none; user-select:none; }
+  nav { position:absolute; right:20px; bottom:20px; display:flex; gap:8px; }
+  nav button, nav a { display:inline-grid; place-items:center; width:38px; height:38px; border:1px solid #fff9; border-radius:7px; background:#f7f4e8ed; color:inherit; text-decoration:none; font:22px/1 serif; cursor:pointer; box-shadow:0 2px 10px #273c2414; }
+  nav button:hover, nav a:hover { background:#fffaf0; }
+  nav button:focus-visible, nav a:focus-visible { outline:2px solid #5f7550; outline-offset:3px; }
+  [data-pilot-error] { position:absolute; bottom:20px; left:20px; margin:0; padding:8px 12px; background:#f7f4e8; border-radius:7px; font-size:13px; }
+  .unsupported { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; padding:24px; text-align:center; }
+  .unsupported a { color:inherit; }
+  [data-mode="unsupported"] nav, [data-mode="unsupported"] [data-pilot-viewport] { display:none; }
+</style>

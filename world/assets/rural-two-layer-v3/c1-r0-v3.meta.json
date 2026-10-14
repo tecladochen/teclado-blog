@@ -1,0 +1,16 @@
+{
+  "width": 1536,
+  "height": 1024,
+  "status": "selected-two-layer-pilot-provisionally-self-reviewed-awaiting-author",
+  "prompt": "prompts/c1-r0-v3.txt",
+  "mode": "built-in",
+  "noResize": true,
+  "review": {
+    "house": "one-complete-two-level-home",
+    "east": "open-ground-with-no-cut-building",
+    "content": "sparse-storage-under-balcony-different-from-upper-left-cottage",
+    "westSeam": "provisionally-usable-entire-native-crop-checked"
+  },
+  "authorAcceptance": "pending",
+  "browserReview": "review/placement.json"
+}

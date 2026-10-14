@@ -1,0 +1,13 @@
+{
+  "id": "S-L1",
+  "file": "sl1-v1.png",
+  "width": 2172,
+  "height": 724,
+  "bytes": 3619783,
+  "sha256": "0cc88d1f0455d2bba71fee7fbf6d5d530cefb5ae94c0970f8b7283a80b16dc0a",
+  "source": "/Users/wangchen/.codex/generated_images/01a13848-92b6-73d0-8528-8b39bee0d6de/exec-4386d9fe-57e3-4e66-9921-0711d8db7f8b.png",
+  "status": "not-selected-for-production-adjacency-failed",
+  "tool": "builtin-imagegen",
+  "call_seconds_approx": 36,
+  "review": "Shown only in independent development route /world/pilot/ for failed adjacency evidence; no crop, stretch, upscale, re-encoding or third row."
+}

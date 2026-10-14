@@ -1,0 +1,45 @@
+{
+  "version": "v3-pilot-native-local-seams-v2",
+  "status": "author-rejected-retired-local-repair-experiment",
+  "width": 4344,
+  "height": 1448,
+  "initialCenter": [
+    1086,
+    724
+  ],
+  "maxScale": 1,
+  "images": [
+    {
+      "id": "sl1-seams-v2",
+      "src": "/world/rural-pilot-v3/sl1-seams-v2.png",
+      "x": 0,
+      "y": 0,
+      "width": 2172,
+      "height": 724
+    },
+    {
+      "id": "sr1-seams-v2",
+      "src": "/world/rural-pilot-v3/sr1-seams-v2.png",
+      "x": 2172,
+      "y": 0,
+      "width": 2172,
+      "height": 724
+    },
+    {
+      "id": "sl2-seams-v2",
+      "src": "/world/rural-pilot-v3/sl2-seams-v2.png",
+      "x": 0,
+      "y": 724,
+      "width": 2172,
+      "height": 724
+    },
+    {
+      "id": "sr2-seams-v2",
+      "src": "/world/rural-pilot-v3/sr2-seams-v2.png",
+      "x": 2172,
+      "y": 724,
+      "width": 2171,
+      "height": 724
+    }
+  ]
+}

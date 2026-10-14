@@ -1,0 +1,711 @@
+{
+  "version": 1,
+  "status": "rural-village-to-central-fields-static",
+  "width": 11880,
+  "height": 1872,
+  "tileSize": 1024,
+  "gutter": 2,
+  "maxScale": 0.75,
+  "initialCenter": [
+    1350,
+    936
+  ],
+  "tiles": [
+    {
+      "id": "0-0",
+      "column": 0,
+      "row": 0,
+      "x": 0,
+      "y": 0,
+      "width": 1024,
+      "height": 1024,
+      "src": "/world/rural-v2/tile-0-0-4a745219ea78.webp",
+      "bytes": 464514,
+      "decodedBytes": 4227136
+    },
+    {
+      "id": "1-0",
+      "column": 1,
+      "row": 0,
+      "x": 1024,
+      "y": 0,
+      "width": 1024,
+      "height": 1024,
+      "src": "/world/rural-v2/tile-1-0-a4c588f2f3d1.webp",
+      "bytes": 450044,
+      "decodedBytes": 4227136
+    },
+    {
+      "id": "2-0",
+      "column": 2,
+      "row": 0,
+      "x": 2048,
+      "y": 0,
+      "width": 1024,
+      "height": 1024,
+      "src": "/world/rural-v2/tile-2-0-4a7fa9162b1b.webp",
+      "bytes": 496950,
+      "decodedBytes": 4227136
+    },
+    {
+      "id": "3-0",
+      "column": 3,
+      "row": 0,
+      "x": 3072,
+      "y": 0,
+      "width": 1024,
+      "height": 1024,
+      "src": "/world/rural-v2/tile-3-0-2d612315519b.webp",
+      "bytes": 473114,
+      "decodedBytes": 4227136
+    },
+    {
+      "id": "4-0",
+      "column": 4,
+      "row": 0,
+      "x": 4096,
+      "y": 0,
+      "width": 1024,
+      "height": 1024,
+      "src": "/world/rural-v2/tile-4-0-7a7d07643373.webp",
+      "bytes": 463082,
+      "decodedBytes": 4227136
+    },
+    {
+      "id": "5-0",
+      "column": 5,
+      "row": 0,
+      "x": 5120,
+      "y": 0,
+      "width": 1024,
+      "height": 1024,
+      "src": "/world/rural-v2/tile-5-0-2ff010fd0831.webp",
+      "bytes": 442840,
+      "decodedBytes": 4227136
+    },
+    {
+      "id": "6-0",
+      "column": 6,
+      "row": 0,
+      "x": 6144,
+      "y": 0,
+      "width": 1024,
+      "height": 1024,
+      "src": "/world/rural-v2/tile-6-0-edda81595a93.webp",
+      "bytes": 442470,
+      "decodedBytes": 4227136
+    },
+    {
+      "id": "7-0",
+      "column": 7,
+      "row": 0,
+      "x": 7168,
+      "y": 0,
+      "width": 1024,
+      "height": 1024,
+      "src": "/world/rural-v2/tile-7-0-1ae66b8d1993.webp",
+      "bytes": 420828,
+      "decodedBytes": 4227136
+    },
+    {
+      "id": "8-0",
+      "column": 8,
+      "row": 0,
+      "x": 8192,
+      "y": 0,
+      "width": 1024,
+      "height": 1024,
+      "src": "/world/rural-v2/tile-8-0-4d6938dbea4e.webp",
+      "bytes": 471282,
+      "decodedBytes": 4227136
+    },
+    {
+      "id": "9-0",
+      "column": 9,
+      "row": 0,
+      "x": 9216,
+      "y": 0,
+      "width": 1024,
+      "height": 1024,
+      "src": "/world/rural-v2/tile-9-0-8b8a59864a92.webp",
+      "bytes": 403612,
+      "decodedBytes": 4227136
+    },
+    {
+      "id": "10-0",
+      "column": 10,
+      "row": 0,
+      "x": 10240,
+      "y": 0,
+      "width": 1024,
+      "height": 1024,
+      "src": "/world/rural-v2/tile-10-0-0f8beb33a095.webp",
+      "bytes": 448008,
+      "decodedBytes": 4227136
+    },
+    {
+      "id": "11-0",
+      "column": 11,
+      "row": 0,
+      "x": 11264,
+      "y": 0,
+      "width": 616,
+      "height": 1024,
+      "src": "/world/rural-v2/tile-11-0-701db80bfcd9.webp",
+      "bytes": 265516,
+      "decodedBytes": 2549440
+    },
+    {
+      "id": "0-1",
+      "column": 0,
+      "row": 1,
+      "x": 0,
+      "y": 1024,
+      "width": 1024,
+      "height": 848,
+      "src": "/world/rural-v2/tile-0-1-dcb0b7afd2d4.webp",
+      "bytes": 413280,
+      "decodedBytes": 3503424
+    },
+    {
+      "id": "1-1",
+      "column": 1,
+      "row": 1,
+      "x": 1024,
+      "y": 1024,
+      "width": 1024,
+      "height": 848,
+      "src": "/world/rural-v2/tile-1-1-024c4e5965c7.webp",
+      "bytes": 383096,
+      "decodedBytes": 3503424
+    },
+    {
+      "id": "2-1",
+      "column": 2,
+      "row": 1,
+      "x": 2048,
+      "y": 1024,
+      "width": 1024,
+      "height": 848,
+      "src": "/world/rural-v2/tile-2-1-05990a8d85d5.webp",
+      "bytes": 370400,
+      "decodedBytes": 3503424
+    },
+    {
+      "id": "3-1",
+      "column": 3,
+      "row": 1,
+      "x": 3072,
+      "y": 1024,
+      "width": 1024,
+      "height": 848,
+      "src": "/world/rural-v2/tile-3-1-41645f3aa53e.webp",
+      "bytes": 355306,
+      "decodedBytes": 3503424
+    },
+    {
+      "id": "4-1",
+      "column": 4,
+      "row": 1,
+      "x": 4096,
+      "y": 1024,
+      "width": 1024,
+      "height": 848,
+      "src": "/world/rural-v2/tile-4-1-949ba1d823dc.webp",
+      "bytes": 322464,
+      "decodedBytes": 3503424
+    },
+    {
+      "id": "5-1",
+      "column": 5,
+      "row": 1,
+      "x": 5120,
+      "y": 1024,
+      "width": 1024,
+      "height": 848,
+      "src": "/world/rural-v2/tile-5-1-4f365c4fc871.webp",
+      "bytes": 354012,
+      "decodedBytes": 3503424
+    },
+    {
+      "id": "6-1",
+      "column": 6,
+      "row": 1,
+      "x": 6144,
+      "y": 1024,
+      "width": 1024,
+      "height": 848,
+      "src": "/world/rural-v2/tile-6-1-f43142aad741.webp",
+      "bytes": 356448,
+      "decodedBytes": 3503424
+    },
+    {
+      "id": "7-1",
+      "column": 7,
+      "row": 1,
+      "x": 7168,
+      "y": 1024,
+      "width": 1024,
+      "height": 848,
+      "src": "/world/rural-v2/tile-7-1-84538313daa4.webp",
+      "bytes": 310146,
+      "decodedBytes": 3503424
+    },
+    {
+      "id": "8-1",
+      "column": 8,
+      "row": 1,
+      "x": 8192,
+      "y": 1024,
+      "width": 1024,
+      "height": 848,
+      "src": "/world/rural-v2/tile-8-1-2f48131fe69b.webp",
+      "bytes": 318916,
+      "decodedBytes": 3503424
+    },
+    {
+      "id": "9-1",
+      "column": 9,
+      "row": 1,
+      "x": 9216,
+      "y": 1024,
+      "width": 1024,
+      "height": 848,
+      "src": "/world/rural-v2/tile-9-1-62611a681f45.webp",
+      "bytes": 311678,
+      "decodedBytes": 3503424
+    },
+    {
+      "id": "10-1",
+      "column": 10,
+      "row": 1,
+      "x": 10240,
+      "y": 1024,
+      "width": 1024,
+      "height": 848,
+      "src": "/world/rural-v2/tile-10-1-395f360326db.webp",
+      "bytes": 292384,
+      "decodedBytes": 3503424
+    },
+    {
+      "id": "11-1",
+      "column": 11,
+      "row": 1,
+      "x": 11264,
+      "y": 1024,
+      "width": 616,
+      "height": 848,
+      "src": "/world/rural-v2/tile-11-1-beaaf4643f4d.webp",
+      "bytes": 187048,
+      "decodedBytes": 2112960
+    }
+  ],
+  "previews": [
+    {
+      "x": 0,
+      "width": 2048,
+      "src": "/world/rural-v2/preview-0-bc52641516f2.webp",
+      "bytes": 135230
+    },
+    {
+      "x": 2048,
+      "width": 2048,
+      "src": "/world/rural-v2/preview-2048-43e77df480cf.webp",
+      "bytes": 136636
+    },
+    {
+      "x": 4096,
+      "width": 2048,
+      "src": "/world/rural-v2/preview-4096-4289d0a06f2d.webp",
+      "bytes": 136130
+    },
+    {
+      "x": 6144,
+      "width": 2048,
+      "src": "/world/rural-v2/preview-6144-b7048725d5f2.webp",
+      "bytes": 130088
+    },
+    {
+      "x": 8192,
+      "width": 2048,
+      "src": "/world/rural-v2/preview-8192-46c20c3a6b1c.webp",
+      "bytes": 123090
+    },
+    {
+      "x": 10240,
+      "width": 1640,
+      "src": "/world/rural-v2/preview-10240-45c38a10b5b5.webp",
+      "bytes": 147432
+    }
+  ],
+  "sources": [
+    {
+      "id": "c0-core",
+      "hash": "578ba62e462c2ea11f563bfd325523b8f0e7ff60155b33fca1304db5eb120487",
+      "width": 2172,
+      "height": 724,
+      "crop": [
+        6,
+        2,
+        2160,
+        720
+      ]
+    },
+    {
+      "id": "c0-rear",
+      "hash": "26474a5da1b1cec8def41ed7d4dac6e68ba7518c2d0c79bc28bc7ffc133dd804",
+      "width": 2172,
+      "height": 724,
+      "crop": [
+        6,
+        1,
+        2160,
+        720
+      ]
+    },
+    {
+      "id": "c0-front",
+      "hash": "aa8d8f3b5bc502c242f5fec326c3d820f1e345f0122e052a551a61afe1bdb759",
+      "width": 2172,
+      "height": 724,
+      "crop": [
+        8,
+        0,
+        2160,
+        720
+      ]
+    },
+    {
+      "id": "c1-core",
+      "hash": "677852972f64b3ff6d10470c39efd7c2b1ecf1b03919a704d25561dde708efd7",
+      "width": 2172,
+      "height": 724,
+      "crop": [
+        0,
+        2,
+        2160,
+        720
+      ]
+    },
+    {
+      "id": "c1-rear",
+      "hash": "64240bdb421448ddad0966e85127fa75764cfeb465a4ed9c4a4a5ad2233f6692",
+      "width": 2172,
+      "height": 724,
+      "crop": [
+        1,
+        2,
+        2160,
+        720
+      ]
+    },
+    {
+      "id": "c1-front",
+      "hash": "a86e30d29e94a710b10acbc485313ba13dc0f073f714d21c349fe8cb026e32f5",
+      "width": 2172,
+      "height": 724,
+      "crop": [
+        1,
+        1,
+        2160,
+        720
+      ]
+    },
+    {
+      "id": "c2-core",
+      "hash": "d220b8041652e7a1067038aa11ed127eb3f9a6838841653f4940413bdbf7b424",
+      "width": 2172,
+      "height": 724,
+      "crop": [
+        0,
+        1,
+        2160,
+        720
+      ]
+    },
+    {
+      "id": "c2-rear",
+      "hash": "d8b75e4d269673b2ce388f1b52d8d9de7f618f34a4f969c5cc726b1a822f98fa",
+      "width": 2172,
+      "height": 724,
+      "crop": [
+        1,
+        2,
+        2160,
+        720
+      ]
+    },
+    {
+      "id": "c2-front",
+      "hash": "538f08c921a80b7d85451ccb474dce1cd2f39a57471fa809ba734f5082ae306d",
+      "width": 2172,
+      "height": 724,
+      "crop": [
+        0,
+        0,
+        2160,
+        720
+      ]
+    },
+    {
+      "id": "c3-core",
+      "hash": "f7aeda8cd1dafd924d388fac60a7730fc069f82336ae8aaaeee3f698ff3a0905",
+      "width": 2172,
+      "height": 724,
+      "crop": [
+        0,
+        2,
+        2160,
+        720
+      ]
+    },
+    {
+      "id": "c3-rear",
+      "hash": "7f7c05f300bddccdb26b1b9dcc887cd4821ca38d62c294e912a86d05c717869b",
+      "width": 2172,
+      "height": 724,
+      "crop": [
+        2,
+        3,
+        2160,
+        720
+      ]
+    },
+    {
+      "id": "c3-front",
+      "hash": "404159ee4e8a1b24af754445a90a7a0c35d6ae1298f8b46f614a0a9e73bb189a",
+      "width": 2172,
+      "height": 724,
+      "crop": [
+        2,
+        0,
+        2160,
+        720
+      ]
+    },
+    {
+      "id": "c4-core",
+      "hash": "421b8cd651da4e400706be9f6800f91c5459964ceb33a7bfb7e3c3a0071de166",
+      "width": 2172,
+      "height": 724,
+      "crop": [
+        0,
+        2,
+        2160,
+        720
+      ]
+    },
+    {
+      "id": "c4-rear",
+      "hash": "181d1e0dec7aa5dcbe8d2e38ee47aafccc97b0859c5be31f12de73dcd2898db7",
+      "width": 2172,
+      "height": 724,
+      "crop": [
+        0,
+        1,
+        2160,
+        720
+      ]
+    },
+    {
+      "id": "c4-front",
+      "hash": "f60add0a9178c62873465363be3ec4a661d59941a4f018b9ccfafb32b3c3b0cc",
+      "width": 2172,
+      "height": 724,
+      "crop": [
+        6,
+        0,
+        2160,
+        720
+      ]
+    },
+    {
+      "id": "c5-core",
+      "hash": "81043fa8f18e41dd7dad213b142a4efdc6204f53043ce1da2b7d9d0da65b88c1",
+      "width": 2172,
+      "height": 724,
+      "crop": [
+        1,
+        1,
+        2160,
+        720
+      ]
+    },
+    {
+      "id": "c5-rear",
+      "hash": "fe1df2e83ef0f0c37f85da678bc71357b9024f5167e31c52e60db8b57f9f891f",
+      "width": 2172,
+      "height": 724,
+      "crop": [
+        0,
+        1,
+        2160,
+        720
+      ]
+    },
+    {
+      "id": "c5-front",
+      "hash": "de17c546ce069d637d42f8527238a9e09691bc581d4a702d4a316dbadf1dda70",
+      "width": 2172,
+      "height": 724,
+      "crop": [
+        0,
+        1,
+        2160,
+        720
+      ]
+    },
+    {
+      "id": "bamboo-continuity",
+      "hash": "c17f73b043c8c5a5d482423b32e12b3303404fd3a151a2ef71d40bd76f05fc29",
+      "width": 2172,
+      "height": 724,
+      "crop": [
+        9,
+        2,
+        2160,
+        720
+      ]
+    },
+    {
+      "id": "east-channel",
+      "hash": "9d82637ccf85408a43958346b4669c12e0cd48ffa6aceea0c702bcc103b690bb",
+      "width": 2172,
+      "height": 724,
+      "crop": [
+        6,
+        0,
+        2160,
+        720
+      ]
+    },
+    {
+      "id": "village-garden-junction",
+      "hash": "402cdc845e1cc5a9e57651a01f18c1ca346d8d9bd86e713977e19eeff397974e",
+      "width": 852,
+      "height": 1846,
+      "crop": [
+        0,
+        0,
+        864,
+        1872
+      ],
+      "normalizedTo": [
+        864,
+        1872
+      ]
+    },
+    {
+      "id": "garden-bamboo-junction",
+      "hash": "e8cfc82f413bf64f503057186538bed59ec3e1703b75f7cdc5fa3f4c431b08d4",
+      "width": 852,
+      "height": 1846,
+      "crop": [
+        0,
+        0,
+        864,
+        1872
+      ],
+      "normalizedTo": [
+        864,
+        1872
+      ]
+    },
+    {
+      "id": "channel-connection",
+      "hash": "61393d0eed70da0f56135ade1129a79537fcf27604241c2d3c59b0e92b08fdb2",
+      "width": 2172,
+      "height": 724,
+      "crop": [
+        3,
+        1,
+        2160,
+        720
+      ]
+    },
+    {
+      "id": "bamboo-orchard-junction",
+      "hash": "9adb5ae3d77f3a2fe0145a7adaa07fb6008e54e807ead436909039cdab7a0525",
+      "width": 853,
+      "height": 1844,
+      "crop": [
+        0,
+        0,
+        864,
+        1872
+      ],
+      "normalizedTo": [
+        864,
+        1872
+      ]
+    },
+    {
+      "id": "orchard-tea-junction",
+      "hash": "a9a79832b884a078183cab841dfa135b46a6a0d152de3585931b24f2f91032fb",
+      "width": 852,
+      "height": 1846,
+      "crop": [
+        0,
+        0,
+        864,
+        1872
+      ],
+      "normalizedTo": [
+        864,
+        1872
+      ]
+    },
+    {
+      "id": "tea-field-junction",
+      "hash": "9579c8afcd9629fb45933b8f15f689eb92552d469e531c017aeadf42e6b5074f",
+      "width": 852,
+      "height": 1846,
+      "crop": [
+        0,
+        0,
+        864,
+        1872
+      ],
+      "normalizedTo": [
+        864,
+        1872
+      ]
+    },
+    {
+      "id": "central-channel",
+      "hash": "60508b9c2895002fa029268d633b7d728cd81b43eb0fa6d7dc806b5f8a5cb1fe",
+      "width": 2172,
+      "height": 724,
+      "crop": [
+        6,
+        1,
+        2160,
+        720
+      ]
+    },
+    {
+      "id": "orchard-tea-fields",
+      "hash": "3eda1e5fcc2a10360e1a99627edcde15cf432e44cdeef7291124cf044b4060c6",
+      "width": 2172,
+      "height": 724,
+      "crop": [
+        9,
+        2,
+        2160,
+        720
+      ]
+    },
+    {
+      "id": "orchard-crossing",
+      "hash": "fcc213c4b51109cfded7663caf458a55a025dac04f357eed7d8ace9b76694e27",
+      "width": 2172,
+      "height": 724,
+      "crop": [
+        4,
+        2,
+        2160,
+        720
+      ]
+    }
+  ]
+}

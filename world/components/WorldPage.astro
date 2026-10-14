@@ -41,7 +41,6 @@ function sectionStyle(section: PanoramaSection) {
           <div class="fallback-world" style={worldStyle}>
             {manifest.sections.map((section, index) => (
               <img
-                src={!legacy || index === 0 ? section.src : undefined}
                 data-src={section.src}
                 width={section.pixelWidth}
                 height={section.pixelHeight}
@@ -86,11 +85,11 @@ function sectionStyle(section: PanoramaSection) {
       </footer>
       <p id="panorama-description" class="sr-only">{description}拖动画面或用方向键移动；加减键调整尺度，Home 看全上下，End 到右侧。放大受清晰度限制，缩小到完整高度即停止。当前为静态工作稿。</p>
       <noscript>
-        <div class="noscript-art" aria-label="田园静态长卷">
+        <div class="noscript-art" aria-label="田园静态长卷" hidden>
           <div class="fallback-world" style={worldStyle}>
             {manifest.sections.map(section => (
 <img
-  src={section.src}
+  data-src={section.src}
   width={section.pixelWidth}
   height={section.pixelHeight}
   loading="lazy"
@@ -100,21 +99,35 @@ function sectionStyle(section: PanoramaSection) {
 ))}
           </div>
         </div>
-        <p class="no-script">左右滑动画卷浏览。<a href="/" data-no-swup>返回博客</a></p>
+        <p class="no-script">请开启 JavaScript 后在电脑上观看。<a href="/" data-no-swup>返回博客</a></p>
         <style>footer, [data-viewport] { display:none }</style>
       </noscript>
     </main>
     <script>
+      import { supportsWorld } from '../viewer/platform'
+
       const root = document.querySelector<HTMLElement>('[data-panorama]')
       if (root) {
-        import('../viewer/panorama').then(({ mountPanorama }) => mountPanorama(root)).catch(() => {
-          root.dataset.mode = 'static'
-          root.querySelector<HTMLElement>('[data-status]')!.textContent = '静态浏览 · 左右滑动'
-          root.querySelectorAll<HTMLImageElement>('[data-fallback] img').forEach(img => img.src = img.dataset.src!)
-          root.querySelectorAll<HTMLButtonElement>('footer button').forEach(button => button.disabled = true)
-          root.querySelectorAll<HTMLInputElement | HTMLSelectElement>('footer input, footer select').forEach(control => control.disabled = true)
-          root.querySelector('[data-viewport]')!.setAttribute('aria-busy', 'false')
-        })
+        if (!supportsWorld()) {
+          root.querySelector('[data-viewport]')!.remove()
+          root.querySelector('footer')!.remove()
+          root.querySelector('.draft-note')!.remove()
+          root.insertAdjacentHTML('beforeend', '<p style="position:absolute;inset:45% 0;text-align:center">请在电脑上观看这片田园。</p>')
+        }
+        else {
+          root.querySelectorAll<HTMLImageElement>('[data-fallback] img').forEach((img, index) => {
+            if (index === 0)
+              img.src = img.dataset.src!
+          })
+          import('../viewer/panorama').then(({ mountPanorama }) => mountPanorama(root)).catch(() => {
+            root.dataset.mode = 'static'
+            root.querySelector<HTMLElement>('[data-status]')!.textContent = '静态浏览 · 左右滑动'
+            root.querySelectorAll<HTMLImageElement>('[data-fallback] img').forEach(img => img.src = img.dataset.src!)
+            root.querySelectorAll<HTMLButtonElement>('footer button').forEach(button => button.disabled = true)
+            root.querySelectorAll<HTMLInputElement | HTMLSelectElement>('footer input, footer select').forEach(control => control.disabled = true)
+            root.querySelector('[data-viewport]')!.setAttribute('aria-busy', 'false')
+          })
+        }
       }
     </script>
   </body>

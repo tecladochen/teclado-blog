@@ -1,10 +1,13 @@
 # 一方田园 · 独立世界
 
+最新（2026-10-14）：作者授权改试3:2两层。已从最左侧后山村居顺序生成两列×两层候选，原生1536×1024，有限边界上下文去重后2880×1888；`/world/pilot/`现显示这组原始PNG。本组自检初步可用，待作者视觉审阅，正式规格和批量生产尚未确认。见 [两层验证](docs/rural-two-layer-v3.md) 与 [素材/实际截图](assets/rural-two-layer-v3/README.md)。下方旧三行与B/C试验是前阶段记录，不作为继续旧素材的指令。
+
 2026-10-13，作者回看夜间成果后指出后续接续不合格、制作流程过慢、道路水系与碎景占地过多，要求重设计。
 本轮先审阅 [乡村生态完整内容与布局方案](docs/farm-redesign-v3.md)，确认后出风格图，风格确认后验证接续并批量制作，
 完整效果确认后再优化性能。作者已确认 [村心园艺 v3](assets/art-direction/soft-village-style-study-v3.png) 与 [牛羊草料 v3](assets/art-direction/livestock-style-study-v3.png) 为本轮画风基础；正式居民须多样化，未更换页面。
 最新已完成 [内容自审与修订](docs/rural-content-audit-v3.md)，并补充 [32 个具体场所](docs/rural-scene-cards-v3.md)。
-已形成 [整村总平面与首个样段布局](docs/rural-masterplan-v3.md)，含32场所落位、三图分配、道路供排水与12位主要居民，待作者审阅；本轮按要求未生图。
+已形成 [整村总平面与首个样段布局](docs/rural-masterplan-v3.md)，含32场所落位、三图分配、道路供排水与12位主要居民。
+作者在检查点 `c1b2df5` 后授权开始；已制作 [2×2原始PNG接续试验](docs/rural-pilot-v3.md) 和独立开发页 `/world/pilot/`。加载与交互正常，源画面接续未通过；没有补第三排或进入批量生产。
 布局亦保存为 [独立查看版](docs/rural-layout-v3.html)，便于本地打开审阅。
 后续见 [画风确认后的推进计划](docs/rural-production-plan-v3.md)：接续样段和原始 PNG 预览，再逐批扩展；完整水产、正式画面与接续仍待验证。
 `/world/` 暂保留农村 v2（三列6048×1872）供问题对照，该版本未通过作者视觉审核；
@@ -23,9 +26,11 @@
 
 | 文档 | 职责 |
 | --- | --- |
+| [3:2两层验证](docs/rural-two-layer-v3.md) | 最新原生尺寸、两层内容、逐张接续和实际页面检查；待作者审阅 |
 | [本轮完整方案](docs/farm-redesign-v3.md) | 多产业与人文生活、整体布局、三图容量、道路水系与快速预览 |
 | [后续推进计划](docs/rural-production-plan-v3.md) | 已确认画风、居民多样化、总平面、接续样段、分批生产与最终优化 |
 | [总平面与样段布局](docs/rural-masterplan-v3.md) | 32场所实际落位、三图纵深、道路水系、产业周转、首个样段与居民设定 |
+| [样段实测](docs/rural-pilot-v3.md) | 原生幅面、接续未通过的证据、原始PNG页面及工程检查 |
 | [内容审核](docs/rural-content-audit-v3.md) | 初审缺口、修订、复审结论与首张风格图范围 |
 | [具体场所卡](docs/rural-scene-cards-v3.md) | 32 个场所、具体物件/状态、入口、道路端点与供排来去 |
 | [需求与边界](docs/redesign.md) | 作者确认的目标、当前任务和验收口径 |
@@ -64,6 +69,7 @@
 - [长卷 v1](assets/panorama-v1/README.md)：对照入口使用的原图、提示词与发布图。
 - [村落 v3](assets/village-tiles-v3/README.md)：新小样验收前保留的旧进度；不再作为主入口或新布局输入。
 - `assets/art-direction/`：两张当前画风基础、历史参考、实际提示词与迭代观察，原文件保留。
+- [接续试验v3](assets/rural-pilot-v3/README.md)：四张独立候选、未选母稿、实际提示词、元数据和浏览器截图；`data/rural-pilot-v3.json`登记失败试验，`viewer/pilot.ts`直接显示原图。
 - `src/pages/world.astro` 与 `src/pages/world/previous.astro`：博客侧薄路由。
 
 ## 本地命令
@@ -80,5 +86,5 @@ pnpm build
 
 `world:rural` 恢复旧 v2 发布资源，读取其 recipe；新 PNG 开发预览不以此导出为前置条件。
 旧 `world:village` 和 `world:panorama` 仅用于恢复保留版本，不用于新规格。
-当前画风已确认，先细化总平面并验证接续样段，通过后逐批生产；完整效果确认后验证 PC 性能。
+当前画风已确认，总平面已保存；首个接续试验未通过，先调整尺度/生成单元再复测，完整样段通过且获作者确认后逐批生产；完整效果确认后验证 PC 性能。
 当前不主动 Git 提交、推送或外部发布，不恢复旧自动续做。
