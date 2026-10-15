@@ -1,8 +1,0 @@
-Use case: compositing
-Asset type: seam-corrected middle background master, no animation.
-Input image 1: EDIT TARGET, the middle countryside panel. Input image 2: west neighbouring panel, exact SOURCE for the shared overlap.
-Change only the LEFTMOST 30 percent of image 1 to align exactly with the RIGHTMOST 30 percent of image 2. Both input images are 2172x724 with a 3:1 aspect. Output remains 2172x724, same canvas, same zoom, same y positions.
-The shared overlap is the SAME GROUND: copy the last approximately 652 columns of image 2 into the first approximately 652 columns of image 1 without scaling, rotating or shifting vertically. Do not approximate the overlap by inventing similar plants. Preserve the nursery canopy, trays, hose/tap, winding irrigation canal, crossing, top vegetation and foreground road placement and appearance from the west source.
-Within a narrow strip around x600–720 in the edit target, naturally reconcile the copied garden/canal/road with the existing newly transplanted rice and loquat land beyond, preserving practical paths and channel flow. Do not create a vertical seam, duplicate bridge, split poles, disconnected road, double tree or ghosted fence.
-Keep the entire right two-thirds of image 1 unchanged: orchard/tea, tractor parked OFF the bridge, paddy shape and rows, robust EMPTY bridge, flower edge and beehives, pond platform and pond water, road and grass. Do not move them or change scale/lighting/palette. This is an overlap repair, not a redesigned composition.
-Keep original warm painterly brushwork and fixed oblique camera, no sky/horizon. Clean empty background, no people or animals, no text/labels/UI/border.

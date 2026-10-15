@@ -5,9 +5,9 @@ import { getSiteDays, renderSiteTree } from '~/utils/siteTree'
 const siteDays = getSiteDays(siteLifetimeConfig.startedOn, new Date(), siteLifetimeConfig.timeZone)
 ---
 
-<!-- 一方田园的轻量入口；场景资源仅在进入独立页面后加载。 -->
+<!-- 博客的小庭院装饰；此间上线后再接外部入口。 -->
 <figure class="site-tree" data-site-tree aria-label="站点的小庭院" hidden>
-  <a class="garden-portal" href="/world/" data-no-swup data-no-swup-preload aria-label="走进一方田园，看看理想中的生活">
+  <div class="garden-art" aria-hidden="true">
   <svg viewBox="0 0 360 290" aria-hidden="true" focusable="false">
     <!-- 同一块平缓的地面承接树根、矮植被与花盆。 -->
     <path d="M68 273 Q89 268 112 270 Q143 267 170 270 Q196 267 221 271 Q256 267 281 272 Q296 272 300 276 Q278 281 250 278 Q215 282 184 278 Q146 281 117 277 Q87 279 68 275Z" fill="var(--garden-earth)" opacity=".2" />
@@ -77,8 +77,7 @@ const siteDays = getSiteDays(siteLifetimeConfig.startedOn, new Date(), siteLifet
     </g>
     <path d="M75 275 Q77 271 76 268 M78 275 Q80 272 83 271 M284 277 Q286 273 285 270 M286 277 Q289 274 292 275" stroke="var(--tree-leaf-1)" stroke-width=".8" stroke-linecap="round" opacity=".45" fill="none" />
   </svg>
-    <span class="garden-enter">去田园坐坐 <span aria-hidden="true">↗</span></span>
-  </a>
+  </div>
   {siteDays !== null && (
     <figcaption class="garden-caption">
       <span class="garden-days">在这里 <span data-site-days>{String(siteDays)}</span> 天</span>
@@ -148,10 +147,7 @@ const siteDays = getSiteDays(siteLifetimeConfig.startedOn, new Date(), siteLifet
     --garden-ink: #bcc5a6;
     --garden-caption: #989c8c;
   }
-  .garden-portal { display: block; pointer-events: auto; color: var(--garden-ink); text-decoration: none; border-radius: 12px; }
-  .garden-portal:focus-visible { outline: 2px solid var(--tree-leaf-1); outline-offset: 5px; }
-  .garden-enter { display: flex; justify-content: center; gap: 9px; margin: 4px 22px 12px 0; font-family: 'Songti SC', serif; font-size: 12px; letter-spacing: .12em; opacity: .78; transition: opacity .2s; }
-  .garden-portal:hover .garden-enter { opacity: 1; }
+  .garden-art { display: block; }
   svg { display: block; width: 100%; height: auto; margin: 0 auto; overflow: visible; }
   .garden-caption {
     display: flex;
@@ -188,7 +184,6 @@ const siteDays = getSiteDays(siteLifetimeConfig.startedOn, new Date(), siteLifet
   }
   @media (pointer: coarse) and (hover: none) {
     .site-tree { display: none; }
-    .site-tree[data-world-supported='true'] { display: block; }
   }
   .site-tree[hidden] { display: none; }
   /* main 会被 Swup 替换；跟随文章标记隐藏，前进、返回也即时生效。 */

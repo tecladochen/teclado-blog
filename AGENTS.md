@@ -20,9 +20,8 @@
 - 样式：`src/styles/`
 - 配置：`src/.config/`
 - 内容：`src/content/`
-- 独立世界：`world/`；修改前阅读 `world/AGENTS.md` 和 `world/README.md`。
-  其页面、运行时、源素材、工具与文档在模块内维护；`src/pages/world.astro`
-  只负责路由，`public/world/` 只放发布资源。
+- 独立世界「此间」在同级的 `cijian-world/` 独立维护，本博客不保留其运行代码与素材。
+  新项目上线后再接外部入口。
 
 ## 常用命令
 

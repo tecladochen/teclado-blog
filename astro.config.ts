@@ -53,9 +53,6 @@ export default defineConfig({
       loadOnIdle: false,
       globalInstance: true,
       ignore: [
-        // The standalone world owns its canvas and lifecycle; cross this boundary with a full page load.
-        '/world',
-        '/world/',
         '/files/',
         /\.(yaml|yml|env|zip|pdf|tar|gz)$/i,
         'a[download]',

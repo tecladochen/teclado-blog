@@ -1,9 +1,0 @@
-{
-  "diagnosticOnly": true,
-  "bestTranslation": {
-    "step": 634,
-    "overlap": 90,
-    "mean": 26.949318463444857
-  },
-  "expectedNoOverlapStep": 724
-}

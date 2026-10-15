@@ -27,11 +27,10 @@ pnpm build
 站点配置位于 [src/.config/user.ts](src/.config/user.ts)，内容字段定义位于
 [src/content.config.ts](src/content.config.ts)。
 
-## 独立世界
+## 项目边界
 
-「一方田园」的实现、素材与维护文档统一放在 [world/](world/README.md)。
-博客仅通过 `/world/` 路由和庭院入口连接；调整世界时从该模块的文档开始。
-运行 `pnpm world:dev` 可启动项目并打开田园页面。
+此项目维护博客。独立世界「此间」已移至同级的 `cijian-world/`，目前只保留资料与风格参考；
+新项目上线后再通过外部链接连接。
 
 ## 文章排版约定
 

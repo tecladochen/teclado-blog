@@ -1,4 +1,3 @@
-import { supportsWorld } from '@world/viewer/platform'
 import { siteLifetimeConfig } from '~/.config/user'
 import { getSiteDays } from '~/utils/siteTree'
 
@@ -17,11 +16,7 @@ export function setupSiteTrees() {
 function mountTrees() {
   cleanup?.()
   const trees = Array.from(document.querySelectorAll<HTMLElement>('[data-site-tree]'))
-  const supported = supportsWorld()
-  trees.forEach((tree) => {
-    tree.dataset.worldSupported = String(supported)
-    tree.hidden = !supported
-  })
+  trees.forEach(tree => tree.hidden = false)
   const abort = new AbortController()
   const visible = new Set<HTMLElement>()
   function syncVisibility() {
