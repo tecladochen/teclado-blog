@@ -62,6 +62,7 @@ const dark = themeConfig.appearance.theme === 'dark'
 
     <script>
       import type Swup from '@swup/astro/client/Swup'
+      import '~/scripts/library'
 
       document.addEventListener('animationend', removeAnimation, false)
       document.addEventListener('astro:page-load', animatePageContent)
