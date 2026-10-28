@@ -140,18 +140,32 @@ function renderSummary(summary: string) {
                     {event.images.length > 0 && (
                       <div class="journey-media" data-media-count={event.images.length}>
                         {event.images.map(image => (
-                          <figure>
-                            <Image
-                              src={image.src}
-                              alt={image.alt}
-                              loading="lazy"
-                              widths={[320, 640]}
-                              sizes={
-                                event.images.length > 1
-                                  ? '(max-width: 680px) calc((100vw - 110px) / 2), 300px'
-                                  : '(max-width: 680px) calc(100vw - 102px), 544px'
-                              }
-                            />
+                          <figure
+                            class:list={{
+                              'journey-market-image': ['shanghai-index-2026-10-15', 'shanghai-index-2026-10-23'].includes(event.id),
+                              'journey-market-image-oct-23': event.id === 'shanghai-index-2026-10-23',
+                            }}
+                          >
+                            <a
+                              class="journey-image-link"
+                              href={image.src.src}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              aria-label={`查看原图：${image.alt}`}
+                              title="查看原图"
+                            >
+                              <Image
+                                src={image.src}
+                                alt={image.alt}
+                                loading="lazy"
+                                widths={[320, 640]}
+                                sizes={
+                                  event.images.length > 1
+                                    ? '(max-width: 680px) calc((100vw - 102px) / 2), (max-width: 880px) calc((100vw - 152px) / 2), 360px'
+                                    : '(max-width: 454px) calc(100vw - 94px), 360px'
+                                }
+                              />
+                            </a>
                           </figure>
                         ))}
                       </div>
@@ -525,8 +539,9 @@ function renderSummary(summary: string) {
     grid-column: 2;
     display: grid;
     grid-template-columns: repeat(var(--media-columns, 1), minmax(0, 1fr));
+    align-items: start;
     gap: 0.45rem;
-    width: min(100%, 34rem);
+    width: min(100%, 45.5rem);
     margin-top: 0.65rem;
   }
 
@@ -536,26 +551,43 @@ function renderSummary(summary: string) {
     overflow: hidden;
     border: 1px solid var(--theme-border);
     background: var(--theme-border-subtle);
-    aspect-ratio: 16 / 9;
   }
 
-  .journey-media[data-media-count='2'] {
+  .journey-media[data-media-count='2'],
+  .journey-media[data-media-count='3'],
+  .journey-media[data-media-count='4'] {
     --media-columns: 2;
   }
 
-  .journey-media[data-media-count='3'] {
-    --media-columns: 3;
+  .journey-image-link {
+    display: block;
+    width: 100%;
+    height: 100%;
+    cursor: zoom-in;
   }
 
-  .journey-media[data-media-count='4'] {
-    --media-columns: 4;
+  .journey-image-link:focus-visible {
+    outline-offset: -3px;
   }
 
   .journey-media :global(img) {
     display: block;
     width: 100%;
-    height: 100%;
-    object-fit: cover;
+    height: auto;
+  }
+
+  .journey-media[data-media-count='1'] {
+    width: min(100%, 22.5rem);
+  }
+
+  .journey-market-image {
+    aspect-ratio: 616 / 256;
+  }
+
+  .journey-market-image-oct-23 :global(img) {
+    width: 101.63%;
+    max-width: none;
+    transform: translate(-1.6%, -2.92%);
   }
 
   .journey-empty {
@@ -631,23 +663,6 @@ function renderSummary(summary: string) {
       margin-top: 0.75rem;
     }
 
-    .journey-media[data-media-count='2'],
-    .journey-media[data-media-count='3'],
-    .journey-media[data-media-count='4'] {
-      grid-auto-columns: min(78%, 17rem);
-      grid-auto-flow: column;
-      grid-template-columns: none;
-      padding-bottom: 0.35rem;
-      overflow-x: auto;
-      scroll-snap-type: x proximity;
-      scrollbar-width: thin;
-    }
-
-    .journey-media[data-media-count='2'] figure,
-    .journey-media[data-media-count='3'] figure,
-    .journey-media[data-media-count='4'] figure {
-      scroll-snap-align: start;
-    }
   }
 
   @media (prefers-reduced-motion: reduce) {
