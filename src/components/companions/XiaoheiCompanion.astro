@@ -1,0 +1,121 @@
+---
+import type { CompanionProps } from '~/types/companion'
+import { siteLifetimeConfig, xiaoheiConfig } from '~/.config/user'
+import { xiaoheiAnimations } from '~/assets/companions/xiaohei/catalog'
+import { getSiteDate } from '~/utils/siteLifetime'
+import { selectXiaoheiAnimation } from '~/utils/xiaoheiSelection'
+
+type Props = CompanionProps & { animationId?: string }
+const { siteDays, animationId } = Astro.props
+const today = getSiteDate(new Date(), siteLifetimeConfig.timeZone)
+const selected = animationId ?? selectXiaoheiAnimation(xiaoheiConfig, xiaoheiAnimations.map(item => item.id), today.iso)
+const animation = xiaoheiAnimations.find(item => item.id === selected) ?? xiaoheiAnimations[0]
+---
+
+<figure class="xiaohei-companion" data-xiaohei data-animation-id={animation.id} data-animation-override={animationId}>
+  <button class="xiaohei-touch" type="button" data-xiaohei-touch aria-label="和小黑打招呼" title="和小黑打招呼" disabled>
+    <span class="xiaohei-character" data-xiaohei-character aria-hidden="true" style={`--frame-ratio: ${animation.width} / ${animation.height}; --frame-count: ${animation.count}; --loop-duration: ${animation.duration}ms; --character-width: ${animation.displayWidth}px`}>
+      <img class="xiaohei-poster" data-xiaohei-poster src={animation.poster} width={animation.width} height={animation.height} alt="" draggable="false" />
+      <img class="xiaohei-strip" data-xiaohei-strip src={animation.strip} width={animation.width * animation.count} height={animation.height} alt="" draggable="false" decoding="async" />
+    </span>
+  </button>
+  <figcaption class="xiaohei-date">
+    <time class="xiaohei-calendar" datetime={today.iso} data-site-date>
+      <span class="xiaohei-month-day" data-site-month-day>{today.monthDay}</span>
+      <span class="xiaohei-weekday" data-site-weekday>{today.weekdayYear}</span>
+    </time>
+    <div class="xiaohei-footer">
+      <span class="xiaohei-lifetime" hidden={siteDays === null}>相伴 <strong data-site-days>{siteDays}</strong> 天</span>
+      <button class="xiaohei-pause" type="button" data-companion-pause data-companion-name="小黑" aria-label="暂停小黑的动作" aria-pressed="false" title="暂停动作">
+        <svg class="pause-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M5.5 4v8M10.5 4v8" /></svg>
+        <svg class="play-icon" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="m6 4 6 4-6 4z" /></svg>
+      </button>
+    </div>
+  </figcaption>
+  <span class="xiaohei-response" data-xiaohei-response role="status" aria-live="polite" />
+</figure>
+
+<style>
+  .xiaohei-companion {
+    --xiaohei-ink: #465149;
+    --xiaohei-muted: #868b7e;
+    --xiaohei-paper: #fffef8;
+    --xiaohei-line: #e3e5d9;
+    --xiaohei-accent: #9aa680;
+    position: relative;
+    margin: 0;
+    isolation: isolate;
+  }
+  :global(.dark) .xiaohei-companion {
+    --xiaohei-ink: #deded1;
+    --xiaohei-muted: #a3a694;
+    --xiaohei-paper: #252720;
+    --xiaohei-line: #3e4234;
+    --xiaohei-accent: #a6ad80;
+  }
+  .xiaohei-touch {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    width: 108px;
+    height: 85.32px;
+    margin: 0 auto;
+    padding: 0;
+    border: 0;
+    border-radius: 40%;
+    background: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  :global([data-site-companion][data-ready='true']) .xiaohei-touch { cursor: pointer; pointer-events: auto; }
+  .xiaohei-touch:focus-visible { outline: 2px dashed var(--xiaohei-accent); outline-offset: 3px; }
+  .xiaohei-character { display: block; position: relative; width: var(--character-width); aspect-ratio: var(--frame-ratio); overflow: hidden; user-select: none; }
+  .xiaohei-poster { display: block; width: 100%; height: 100%; }
+  .xiaohei-strip {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: calc(100% * var(--frame-count));
+    max-width: none;
+    height: 100%;
+    visibility: hidden;
+    animation: xiaohei-rest var(--loop-duration) steps(var(--frame-count), end) infinite;
+    animation-play-state: paused;
+  }
+  .xiaohei-character[data-loaded='true'] .xiaohei-strip { visibility: visible; }
+  .xiaohei-character[data-loaded='true'] .xiaohei-poster { visibility: hidden; }
+  :global([data-site-companion][data-paused='false']) .xiaohei-strip { animation-play-state: running; }
+  @keyframes xiaohei-rest { to { transform: translateX(-100%); } }
+  .xiaohei-date {
+    position: relative;
+    width: 150px;
+    margin: 2px auto 0;
+    color: var(--xiaohei-ink);
+    font-variant-numeric: tabular-nums;
+    pointer-events: auto;
+    text-align: center;
+  }
+  .xiaohei-calendar { display: flex; align-items: baseline; justify-content: center; gap: 9px; white-space: nowrap; }
+  .xiaohei-month-day { font-family: 'JetBrains Mono Variable', monospace; font-size: 16px; font-weight: 400; line-height: 1.5; letter-spacing: -.06em; }
+  .xiaohei-weekday { color: var(--xiaohei-muted); font-size: 10px; line-height: 1.5; letter-spacing: .02em; }
+  .xiaohei-footer { position: relative; margin-top: 5px; min-height: 15px; }
+  .xiaohei-lifetime { display: block; color: var(--xiaohei-muted); font-size: 10px; line-height: 15px; letter-spacing: .1em; }
+  .xiaohei-lifetime[hidden] { display: none; }
+  .xiaohei-lifetime strong { font-weight: 400; }
+  .xiaohei-pause { position: absolute; right: -2px; top: -5px; visibility: hidden; width: 24px; height: 24px; padding: 6px; border: 0; border-radius: 50%; background: none; color: var(--xiaohei-muted); opacity: 0; cursor: pointer; transition: opacity .2s; }
+  :global([data-site-companion][data-ready='true']) .xiaohei-pause { visibility: visible; }
+  .xiaohei-companion:hover .xiaohei-pause, .xiaohei-companion:focus-within .xiaohei-pause, .xiaohei-pause[aria-pressed='true'] { opacity: .8; }
+  .xiaohei-pause:focus-visible { outline: 2px solid var(--xiaohei-accent); outline-offset: 1px; }
+  .xiaohei-pause svg { width: 100%; height: 100%; }
+  .play-icon, .xiaohei-pause[aria-pressed='true'] .pause-icon { display: none; }
+  .xiaohei-pause[aria-pressed='true'] .play-icon { display: block; }
+  .xiaohei-response { position: absolute; z-index: 2; left: 50%; top: -30px; transform: translate(-50%, 4px); padding: 6px 10px; border: 1px solid var(--xiaohei-line); border-radius: 9px; background: var(--xiaohei-paper); color: var(--xiaohei-ink); opacity: 0; font-size: 10px; white-space: nowrap; transition: opacity .2s, transform .2s; }
+  .xiaohei-companion[data-reacting='true'] .xiaohei-response { opacity: 1; transform: translate(-50%, 0); }
+  @media (prefers-reduced-motion: reduce) {
+    .xiaohei-character[data-loaded='true'] .xiaohei-strip { visibility: hidden; animation: none; }
+    .xiaohei-character[data-loaded='true'] .xiaohei-poster { visibility: visible; }
+    .xiaohei-response, .xiaohei-pause { transition: none; }
+    :global([data-site-companion][data-ready='true']) .xiaohei-pause { visibility: hidden; }
+  }
+</style>

@@ -1,4 +1,18 @@
 import type { UserConfig } from '~/types'
+import type { CompanionVariant, XiaoheiSelection } from '~/types/companion'
+
+// 右下角的整套装饰（形象、动作和日期）：xiaohei / garden / none。
+export const siteCompanionConfig: { variant: CompanionVariant } = {
+  variant: 'xiaohei',
+}
+
+// 按上海日期每天选一只，每轮七个动作各出现一次，相邻两天不重复。
+export const xiaoheiConfig: XiaoheiSelection = {
+  mode: 'daily',
+  fixed: 'L02',
+  enabled: ['L02', 'L04', 'L05', 'L06', 'L08', 'L10', 'L11'],
+}
+
 // 项目初始提交在站点时区（上海）的日期，仅用于站点存活时间。
 export const siteLifetimeConfig = {
   startedOn: '2026-06-25',

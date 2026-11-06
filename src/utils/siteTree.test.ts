@@ -1,7 +1,8 @@
 /* eslint test/no-import-node-test: off */
 import assert from 'node:assert/strict'
 import { it } from 'node:test'
-import { getSiteDays, renderSiteTree } from './siteTree'
+import { getSiteDays } from './siteLifetime'
+import { renderSiteTree } from './siteTree'
 
 it('site uptime counts calendar days in the site time zone, including the first day', () => {
   assert.equal(getSiteDays('2026-06-25', new Date('2026-06-24T19:46:14-07:00')), 0)

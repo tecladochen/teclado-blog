@@ -3,10 +3,10 @@ import { themeConfig } from '~/.config'
 import Analytics from '~/components/Analytics.astro'
 import LaTeX from '~/components/LaTeX.astro'
 import Signature from '~/components/Signature.astro'
+import SiteCompanion from '~/components/SiteCompanion.astro'
 import SiteFooter from '~/components/SiteFooter.astro'
 import SiteNavigation from '~/components/SiteNavigation.astro'
 import SiteSeo from '~/components/SiteSeo.astro'
-import SiteTree from '~/components/SiteTree.astro'
 import ThemeScript from '~/components/ThemeScript.astro'
 import '@fontsource-variable/inter/wght.css'
 import '@fontsource-variable/jetbrains-mono/wght.css'
@@ -54,7 +54,7 @@ const dark = themeConfig.appearance.theme === 'dark'
       <slot />
     </main>
 
-    <SiteTree />
+    <SiteCompanion />
 
     <footer class="page-intro mt-16 pb-7 sm:mt-20 sm:pb-9">
       <SiteFooter />

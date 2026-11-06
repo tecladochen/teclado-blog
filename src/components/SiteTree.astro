@@ -1,12 +1,13 @@
 ---
-import { siteLifetimeConfig } from '~/.config/user'
-import { getSiteDays, renderSiteTree } from '~/utils/siteTree'
+import type { CompanionProps } from '~/types/companion'
+import { renderSiteTree } from '~/utils/siteTree'
 
-const siteDays = getSiteDays(siteLifetimeConfig.startedOn, new Date(), siteLifetimeConfig.timeZone)
+type Props = CompanionProps
+const { siteDays } = Astro.props
 ---
 
 <!-- 博客的小庭院装饰；此间上线后再接外部入口。 -->
-<figure class="site-tree" data-site-tree aria-label="站点的小庭院" hidden>
+<figure class="site-tree" aria-label="站点的小庭院">
   <div class="garden-art" aria-hidden="true">
   <svg viewBox="0 0 360 290" aria-hidden="true" focusable="false">
     <!-- 同一块平缓的地面承接树根、矮植被与花盆。 -->
@@ -85,12 +86,6 @@ const siteDays = getSiteDays(siteLifetimeConfig.startedOn, new Date(), siteLifet
   )}
 </figure>
 
-<script>
-  import { setupSiteTrees } from '~/scripts/siteTree'
-
-  setupSiteTrees()
-</script>
-
 <style>
   .site-tree {
     --tree-leaf-0: #4e6545;
@@ -115,12 +110,6 @@ const siteDays = getSiteDays(siteLifetimeConfig.startedOn, new Date(), siteLifet
     --tree-period: 6s;
     --tree-tempo: .6;
     --tree-branch-sway: 1.56deg;
-    display: none;
-    position: fixed;
-    z-index: 10;
-    right: max(18px, calc((100vw - 880px) / 4 - 135px));
-    bottom: 20px;
-    width: 270px;
     margin: 0;
     pointer-events: none;
   }
@@ -164,18 +153,6 @@ const siteDays = getSiteDays(siteLifetimeConfig.startedOn, new Date(), siteLifet
     letter-spacing: .025em;
     text-align: center;
   }
-  @media (min-width: 1480px) and (min-height: 640px) {
-    .site-tree { display: block; }
-  }
-  @media (max-width: 1479px), (max-height: 639px) {
-    .site-tree { display: block; position: relative; right: auto; bottom: auto; width: 180px; margin: 45px auto 0; }
-  }
-  @media (pointer: coarse) and (hover: none) {
-    .site-tree { display: none; }
-  }
-  .site-tree[hidden] { display: none; }
-  /* main 会被 Swup 替换；跟随文章标记隐藏，前进、返回也即时生效。 */
-  :global(body:has(.article-sheet)) .site-tree { display: none; }
   .garden-breeze {
     transform-box: view-box;
     animation: site-tree-sway var(--tree-period) ease-in-out infinite;
@@ -200,9 +177,9 @@ const siteDays = getSiteDays(siteLifetimeConfig.startedOn, new Date(), siteLifet
     animation: site-tree-sway var(--tree-period) ease-in-out infinite;
   }
   .site-tree :global(.tree-branch) { animation: site-tree-branch calc(var(--branch-period) * var(--tree-tempo)) ease-in-out var(--branch-delay) infinite; }
-  .site-tree[data-paused='true'] .garden-breeze,
-  .site-tree[data-paused='true'] :global(.tree-sway),
-  .site-tree[data-paused='true'] :global(.tree-branch) { animation-play-state: paused; }
+  :global([data-site-companion][data-paused='true']) .garden-breeze,
+  :global([data-site-companion][data-paused='true']) .site-tree :global(.tree-sway),
+  :global([data-site-companion][data-paused='true']) .site-tree :global(.tree-branch) { animation-play-state: paused; }
   @keyframes site-tree-sway {
     0%, 100% { transform: rotate(calc(var(--tree-sway) * -.55)); }
     37% { transform: rotate(var(--tree-sway)); }

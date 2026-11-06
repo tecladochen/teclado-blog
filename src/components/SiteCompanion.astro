@@ -1,0 +1,63 @@
+---
+import { siteCompanionConfig, siteLifetimeConfig } from '~/.config/user'
+import XiaoheiCompanion from '~/components/companions/XiaoheiCompanion.astro'
+import SiteTree from '~/components/SiteTree.astro'
+import { getSiteDays } from '~/utils/siteLifetime'
+
+// Each entry owns its artwork, interactions, and date presentation.
+const companions = { xiaohei: XiaoheiCompanion, garden: SiteTree }
+const variant = siteCompanionConfig.variant
+const Companion = variant === 'none' ? null : companions[variant]
+const siteDays = getSiteDays(siteLifetimeConfig.startedOn, new Date(), siteLifetimeConfig.timeZone)
+---
+
+{Companion && (
+  <aside class="site-companion" data-site-companion data-variant={variant} data-paused="true" aria-label="站点的小伙伴">
+    <Companion siteDays={siteDays} />
+  </aside>
+)}
+
+<script>
+  import { setupSiteCompanions } from '~/scripts/siteCompanion'
+
+  setupSiteCompanions()
+</script>
+
+<style>
+  .site-companion {
+    position: fixed;
+    z-index: 10;
+    right: max(22px, calc((100vw - 880px) / 4 - 80px));
+    bottom: 24px;
+    width: 160px;
+    pointer-events: none;
+  }
+
+  .site-companion[data-variant='garden'] { width: 270px; right: max(18px, calc((100vw - 880px) / 4 - 100px)); }
+
+  /* Keep the reading column clear on narrower screens. */
+  @media (max-width: 1279px), (max-height: 639px) {
+    .site-companion {
+      position: relative;
+      right: auto;
+      bottom: auto;
+      width: 160px;
+      margin: 45px auto 0;
+    }
+  }
+
+  @media (max-width: 1479px), (max-height: 639px) {
+    .site-companion[data-variant='garden'] { position: relative; right: auto; bottom: auto; width: 180px; margin: 45px auto 0; }
+  }
+
+  @media (pointer: coarse) and (hover: none) {
+    .site-companion { display: none; }
+  }
+
+  /* The shell persists across Swup navigation; the article marker does not. */
+  :global(body:has(.article-sheet)) .site-companion { display: none; }
+
+  @media print {
+    .site-companion { display: none; }
+  }
+</style>

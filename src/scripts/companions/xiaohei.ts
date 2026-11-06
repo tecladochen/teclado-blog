@@ -1,0 +1,104 @@
+import { xiaoheiConfig } from '~/.config/user'
+import { xiaoheiAnimations } from '~/assets/companions/xiaohei/catalog'
+import { selectXiaoheiAnimation } from '~/utils/xiaoheiSelection'
+
+/** The source cels play unchanged; greetings do not restart the animation. */
+export function mountXiaohei(companion: HTMLElement, signal: AbortSignal) {
+  const xiaohei = companion.querySelector<HTMLElement>('[data-xiaohei]')
+  const touch = xiaohei?.querySelector<HTMLButtonElement>('[data-xiaohei-touch]')
+  const response = xiaohei?.querySelector<HTMLElement>('[data-xiaohei-response]')
+  const character = xiaohei?.querySelector<HTMLElement>('[data-xiaohei-character]')
+  const initialStrip = xiaohei?.querySelector<HTMLImageElement>('[data-xiaohei-strip]')
+  const initialPoster = xiaohei?.querySelector<HTMLImageElement>('[data-xiaohei-poster]')
+  if (!xiaohei || !touch || !response || !character || !initialStrip || !initialPoster)
+    return { updateDate: (_date: string) => {}, dispose: () => {} }
+
+  let strip = initialStrip
+  let poster = initialPoster
+  let active = xiaoheiAnimations.find(item => item.id === xiaohei.dataset.animationId) ?? xiaoheiAnimations[0]
+  let pending: string | undefined
+  let request = 0
+  let greeting = 0
+  let timer: number | undefined
+  let disposed = false
+  void strip.decode().then(() => {
+    if (!disposed && request === 0)
+      character.dataset.loaded = 'true'
+  }).catch(() => {
+    // Keep the static transparent poster when decoding is unavailable.
+  })
+
+  function updateDate(date: string) {
+    // The preview URL is development-only; production follows the site config.
+    const override = xiaohei!.dataset.animationOverride ?? (import.meta.env.DEV ? new URLSearchParams(window.location.search).get('xiaohei') : null)
+    const id = override ?? selectXiaoheiAnimation(xiaoheiConfig, xiaoheiAnimations.map(item => item.id), date)
+    const next = xiaoheiAnimations.find(item => item.id === id) ?? xiaoheiAnimations[0]
+    if (next.id === pending)
+      return
+    const version = ++request
+    pending = undefined
+    if (next.id === active.id) {
+      // A pending load may have been cancelled by navigation back to this pose.
+      void strip.decode().then(() => {
+        if (!disposed && request === version)
+          character!.dataset.loaded = 'true'
+      }).catch(() => {})
+      return
+    }
+    pending = next.id
+    const nextStrip = strip.cloneNode(false) as HTMLImageElement
+    const nextPoster = poster.cloneNode(false) as HTMLImageElement
+    nextStrip.src = next.strip
+    nextStrip.width = next.width * next.count
+    nextStrip.height = next.height
+    nextPoster.src = next.poster
+    nextPoster.width = next.width
+    nextPoster.height = next.height
+    // Keep playing the current pose until both replacement images are ready.
+    void Promise.all([nextStrip.decode(), nextPoster.decode()]).then(() => {
+      if (disposed || version !== request)
+        return
+      character!.style.setProperty('--frame-ratio', `${next.width} / ${next.height}`)
+      character!.style.setProperty('--frame-count', String(next.count))
+      character!.style.setProperty('--loop-duration', `${next.duration}ms`)
+      character!.style.setProperty('--character-width', `${next.displayWidth}px`)
+      strip.replaceWith(nextStrip)
+      poster.replaceWith(nextPoster)
+      strip = nextStrip
+      poster = nextPoster
+      character!.dataset.loaded = 'true'
+      xiaohei!.dataset.animationId = next.id
+      active = next
+      pending = undefined
+      greeting = 0
+      window.clearTimeout(timer)
+      endResponse()
+    }).catch(() => {
+      if (version === request)
+        pending = undefined
+    })
+  }
+
+  function endResponse() {
+    delete xiaohei!.dataset.reacting
+    response!.textContent = ''
+  }
+
+  touch.disabled = false
+  touch.addEventListener('click', () => {
+    window.clearTimeout(timer)
+    response.textContent = active.greetings[greeting++ % active.greetings.length]
+    xiaohei.dataset.reacting = 'true'
+    timer = window.setTimeout(endResponse, 2600)
+  }, { signal })
+
+  return {
+    updateDate,
+    dispose() {
+      disposed = true
+      window.clearTimeout(timer)
+      touch.disabled = true
+      endResponse()
+    },
+  }
+}

@@ -1,0 +1,80 @@
+---
+import { siteLifetimeConfig, xiaoheiConfig } from '~/.config/user'
+import { xiaoheiAnimations } from '~/assets/companions/xiaohei/catalog'
+import XiaoheiCompanion from '~/components/companions/XiaoheiCompanion.astro'
+import { getSiteDays } from '~/utils/siteLifetime'
+import '@fontsource-variable/inter/wght.css'
+import '@fontsource-variable/jetbrains-mono/wght.css'
+import '~/styles/global.css'
+
+// An author preview, excluded from the production build and site navigation.
+export function getStaticPaths() {
+  return import.meta.env.DEV ? [{ params: { preview: 'xiaohei' } }] : []
+}
+
+const siteDays = getSiteDays(siteLifetimeConfig.startedOn, new Date(), siteLifetimeConfig.timeZone)
+---
+
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>小黑的日常 · Teclado</title>
+  </head>
+  <body>
+    <main class="preview">
+      <header>
+        <div><p class="eyebrow">TECLADO / 小黑的日常</p><h1>今天，哪只小黑陪你？</h1><p>你选中的 {xiaoheiAnimations.length} 个动作，配上同一份简单的日历。</p></div>
+        <button type="button" data-preview-theme aria-pressed="false">深色背景</button>
+      </header>
+      <div class="poses">
+        {xiaoheiAnimations.map(animation => (
+          <section class="pose">
+            <div class="pose-heading"><span>{animation.id}</span><h2>{animation.name}</h2></div>
+            <aside data-site-companion data-variant="xiaohei" data-paused="true" aria-label={animation.name}>
+              <XiaoheiCompanion animationId={animation.id} siteDays={siteDays} />
+            </aside>
+            <a href={`/?xiaohei=${animation.id}`} data-no-swup>放到首页看看 <span aria-hidden="true">↗</span></a>
+          </section>
+        ))}
+      </div>
+      <footer><a href="/" data-no-swup>返回当前网站</a><span>{xiaoheiConfig.mode === 'daily' ? '已启用每日切换 · 当天固定一只' : `目前固定显示 ${xiaoheiConfig.fixed} · 每日切换已准备好`}</span></footer>
+    </main>
+    <script>
+      import { setupSiteCompanions } from '~/scripts/siteCompanion'
+
+      setupSiteCompanions()
+      document.querySelector<HTMLButtonElement>('[data-preview-theme]')?.addEventListener('click', (event) => {
+        const dark = document.documentElement.classList.toggle('dark')
+        const button = event.currentTarget as HTMLButtonElement
+        button.setAttribute('aria-pressed', String(dark))
+        button.textContent = dark ? '浅色背景' : '深色背景'
+      })
+    </script>
+  </body>
+</html>
+
+<style>
+  .preview { max-width: 1020px; margin: 0 auto; padding: 60px 28px 36px; }
+  header { display: flex; align-items: center; justify-content: space-between; gap: 24px; margin-bottom: 40px; }
+  .eyebrow { font-size: 10px; letter-spacing: .15em; opacity: .55; }
+  h1 { margin: 12px 0; font-family: 'Songti SC', serif; font-size: 29px; font-weight: 400; }
+  header p:not(.eyebrow), footer { font-size: 12px; opacity: .65; }
+  header button { flex-shrink: 0; padding: 8px 12px; border: 1px solid #87867740; border-radius: 20px; background: none; font: inherit; font-size: 11px; cursor: pointer; }
+  .poses { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 18px; }
+  .pose { display: flex; flex-direction: column; align-items: center; min-width: 0; padding: 18px 10px 16px; border: 1px solid #87867730; border-radius: 14px; background: #ffffff55; }
+  :global(.dark) .pose { background: #ffffff04; }
+  .pose-heading { align-self: stretch; display: flex; align-items: baseline; gap: 8px; margin-bottom: 25px; padding: 0 4px; }
+  .pose-heading > span { font-family: 'JetBrains Mono Variable', monospace; font-size: 10px; opacity: .45; }
+  h2 { margin: 0; font-size: 12px; font-weight: 400; opacity: .75; }
+  aside { width: 160px; }
+  .pose > a { margin-top: 26px; font-size: 10px; opacity: .6; }
+  footer { display: flex; justify-content: space-between; gap: 16px; margin-top: 30px; }
+  @media (max-width: 760px) {
+    .preview { padding: 30px 20px; }
+    header { align-items: flex-start; }
+    h1 { font-size: 23px; }
+    footer { flex-direction: column; }
+  }
+</style>
