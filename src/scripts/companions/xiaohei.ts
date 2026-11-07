@@ -1,3 +1,4 @@
+import type { XiaoheiAnimation } from '~/types/companion'
 import { xiaoheiConfig } from '~/.config/user'
 import { xiaoheiAnimations } from '~/assets/companions/xiaohei/catalog'
 import { selectXiaoheiAnimation } from '~/utils/xiaoheiSelection'
@@ -15,18 +16,12 @@ export function mountXiaohei(companion: HTMLElement, signal: AbortSignal) {
 
   let strip = initialStrip
   let poster = initialPoster
-  let active = xiaoheiAnimations.find(item => item.id === xiaohei.dataset.animationId) ?? xiaoheiAnimations[0]
+  let active = xiaoheiAnimations.find(item => item.id === xiaohei.dataset.animationId)
   let pending: string | undefined
   let request = 0
   let greeting = 0
   let timer: number | undefined
   let disposed = false
-  void strip.decode().then(() => {
-    if (!disposed && request === 0)
-      character.dataset.loaded = 'true'
-  }).catch(() => {
-    // Keep the static transparent poster when decoding is unavailable.
-  })
 
   function updateDate(date: string) {
     // The preview URL is development-only; production follows the site config.
@@ -37,46 +32,59 @@ export function mountXiaohei(companion: HTMLElement, signal: AbortSignal) {
       return
     const version = ++request
     pending = undefined
-    if (next.id === active.id) {
-      // A pending load may have been cancelled by navigation back to this pose.
-      void strip.decode().then(() => {
-        if (!disposed && request === version)
-          character!.dataset.loaded = 'true'
-      }).catch(() => {})
+    if (next.id === active?.id) {
+      // A remount can inherit the first images while decoding is still in progress.
+      if (character!.dataset.loaded !== 'true') {
+        void strip.decode().then(() => {
+          if (!disposed && request === version)
+            character!.dataset.loaded = 'true'
+        }).catch(() => {})
+      }
       return
     }
     pending = next.id
+    const firstLoad = !active
     const nextStrip = strip.cloneNode(false) as HTMLImageElement
     const nextPoster = poster.cloneNode(false) as HTMLImageElement
-    nextStrip.src = next.strip
     nextStrip.width = next.width * next.count
     nextStrip.height = next.height
-    nextPoster.src = next.poster
     nextPoster.width = next.width
     nextPoster.height = next.height
-    // Keep playing the current pose until both replacement images are ready.
-    void Promise.all([nextStrip.decode(), nextPoster.decode()]).then(() => {
+    nextPoster.src = next.poster
+    nextStrip.src = next.strip
+    // Show the first poster as it loads. Later changes keep the current pose until both images are ready.
+    if (firstLoad)
+      showAnimation(next, nextStrip, nextPoster)
+    const decoded = firstLoad ? nextStrip.decode() : Promise.all([nextStrip.decode(), nextPoster.decode()])
+    void decoded.then(() => {
       if (disposed || version !== request)
         return
-      character!.style.setProperty('--frame-ratio', `${next.width} / ${next.height}`)
-      character!.style.setProperty('--frame-count', String(next.count))
-      character!.style.setProperty('--loop-duration', `${next.duration}ms`)
-      character!.style.setProperty('--character-width', `${next.displayWidth}px`)
-      strip.replaceWith(nextStrip)
-      poster.replaceWith(nextPoster)
-      strip = nextStrip
-      poster = nextPoster
+      if (!firstLoad)
+        showAnimation(next, nextStrip, nextPoster)
       character!.dataset.loaded = 'true'
-      xiaohei!.dataset.animationId = next.id
-      active = next
-      pending = undefined
-      greeting = 0
-      window.clearTimeout(timer)
-      endResponse()
     }).catch(() => {
+      // Keep showing the current poster or animation on a failed decode.
+    }).finally(() => {
       if (version === request)
         pending = undefined
     })
+  }
+
+  function showAnimation(animation: XiaoheiAnimation, nextStrip: HTMLImageElement, nextPoster: HTMLImageElement) {
+    character!.style.setProperty('--frame-ratio', `${animation.width} / ${animation.height}`)
+    character!.style.setProperty('--frame-count', String(animation.count))
+    character!.style.setProperty('--loop-duration', `${animation.duration}ms`)
+    character!.style.setProperty('--character-width', `${animation.displayWidth}px`)
+    strip.replaceWith(nextStrip)
+    poster.replaceWith(nextPoster)
+    strip = nextStrip
+    poster = nextPoster
+    xiaohei!.dataset.animationId = animation.id
+    active = animation
+    touch!.disabled = false
+    greeting = 0
+    window.clearTimeout(timer)
+    endResponse()
   }
 
   function endResponse() {
@@ -84,8 +92,10 @@ export function mountXiaohei(companion: HTMLElement, signal: AbortSignal) {
     response!.textContent = ''
   }
 
-  touch.disabled = false
+  touch.disabled = !active
   touch.addEventListener('click', () => {
+    if (!active)
+      return
     window.clearTimeout(timer)
     response.textContent = active.greetings[greeting++ % active.greetings.length]
     xiaohei.dataset.reacting = 'true'

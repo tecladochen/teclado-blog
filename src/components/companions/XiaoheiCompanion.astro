@@ -1,22 +1,18 @@
 ---
 import type { CompanionProps } from '~/types/companion'
-import { siteLifetimeConfig, xiaoheiConfig } from '~/.config/user'
-import { xiaoheiAnimations } from '~/assets/companions/xiaohei/catalog'
+import { siteLifetimeConfig } from '~/.config/user'
 import { getSiteDate } from '~/utils/siteLifetime'
-import { selectXiaoheiAnimation } from '~/utils/xiaoheiSelection'
 
 type Props = CompanionProps & { animationId?: string }
 const { siteDays, animationId } = Astro.props
 const today = getSiteDate(new Date(), siteLifetimeConfig.timeZone)
-const selected = animationId ?? selectXiaoheiAnimation(xiaoheiConfig, xiaoheiAnimations.map(item => item.id), today.iso)
-const animation = xiaoheiAnimations.find(item => item.id === selected) ?? xiaoheiAnimations[0]
 ---
 
-<figure class="xiaohei-companion" data-xiaohei data-animation-id={animation.id} data-animation-override={animationId}>
+<figure class="xiaohei-companion" data-xiaohei data-animation-override={animationId}>
   <button class="xiaohei-touch" type="button" data-xiaohei-touch aria-label="和小黑打招呼" title="和小黑打招呼" disabled>
-    <span class="xiaohei-character" data-xiaohei-character aria-hidden="true" style={`--frame-ratio: ${animation.width} / ${animation.height}; --frame-count: ${animation.count}; --loop-duration: ${animation.duration}ms; --character-width: ${animation.displayWidth}px`}>
-      <img class="xiaohei-poster" data-xiaohei-poster src={animation.poster} width={animation.width} height={animation.height} alt="" draggable="false" />
-      <img class="xiaohei-strip" data-xiaohei-strip src={animation.strip} width={animation.width * animation.count} height={animation.height} alt="" draggable="false" decoding="async" />
+    <span class="xiaohei-character" data-xiaohei-character aria-hidden="true">
+      <img class="xiaohei-poster" data-xiaohei-poster alt="" draggable="false" />
+      <img class="xiaohei-strip" data-xiaohei-strip alt="" draggable="false" decoding="async" />
     </span>
   </button>
   <figcaption class="xiaohei-date">

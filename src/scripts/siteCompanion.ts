@@ -25,8 +25,7 @@ function mountCompanions() {
   const { signal } = abort
   const visible = new Set<HTMLElement>()
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
-  const variantCleanups: (() => void)[] = []
-  const dateUpdates: ((date: string) => void)[] = []
+  const xiaoheiCompanions = new Map<HTMLElement, ReturnType<typeof mountXiaohei>>()
 
   function syncMotion() {
     companions.forEach((companion) => {
@@ -43,16 +42,15 @@ function mountCompanions() {
         visible.delete(companion)
     })
     syncMotion()
+    if (entries.some(entry => entry.isIntersecting))
+      updateDates()
   })
 
   companions.forEach((companion) => {
     companion.dataset.ready = 'true'
     observer.observe(companion)
-    if (companion.dataset.variant === 'xiaohei') {
-      const xiaohei = mountXiaohei(companion, signal)
-      variantCleanups.push(xiaohei.dispose)
-      dateUpdates.push(xiaohei.updateDate)
-    }
+    if (companion.dataset.variant === 'xiaohei')
+      xiaoheiCompanions.set(companion, mountXiaohei(companion, signal))
 
     const pause = companion.querySelector<HTMLButtonElement>('[data-companion-pause]')
     pause?.addEventListener('click', () => {
@@ -69,8 +67,9 @@ function mountCompanions() {
     const now = new Date()
     const days = getSiteDays(siteLifetimeConfig.startedOn, now, siteLifetimeConfig.timeZone)
     const date = getSiteDate(now, siteLifetimeConfig.timeZone)
-    dateUpdates.forEach(update => update(date.iso))
     companions.forEach((companion) => {
+      if (!document.hidden && visible.has(companion))
+        xiaoheiCompanions.get(companion)?.updateDate(date.iso)
       companion.querySelectorAll<HTMLElement>('[data-site-days]').forEach(label => label.textContent = days === null ? '' : String(days))
       const time = companion.querySelector<HTMLTimeElement>('[data-site-date]')
       if (time)
@@ -97,6 +96,6 @@ function mountCompanions() {
     abort.abort()
     observer.disconnect()
     window.clearInterval(dailyTimer)
-    variantCleanups.forEach(dispose => dispose())
+    xiaoheiCompanions.forEach(xiaohei => xiaohei.dispose())
   }
 }
