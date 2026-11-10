@@ -237,7 +237,7 @@
     "addedOn": "2026-10-10",
     "url": "https://v.youku.com/v_show/id_XNTkxMDQxMzgyOA==.html",
     "releasedOn": "2022-10-10",
-    "completedOn": "2026-06-20"
+    "completedOn": "2025-06-20"
   },
   {
     "id": "series-legend-of-luoxiaohei",
@@ -262,18 +262,6 @@
     "url": "https://bangumi.tv/subject/501950",
     "releasedOn": "2025-03-14",
     "completedOn": "2025-09-13"
-  },
-  {
-    "id": "series-the-outcast",
-    "type": "series",
-    "title": "一人之下",
-    "creator": "米二",
-    "cover": "../../assets/library/works/series-the-outcast.webp",
-    "status": "completed",
-    "addedOn": "2026-10-10",
-    "url": "https://bangumi.tv/subject/507819",
-    "releasedOn": "2026-01-02",
-    "completedOn": "2026-08-15"
   },
   {
     "id": "series-mushishi",
