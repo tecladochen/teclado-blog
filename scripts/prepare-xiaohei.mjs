@@ -4,12 +4,12 @@ import process from 'node:process'
 import sharp from 'sharp'
 
 // Convert a selected GIF without redrawing its cels or changing their timing.
-// Usage: node scripts/prepare-xiaohei.mjs [source.gif] [L04]
-// L02 retains its existing filenames and exact, approved matte treatment.
-const id = process.argv[3] ?? 'L02'
+// Usage: node scripts/prepare-xiaohei.mjs [source.gif] [L06] [--keep-background]
+const id = process.argv[3] ?? 'L06'
+const keepBackground = process.argv.includes('--keep-background')
 if (!/^L\d{2}$/.test(id))
-  throw new Error('Expected an animation ID such as L04')
-const directory = new URL(`../src/assets/companions/xiaohei/${id === 'L02' ? '' : `${id}/`}`, import.meta.url)
+  throw new Error('Expected an animation ID such as L06')
+const directory = new URL(`../src/assets/companions/xiaohei/${id}/`, import.meta.url)
 await mkdir(directory, { recursive: true })
 const source = new URL(`${id}.gif`, directory)
 if (process.argv[2])
@@ -19,10 +19,17 @@ const { width, pageHeight: height, pages: count, delay } = metadata
 if (!width || !height || !count || !delay)
   throw new Error('Expected a complete animated GIF')
 
-// Browsers play GIF delays below 20 ms at 100 ms; this GIF stores zero delays.
+// Browsers play GIF delays below 20 ms at 100 ms.
 const delays = delay.map(value => value < 20 ? 100 : value)
-if (new Set(delays).size !== 1)
-  throw new Error('The CSS strip requires equally timed frames')
+function gcd(a, b) {
+  while (b)
+    [a, b] = [b, a % b]
+  return a
+}
+// Equal CSS steps can preserve unequal GIF holds by repeating the same cel.
+const step = delays.reduce(gcd)
+const duration = delays.reduce((sum, value) => sum + value, 0)
+const steps = duration / step
 
 let left = width
 let top = height
@@ -31,6 +38,10 @@ let bottom = 0
 const frames = []
 for (let page = 0; page < count; page++) {
   const original = await sharp(source.pathname, { page }).ensureAlpha().raw().toBuffer()
+  if (keepBackground) {
+    frames.push(original)
+    continue
+  }
   const frame = Buffer.from(original)
   const whitePixel = pixel => original[pixel * 4 + 3] === 0 || Math.min(original[pixel * 4], original[pixel * 4 + 1], original[pixel * 4 + 2]) >= 245
   const background = new Uint8Array(width * height)
@@ -63,7 +74,7 @@ for (let page = 0; page < count; page++) {
     if (y + 1 < height)
       visit(pixel + width)
   }
-  const white = offset => id === 'L02' ? whitePixel(offset / 4) : background[offset / 4] === 1
+  const white = offset => background[offset / 4] === 1
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
       const offset = (y * width + x) * 4
@@ -125,16 +136,23 @@ for (let page = 0; page < count; page++) {
 // One common crop for every cel prevents position changes / animation jitter.
 left = Math.max(0, left - 2)
 top = Math.max(0, top - 2)
-const crop = { left, top, width: Math.min(width, right + 3) - left, height: Math.min(height, bottom + 3) - top }
-const inputs = await Promise.all(frames.map(async (frame, index) => ({
-  input: await sharp(frame, { raw: { width, height, channels: 4 } }).extract(crop).png().toBuffer(),
-  left: index * crop.width,
-  top: 0,
-})))
-await sharp({ create: { width: crop.width * count, height: crop.height, channels: 4, background: '#00000000' } })
+const crop = keepBackground
+  ? { left: 0, top: 0, width, height }
+  : { left, top, width: Math.min(width, right + 3) - left, height: Math.min(height, bottom + 3) - top }
+const stripWidth = crop.width * steps
+if (stripWidth > 16383)
+  throw new Error(`Animation strip exceeds WebP's width limit: ${stripWidth}px`)
+const cels = await Promise.all(frames.map(frame => sharp(frame, { raw: { width, height, channels: 4 } }).extract(crop).png().toBuffer()))
+let leftOffset = 0
+const inputs = cels.flatMap((input, index) => Array.from({ length: delays[index] / step }, () => {
+  const left = leftOffset
+  leftOffset += crop.width
+  return { input, left, top: 0 }
+}))
+await sharp({ create: { width: stripWidth, height: crop.height, channels: 4, background: '#00000000' } })
   .composite(inputs)
   .webp({ lossless: true })
   .toFile(new URL('rest-strip.webp', directory).pathname)
-await sharp(inputs[0].input).webp({ lossless: true }).toFile(new URL('poster.webp', directory).pathname)
-await writeFile(new URL('animation.json', directory), `${JSON.stringify({ width: crop.width, height: crop.height, count, duration: delays.reduce((sum, value) => sum + value, 0) }, null, 2)}\n`)
-console.log(`${id}: ${count} original cels, ${delays[0]} ms per frame, ${crop.width} × ${crop.height}; white matte removed`)
+await sharp(cels[0]).webp({ lossless: true }).toFile(new URL('poster.webp', directory).pathname)
+await writeFile(new URL('animation.json', directory), `${JSON.stringify({ width: crop.width, height: crop.height, count: steps, duration }, null, 2)}\n`)
+console.log(`${id}: ${count} original cels, ${steps} steps at ${step} ms, ${crop.width} × ${crop.height}; ${keepBackground ? 'background preserved' : 'white matte removed'}`)

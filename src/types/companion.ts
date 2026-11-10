@@ -7,12 +7,14 @@ export interface CompanionProps {
 export interface XiaoheiSelection {
   mode: 'fixed' | 'daily'
   fixed: string
+  startsOn: string
   enabled: readonly string[]
 }
 
 export interface XiaoheiAnimation {
   id: string
   name: string
+  characterName?: string
   width: number
   height: number
   count: number

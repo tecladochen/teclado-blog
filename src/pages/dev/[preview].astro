@@ -3,6 +3,7 @@ import { siteLifetimeConfig, xiaoheiConfig } from '~/.config/user'
 import { xiaoheiAnimations } from '~/assets/companions/xiaohei/catalog'
 import XiaoheiCompanion from '~/components/companions/XiaoheiCompanion.astro'
 import { getSiteDays } from '~/utils/siteLifetime'
+import { getXiaoheiRotation } from '~/utils/xiaoheiSelection'
 import '@fontsource-variable/inter/wght.css'
 import '@fontsource-variable/jetbrains-mono/wght.css'
 import '~/styles/global.css'
@@ -13,6 +14,10 @@ export function getStaticPaths() {
 }
 
 const siteDays = getSiteDays(siteLifetimeConfig.startedOn, new Date(), siteLifetimeConfig.timeZone)
+const catalog = new Map(xiaoheiAnimations.map(animation => [animation.id, animation]))
+const rotation = getXiaoheiRotation(xiaoheiConfig, [...catalog.keys()]).map(id => catalog.get(id)!)
+const weekLength = 7
+const weeks = Array.from({ length: Math.ceil(rotation.length / weekLength) }, (_, index) => rotation.slice(index * weekLength, (index + 1) * weekLength))
 ---
 
 <html lang="zh-CN">
@@ -25,21 +30,26 @@ const siteDays = getSiteDays(siteLifetimeConfig.startedOn, new Date(), siteLifet
   <body>
     <main class="preview">
       <header>
-        <div><p class="eyebrow">TECLADO / 小黑的日常</p><h1>今天，哪只小黑陪你？</h1><p>你选中的 {xiaoheiAnimations.length} 个动作，配上同一份简单的日历。</p></div>
+        <div><p class="eyebrow">TECLADO / 小黑的日常</p><h1>小黑和朋友们</h1><p>从 {xiaoheiConfig.startsOn} 起，按上海日期每天换一个动作，{rotation.length} 天一轮。</p></div>
         <button type="button" data-preview-theme aria-pressed="false">深色背景</button>
       </header>
-      <div class="poses">
-        {xiaoheiAnimations.map(animation => (
-          <section class="pose">
-            <div class="pose-heading"><span>{animation.id}</span><h2>{animation.name}</h2></div>
-            <aside data-site-companion data-variant="xiaohei" data-paused="true" aria-label={animation.name}>
-              <XiaoheiCompanion animationId={animation.id} siteDays={siteDays} />
-            </aside>
-            <a href={`/?xiaohei=${animation.id}`} data-no-swup>放到首页看看 <span aria-hidden="true">↗</span></a>
-          </section>
-        ))}
-      </div>
-      <footer><a href="/" data-no-swup>返回当前网站</a><span>{xiaoheiConfig.mode === 'daily' ? '已启用每日切换 · 当天固定一只' : `目前固定显示 ${xiaoheiConfig.fixed} · 每日切换已准备好`}</span></footer>
+      {weeks.map((animations, week) => (
+        <section class="preview-group" id={`rotation-week-${week + 1}`}>
+          <h2>第 {week + 1} 周</h2>
+          <div class="poses">
+            {animations.map((animation, index) => (
+              <section class="pose" id={`preview-${animation.id}`}>
+                <div class="pose-heading"><span>第 {week * weekLength + index + 1} 天 · {animation.id}</span><h3>{animation.name}</h3></div>
+                <aside data-site-companion data-variant="xiaohei" data-paused="true" aria-label={animation.name}>
+                  <XiaoheiCompanion animationId={animation.id} siteDays={siteDays} />
+                </aside>
+                <a href={`/?xiaohei=${animation.id}`} data-no-swup>放到首页看看 <span aria-hidden="true">↗</span></a>
+              </section>
+            ))}
+          </div>
+        </section>
+      ))}
+      <footer><a href="/" data-no-swup>返回当前网站</a><span>{xiaoheiConfig.mode === 'daily' ? '已启用每日切换 · 按上面的顺序循环' : `目前固定显示 ${xiaoheiConfig.fixed}`}</span></footer>
     </main>
     <script>
       import { setupSiteCompanions } from '~/scripts/siteCompanion'
@@ -62,12 +72,14 @@ const siteDays = getSiteDays(siteLifetimeConfig.startedOn, new Date(), siteLifet
   h1 { margin: 12px 0; font-family: 'Songti SC', serif; font-size: 29px; font-weight: 400; }
   header p:not(.eyebrow), footer { font-size: 12px; opacity: .65; }
   header button { flex-shrink: 0; padding: 8px 12px; border: 1px solid #87867740; border-radius: 20px; background: none; font: inherit; font-size: 11px; cursor: pointer; }
+  .preview-group + .preview-group { margin-top: 36px; }
+  .preview-group > h2 { margin: 0 0 15px; font-size: 15px; font-weight: 500; }
   .poses { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 18px; }
   .pose { display: flex; flex-direction: column; align-items: center; min-width: 0; padding: 18px 10px 16px; border: 1px solid #87867730; border-radius: 14px; background: #ffffff55; }
   :global(.dark) .pose { background: #ffffff04; }
-  .pose-heading { align-self: stretch; display: flex; align-items: baseline; gap: 8px; margin-bottom: 25px; padding: 0 4px; }
-  .pose-heading > span { font-family: 'JetBrains Mono Variable', monospace; font-size: 10px; opacity: .45; }
-  h2 { margin: 0; font-size: 12px; font-weight: 400; opacity: .75; }
+  .pose-heading { align-self: stretch; display: grid; gap: 4px; margin-bottom: 25px; padding: 0 4px; }
+  .pose-heading > span { font-family: 'JetBrains Mono Variable', monospace; font-size: 10px; white-space: nowrap; opacity: .55; }
+  h3 { margin: 0; font-size: 12px; font-weight: 400; opacity: .75; }
   aside { width: 160px; }
   .pose > a { margin-top: 26px; font-size: 10px; opacity: .6; }
   footer { display: flex; justify-content: space-between; gap: 16px; margin-top: 30px; }

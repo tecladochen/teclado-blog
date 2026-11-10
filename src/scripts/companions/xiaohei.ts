@@ -3,10 +3,13 @@ import { xiaoheiConfig } from '~/.config/user'
 import { xiaoheiAnimations } from '~/assets/companions/xiaohei/catalog'
 import { selectXiaoheiAnimation } from '~/utils/xiaoheiSelection'
 
+const animationIds = xiaoheiAnimations.map(item => item.id)
+
 /** The source cels play unchanged; greetings do not restart the animation. */
 export function mountXiaohei(companion: HTMLElement, signal: AbortSignal) {
   const xiaohei = companion.querySelector<HTMLElement>('[data-xiaohei]')
   const touch = xiaohei?.querySelector<HTMLButtonElement>('[data-xiaohei-touch]')
+  const pause = companion.querySelector<HTMLButtonElement>('[data-companion-pause]')
   const response = xiaohei?.querySelector<HTMLElement>('[data-xiaohei-response]')
   const character = xiaohei?.querySelector<HTMLElement>('[data-xiaohei-character]')
   const initialStrip = xiaohei?.querySelector<HTMLImageElement>('[data-xiaohei-strip]')
@@ -25,10 +28,19 @@ export function mountXiaohei(companion: HTMLElement, signal: AbortSignal) {
 
   function updateDate(date: string) {
     // The preview URL is development-only; production follows the site config.
-    const override = xiaohei!.dataset.animationOverride ?? (import.meta.env.DEV ? new URLSearchParams(window.location.search).get('xiaohei') : null)
-    const id = override ?? selectXiaoheiAnimation(xiaoheiConfig, xiaoheiAnimations.map(item => item.id), date)
-    const next = xiaoheiAnimations.find(item => item.id === id) ?? xiaoheiAnimations[0]
-    if (next.id === pending)
+    const override = import.meta.env.DEV
+      ? xiaohei!.dataset.animationOverride ?? new URLSearchParams(window.location.search).get('xiaohei')
+      : null
+    const id = override && animationIds.includes(override)
+      ? override
+      : selectXiaoheiAnimation(xiaoheiConfig, animationIds, date)
+    const next = xiaoheiAnimations.find(item => item.id === id)
+    if (next)
+      loadAnimation(next)
+  }
+
+  function loadAnimation(next: XiaoheiAnimation) {
+    if (disposed || next.id === pending)
       return
     const version = ++request
     pending = undefined
@@ -81,6 +93,15 @@ export function mountXiaohei(companion: HTMLElement, signal: AbortSignal) {
     poster = nextPoster
     xiaohei!.dataset.animationId = animation.id
     active = animation
+    const characterName = animation.characterName ?? '小黑'
+    const touchLabel = `和${characterName}打招呼`
+    touch!.setAttribute('aria-label', touchLabel)
+    touch!.title = touchLabel
+    if (pause) {
+      pause.dataset.companionName = characterName
+      const action = pause.getAttribute('aria-pressed') === 'true' ? '继续' : '暂停'
+      pause.setAttribute('aria-label', `${action}${characterName}的动作`)
+    }
     touch!.disabled = false
     greeting = 0
     window.clearTimeout(timer)
